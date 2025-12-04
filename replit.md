@@ -106,7 +106,11 @@ The application requires the following environment variables:
 - `APP_KEY` - Laravel encryption key
 - `APP_URL` - Application URL
 - `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` - Database connection
-- `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` - Stripe integration
+
+## Stripe Integration
+- Stripe credentials are configured in .env file (STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY)
+- Plans automatically sync to Stripe when created or updated via the admin panel
+- 4 default plans created: Starter ($19), Growth ($49), Agency ($99), Enterprise (contact-only)
 
 ## Development Commands
 ```bash
@@ -138,3 +142,7 @@ php artisan view:clear
 - Initial setup for Replit environment (December 2024)
 - Configured Vite for Replit proxy support
 - Set up workflow on port 5000
+- Fixed tooltip CSS in subscription plan forms to display horizontally (December 2024)
+- StripeService uses .env credentials (STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY)
+- Plans now automatically sync to both Stripe and database when created/updated
+- Created 4 subscription plans: Starter, Growth, Agency, Enterprise

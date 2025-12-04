@@ -8,9 +8,9 @@
 .tooltip-icon { cursor: help; color: #9ca3af; margin-left: 4px; }
 .tooltip-icon:hover { color: #6b7280; }
 .tooltip-text {
-    visibility: hidden; opacity: 0; position: absolute; left: 100%; top: 50%; transform: translateY(-50%);
+    visibility: hidden; opacity: 0; position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%);
     background-color: #1f2937; color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px;
-    z-index: 50; margin-left: 8px; max-width: 280px; white-space: normal; text-align: left;
+    z-index: 50; width: max-content; max-width: 280px; white-space: normal; word-break: break-word; text-align: left;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: opacity 0.15s ease-in-out;
 }
 .tooltip-text::after {
