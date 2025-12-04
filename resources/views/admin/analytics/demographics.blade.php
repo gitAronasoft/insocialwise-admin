@@ -1,0 +1,76 @@
+@extends('admin.layouts.app')
+
+@section('title', 'Demographics Analytics')
+
+@section('content')
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">Demographics Analytics</h3>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Page</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Platform</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Age/Gender</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Country</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">City</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($demographics as $demo)
+                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                            <td class="px-6 py-4 text-gray-900">
+                                {{ $demo->customer->firstName ?? 'N/A' }} {{ $demo->customer->lastName ?? '' }}
+                            </td>
+                            <td class="px-6 py-4 text-gray-700">
+                                {{ $demo->page->pageName ?? 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    {{ ucfirst($demo->platform) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">{{ $demo->date ? \Carbon\Carbon::parse($demo->date)->format('M d, Y') : 'N/A' }}</td>
+                            <td class="px-6 py-4 text-gray-600">
+                                @if(is_array($demo->age_gender) && count($demo->age_gender) > 0)
+                                    @foreach(array_slice($demo->age_gender, 0, 2) as $item)
+                                        <span class="block text-xs">{{ $item }}</span>
+                                    @endforeach
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">
+                                @if(is_array($demo->country) && count($demo->country) > 0)
+                                    {{ implode(', ', array_slice($demo->country, 0, 2)) }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">
+                                @if(is_array($demo->city) && count($demo->city) > 0)
+                                    {{ implode(', ', array_slice($demo->city, 0, 2)) }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                                No demographics data available.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@endsection

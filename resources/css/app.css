@@ -1,0 +1,305 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --sidebar-width: 16rem;
+        --sidebar-collapsed-width: 5rem;
+        --header-height: 4rem;
+    }
+
+    html {
+        @apply scroll-smooth;
+    }
+
+    body {
+        @apply antialiased;
+    }
+
+    .dark body {
+        @apply bg-gray-900 text-gray-100;
+    }
+}
+
+@layer components {
+    .sidebar {
+        @apply fixed left-0 top-0 h-screen bg-white dark:bg-gray-800 shadow-xl z-40 overflow-hidden;
+        transition: width 0.3s ease-in-out;
+    }
+
+    .sidebar.expanded {
+        width: var(--sidebar-width);
+    }
+
+    .sidebar.collapsed {
+        width: var(--sidebar-collapsed-width);
+    }
+
+    .sidebar-overlay {
+        @apply fixed inset-0 bg-black/50 z-30 lg:hidden transition-opacity duration-300;
+    }
+
+    .nav-link {
+        @apply flex items-center px-4 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 
+               hover:bg-primary-50 dark:hover:bg-gray-700 transition-all duration-200 
+               font-medium text-sm;
+    }
+
+    .nav-link.active {
+        @apply bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 
+               border-l-4 border-primary-500 -ml-1 pl-5;
+    }
+
+    .nav-link svg {
+        @apply w-5 h-5 flex-shrink-0;
+    }
+
+    .nav-link span {
+        @apply ml-3 whitespace-nowrap;
+    }
+
+    .nav-group-title {
+        @apply px-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-6 mb-2;
+    }
+
+    .stat-card {
+        @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 
+               p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+    }
+
+    .stat-card-icon {
+        @apply w-12 h-12 rounded-xl flex items-center justify-center;
+    }
+
+    .stat-card-value {
+        @apply text-2xl font-bold text-gray-900 dark:text-white mt-4;
+    }
+
+    .stat-card-label {
+        @apply text-sm text-gray-500 dark:text-gray-400 mt-1;
+    }
+
+    .stat-card-trend {
+        @apply text-xs font-medium mt-2 flex items-center;
+    }
+
+    .stat-card-trend.positive {
+        @apply text-green-600 dark:text-green-400;
+    }
+
+    .stat-card-trend.negative {
+        @apply text-red-600 dark:text-red-400;
+    }
+
+    .data-table {
+        @apply w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden;
+    }
+
+    .data-table thead {
+        @apply bg-gray-50 dark:bg-gray-700/50;
+    }
+
+    .data-table th {
+        @apply px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider;
+    }
+
+    .data-table tbody tr {
+        @apply border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 
+               transition-colors duration-150;
+    }
+
+    .data-table td {
+        @apply px-6 py-4 text-sm text-gray-700 dark:text-gray-300;
+    }
+
+    .form-input {
+        @apply w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
+               bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+               focus:ring-2 focus:ring-primary-500 focus:border-primary-500 
+               placeholder-gray-400 dark:placeholder-gray-500
+               transition-all duration-200;
+    }
+
+    .form-label {
+        @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
+    }
+
+    .form-select {
+        @apply form-input appearance-none bg-no-repeat cursor-pointer;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+    }
+
+    .btn {
+        @apply inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium text-sm
+               transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+               disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+
+    .btn-primary {
+        @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500
+               dark:bg-primary-500 dark:hover:bg-primary-600;
+    }
+
+    .btn-secondary {
+        @apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500
+               dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600;
+    }
+
+    .btn-danger {
+        @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+    }
+
+    .btn-success {
+        @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
+    }
+
+    .dropdown-menu {
+        @apply absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg 
+               border border-gray-200 dark:border-gray-700 py-2 z-50 
+               animate-fade-in origin-top-right;
+    }
+
+    .dropdown-item {
+        @apply block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 
+               hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150;
+    }
+
+    .dropdown-divider {
+        @apply my-2 border-t border-gray-200 dark:border-gray-700;
+    }
+
+    .badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+
+    .badge-primary {
+        @apply bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400;
+    }
+
+    .badge-success {
+        @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400;
+    }
+
+    .badge-warning {
+        @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400;
+    }
+
+    .badge-danger {
+        @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400;
+    }
+
+    .badge-gray {
+        @apply bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300;
+    }
+
+    .toast {
+        @apply fixed bottom-4 right-4 px-6 py-4 rounded-xl shadow-lg z-50 
+               flex items-center space-x-3 animate-slide-in-right;
+    }
+
+    .toast-success {
+        @apply bg-green-600 text-white;
+    }
+
+    .toast-error {
+        @apply bg-red-600 text-white;
+    }
+
+    .toast-info {
+        @apply bg-blue-600 text-white;
+    }
+
+    .toast-warning {
+        @apply bg-yellow-500 text-white;
+    }
+
+    .card {
+        @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700;
+    }
+
+    .card-header {
+        @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
+    }
+
+    .card-body {
+        @apply p-6;
+    }
+
+    .card-footer {
+        @apply px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30;
+    }
+}
+
+@layer utilities {
+    .loading {
+        @apply relative pointer-events-none;
+    }
+
+    .loading::after {
+        content: '';
+        @apply absolute inset-0 bg-white/50 dark:bg-gray-900/50 flex items-center justify-center;
+    }
+
+    .loading::before {
+        content: '';
+        @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 
+               border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin z-10;
+    }
+
+    .skeleton {
+        @apply bg-gray-200 dark:bg-gray-700 rounded animate-pulse;
+    }
+
+    .truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .truncate-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: theme('colors.gray.400') transparent;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color: theme('colors.gray.400');
+        border-radius: 3px;
+    }
+
+    .dark .scrollbar-thin {
+        scrollbar-color: theme('colors.gray.600') transparent;
+    }
+
+    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color: theme('colors.gray.600');
+    }
+
+    .transition-dark {
+        @apply transition-colors duration-300;
+    }
+
+    .glass {
+        @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg;
+    }
+}
