@@ -21,7 +21,7 @@
         }
     </script>
 </head>
-<body class="font-sans antialiased bg-gray-100 dark:bg-gray-900 transition-dark">
+<body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 transition-dark">
     <div x-data class="min-h-screen">
         <div x-show="$store.sidebar.mobileOpen" 
              @click="$store.sidebar.closeMobile()" 
@@ -40,22 +40,22 @@
                    '-translate-x-full lg:translate-x-0': !$store.sidebar.mobileOpen
                }" 
                class="sidebar transition-all duration-300 ease-in-out">
-            <div class="flex flex-col h-full">
-                <div class="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col h-full relative z-10">
+                <div class="flex items-center h-16 px-4 border-b border-slate-700/50">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary-500/30">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
                         </div>
                         <div x-show="$store.sidebar.expanded" x-transition class="overflow-hidden">
-                            <h1 class="text-lg font-bold text-gray-900 dark:text-white whitespace-nowrap">InSocialWise</h1>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Admin Panel</p>
+                            <h1 class="text-lg font-bold text-white whitespace-nowrap">InSocialWise</h1>
+                            <p class="text-xs text-slate-400">Admin Panel</p>
                         </div>
                     </div>
                 </div>
 
-                <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin">
+                <nav class="flex-1 py-4 space-y-1 overflow-y-auto scrollbar-thin">
                     <a href="{{ route('admin.dashboard') }}" 
                        class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
                        title="Dashboard">
@@ -295,9 +295,9 @@
                     </div>
                 </nav>
 
-                <div class="p-3 border-t border-gray-200 dark:border-gray-700">
+                <div class="p-3 border-t border-slate-700/50">
                     <button @click="$store.sidebar.toggle()" 
-                            class="hidden lg:flex w-full items-center justify-center p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            class="hidden lg:flex w-full items-center justify-center p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-all duration-200"
                             title="Toggle sidebar">
                         <svg x-show="$store.sidebar.expanded" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
@@ -312,7 +312,7 @@
 
         <div :class="{ 'lg:ml-64': $store.sidebar.expanded, 'lg:ml-20': !$store.sidebar.expanded }" 
              class="flex-1 transition-all duration-300">
-            <header class="sticky top-0 z-30 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+            <header class="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50">
                 <div class="flex items-center justify-between h-16 px-4 lg:px-6">
                     <div class="flex items-center space-x-4">
                         <button @click="$store.sidebar.toggleMobile()" 
@@ -441,81 +441,76 @@
             </header>
 
             <main class="p-4 lg:p-6">
-                @if(session('success'))
-                    <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-xl flex items-center" role="alert">
-                        <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>{{ session('success') }}</span>
-                    </div>
-                @endif
-                
-                @if(session('error'))
-                    <div class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl flex items-center" role="alert">
-                        <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>{{ session('error') }}</span>
-                    </div>
-                @endif
-                
-                @if(session('info'))
-                    <div class="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400 px-4 py-3 rounded-xl flex items-center" role="alert">
-                        <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>{{ session('info') }}</span>
-                    </div>
-                @endif
-
-                @yield('content')
+                <div class="page-enter">
+                    @yield('content')
+                </div>
             </main>
+            
+            @if(session('success') || session('error') || session('warning') || session('info'))
+            <script>
+                document.addEventListener('alpine:initialized', function() {
+                    @if(session('success'))
+                        Alpine.store('toast').success(@json(session('success')));
+                    @endif
+                    @if(session('error'))
+                        Alpine.store('toast').error(@json(session('error')));
+                    @endif
+                    @if(session('warning'))
+                        Alpine.store('toast').warning(@json(session('warning')));
+                    @endif
+                    @if(session('info'))
+                        Alpine.store('toast').info(@json(session('info')));
+                    @endif
+                });
+            </script>
+            @endif
         </div>
 
-        <div x-data 
-             x-show="$store.toast.notifications.length > 0" 
-             class="fixed bottom-4 right-4 z-50 space-y-2">
+        <div x-data class="toast-container">
             <template x-for="notification in $store.toast.notifications" :key="notification.id">
-                <div x-show="true"
-                     x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 translate-x-full"
-                     x-transition:enter-end="opacity-100 translate-x-0"
-                     x-transition:leave="transition ease-in duration-200"
-                     x-transition:leave-start="opacity-100 translate-x-0"
-                     x-transition:leave-end="opacity-0 translate-x-full"
-                     :class="{
-                         'bg-green-600': notification.type === 'success',
-                         'bg-red-600': notification.type === 'error',
-                         'bg-blue-600': notification.type === 'info',
-                         'bg-yellow-500': notification.type === 'warning'
-                     }"
-                     class="flex items-center px-6 py-4 rounded-xl shadow-lg text-white">
-                    <template x-if="notification.type === 'success'">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </template>
-                    <template x-if="notification.type === 'error'">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </template>
-                    <template x-if="notification.type === 'info'">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </template>
-                    <template x-if="notification.type === 'warning'">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                        </svg>
-                    </template>
-                    <span x-text="notification.message"></span>
-                    <button @click="$store.toast.dismiss(notification.id)" class="ml-4 hover:opacity-75">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
+                <div class="toast"
+                     :class="[
+                         'toast-' + notification.type,
+                         notification.entering ? 'toast-entering' : '',
+                         notification.leaving ? 'toast-leaving' : '',
+                         !notification.entering && !notification.leaving ? 'toast-visible' : ''
+                     ]"
+                     role="alert"
+                     aria-live="assertive">
+                    <div class="toast-content">
+                        <template x-if="notification.type === 'success'">
+                            <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </template>
+                        <template x-if="notification.type === 'error'">
+                            <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </template>
+                        <template x-if="notification.type === 'warning'">
+                            <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                        </template>
+                        <template x-if="notification.type === 'info'">
+                            <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </template>
+                        <div class="toast-body">
+                            <p class="toast-title" x-text="notification.title"></p>
+                            <p class="toast-message" x-text="notification.message"></p>
+                        </div>
+                        <button x-show="notification.dismissible" 
+                                @click="$store.toast.dismiss(notification.id)" 
+                                class="toast-dismiss"
+                                aria-label="Dismiss">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </template>
         </div>

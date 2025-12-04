@@ -5,13 +5,13 @@
 @section('content')
 <div x-data="dashboardData()" x-init="init()" class="space-y-6">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors">
+        <div class="stat-card hover-lift bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 cursor-pointer" onclick="window.location='{{ route('admin.customers.index') }}'">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Customers</p>
                     <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ number_format($stats['total_customers']) }}</p>
                 </div>
-                <div class="p-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-full">
+                <div class="p-3 bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/50 dark:to-indigo-800/50 rounded-xl">
                     <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                     </svg>
@@ -22,13 +22,13 @@
             </p>
         </div>
 
-        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors">
+        <div class="stat-card hover-lift bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 cursor-pointer" onclick="window.location='{{ route('admin.subscriptions.index') }}'">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Active Subscriptions</p>
                     <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ number_format($stats['active_subscriptions']) }}</p>
                 </div>
-                <div class="p-3 bg-green-100 dark:bg-green-900/50 rounded-full">
+                <div class="p-3 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/50 dark:to-green-800/50 rounded-xl">
                     <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
@@ -39,13 +39,13 @@
             </p>
         </div>
 
-        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors">
+        <div class="stat-card hover-lift bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 cursor-pointer" onclick="window.location='{{ route('admin.posts.index') }}'">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Posts</p>
                     <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ number_format($stats['total_posts']) }}</p>
                 </div>
-                <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-full">
+                <div class="p-3 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-800/50 rounded-xl">
                     <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
                     </svg>
@@ -56,13 +56,13 @@
             </p>
         </div>
 
-        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors">
+        <div class="stat-card hover-lift bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 cursor-pointer" onclick="window.location='{{ route('admin.pages.index') }}'">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Connected Pages</p>
                     <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ number_format($stats['total_pages']) }}</p>
                 </div>
-                <div class="p-3 bg-purple-100 dark:bg-purple-900/50 rounded-full">
+                <div class="p-3 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/50 dark:to-purple-800/50 rounded-xl">
                     <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                     </svg>

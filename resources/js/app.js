@@ -71,10 +71,32 @@ Alpine.data('navGroup', (initialOpen = false) => ({
 Alpine.store('toast', {
     notifications: [],
     nextId: 0,
+    maxNotifications: 5,
     
-    show(message, type = 'info', duration = 5000) {
+    show(message, type = 'info', options = {}) {
         const id = this.nextId++;
-        this.notifications.push({ id, message, type });
+        const duration = options.duration ?? 5000;
+        const title = options.title ?? this.getDefaultTitle(type);
+        const dismissible = options.dismissible ?? true;
+        
+        if (this.notifications.length >= this.maxNotifications) {
+            this.notifications.shift();
+        }
+        
+        this.notifications.push({ 
+            id, 
+            message, 
+            type, 
+            title,
+            dismissible,
+            entering: true,
+            leaving: false
+        });
+        
+        setTimeout(() => {
+            const notification = this.notifications.find(n => n.id === id);
+            if (notification) notification.entering = false;
+        }, 50);
         
         if (duration > 0) {
             setTimeout(() => {
@@ -85,27 +107,51 @@ Alpine.store('toast', {
         return id;
     },
     
+    getDefaultTitle(type) {
+        const titles = {
+            success: 'Success',
+            error: 'Error',
+            warning: 'Warning',
+            info: 'Information'
+        };
+        return titles[type] || 'Notification';
+    },
+    
     dismiss(id) {
-        const index = this.notifications.findIndex(n => n.id === id);
-        if (index > -1) {
-            this.notifications.splice(index, 1);
+        const notification = this.notifications.find(n => n.id === id);
+        if (notification) {
+            notification.leaving = true;
+            setTimeout(() => {
+                const index = this.notifications.findIndex(n => n.id === id);
+                if (index > -1) {
+                    this.notifications.splice(index, 1);
+                }
+            }, 300);
         }
     },
     
-    success(message, duration = 5000) {
-        return this.show(message, 'success', duration);
+    dismissAll() {
+        this.notifications.forEach(n => this.dismiss(n.id));
     },
     
-    error(message, duration = 5000) {
-        return this.show(message, 'error', duration);
+    success(message, options = {}) {
+        return this.show(message, 'success', typeof options === 'number' ? { duration: options } : options);
     },
     
-    info(message, duration = 5000) {
-        return this.show(message, 'info', duration);
+    error(message, options = {}) {
+        const opts = typeof options === 'number' ? { duration: options } : options;
+        opts.duration = opts.duration ?? 8000;
+        return this.show(message, 'error', opts);
     },
     
-    warning(message, duration = 5000) {
-        return this.show(message, 'warning', duration);
+    info(message, options = {}) {
+        return this.show(message, 'info', typeof options === 'number' ? { duration: options } : options);
+    },
+    
+    warning(message, options = {}) {
+        const opts = typeof options === 'number' ? { duration: options } : options;
+        opts.duration = opts.duration ?? 6000;
+        return this.show(message, 'warning', opts);
     }
 });
 
@@ -185,6 +231,55 @@ if (Alpine.store('darkMode')) {
 
 Alpine.start();
 
-window.showToast = function(message, type = 'info', duration = 5000) {
-    Alpine.store('toast').show(message, type, duration);
+window.showToast = function(message, type = 'info', options = {}) {
+    if (typeof options === 'number') {
+        options = { duration: options };
+    }
+    Alpine.store('toast').show(message, type, options);
 };
+
+window.handleApiError = function(error, defaultMessage = 'An error occurred. Please try again.') {
+    let message = defaultMessage;
+    
+    if (error.response) {
+        if (error.response.data && error.response.data.message) {
+            message = error.response.data.message;
+        } else if (error.response.status === 401) {
+            message = 'Your session has expired. Please log in again.';
+            setTimeout(() => window.location.reload(), 2000);
+        } else if (error.response.status === 403) {
+            message = 'You do not have permission to perform this action.';
+        } else if (error.response.status === 404) {
+            message = 'The requested resource was not found.';
+        } else if (error.response.status === 422) {
+            const errors = error.response.data.errors;
+            if (errors) {
+                message = Object.values(errors).flat().join(' ');
+            }
+        } else if (error.response.status >= 500) {
+            message = 'Server error. Please try again later.';
+        }
+    } else if (error.message) {
+        message = error.message;
+    }
+    
+    Alpine.store('toast').error(message);
+    return message;
+};
+
+window.handleApiSuccess = function(response, defaultMessage = 'Operation completed successfully.') {
+    const message = response?.data?.message || response?.message || defaultMessage;
+    Alpine.store('toast').success(message);
+    return message;
+};
+
+window.axios.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response?.status === 401) {
+            Alpine.store('toast').error('Your session has expired. Redirecting to login...', { duration: 3000 });
+            setTimeout(() => window.location.href = '/admin/login', 2000);
+        }
+        return Promise.reject(error);
+    }
+);
