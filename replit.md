@@ -132,6 +132,7 @@ php artisan view:clear
 - Dark mode support with system preference detection
 - Collapsible sidebar navigation
 - Responsive design for mobile/tablet
+- **IMPORTANT**: Always run `npm run build` for Vite before starting Laravel server
 
 ## Recent Changes
 - Initial setup for Replit environment (December 2024)

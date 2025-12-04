@@ -5,17 +5,17 @@
 @section('content')
 <style>
 .tooltip-wrapper { position: relative; display: inline-flex; align-items: center; }
-.tooltip-icon { cursor: help; color: #9ca3af; }
+.tooltip-icon { cursor: help; color: #9ca3af; margin-left: 4px; }
 .tooltip-icon:hover { color: #6b7280; }
 .tooltip-text {
-    visibility: hidden; opacity: 0; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    visibility: hidden; opacity: 0; position: absolute; left: 100%; top: 50%; transform: translateY(-50%);
     background-color: #1f2937; color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px;
-    z-index: 50; margin-bottom: 8px; max-width: 280px; white-space: normal; text-align: center;
+    z-index: 50; margin-left: 8px; max-width: 280px; white-space: normal; text-align: left;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: opacity 0.15s ease-in-out;
 }
 .tooltip-text::after {
-    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-    border-width: 6px; border-style: solid; border-color: #1f2937 transparent transparent transparent;
+    content: ''; position: absolute; right: 100%; top: 50%; transform: translateY(-50%);
+    border-width: 6px; border-style: solid; border-color: transparent #1f2937 transparent transparent;
 }
 .tooltip-wrapper:hover .tooltip-text { visibility: visible; opacity: 1; }
 </style>
@@ -260,14 +260,14 @@
                     <input type="checkbox" name="ai_content_generator" value="1" {{ old('ai_content_generator', $plan->ai_content_generator) ? 'checked' : '' }}
                         class="h-5 w-5 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded">
                 </label>
-                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                    <label class="block font-medium text-gray-900 dark:text-white mb-2">Social Profile Score</label>
-                    <select name="social_profile_score" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
-                        @foreach($profileScoreOptions ?? ['none' => 'Not Available', 'basic' => 'Basic', 'full' => 'Full'] as $key => $label)
-                        <option value="{{ $key }}" {{ old('social_profile_score', $plan->social_profile_score) === $key ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                <label class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <div>
+                        <span class="font-medium text-gray-900 dark:text-white">Social Profile Score</span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Profile scoring analytics</p>
+                    </div>
+                    <input type="checkbox" name="social_profile_score" value="1" {{ old('social_profile_score', $plan->social_profile_score) ? 'checked' : '' }}
+                        class="h-5 w-5 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded">
+                </label>
             </div>
         </div>
 
@@ -277,22 +277,22 @@
                 Core Platform Features
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                    <label class="block font-medium text-gray-900 dark:text-white mb-2">Calendar & Scheduling</label>
-                    <select name="calendar_scheduling" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
-                        @foreach($calendarOptions ?? ['none' => 'Not Available', 'basic' => 'Basic', 'advanced' => 'Advanced + Bulk'] as $key => $label)
-                        <option value="{{ $key }}" {{ old('calendar_scheduling', $plan->calendar_scheduling) === $key ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                    <label class="block font-medium text-gray-900 dark:text-white mb-2">Export Reports</label>
-                    <select name="export_reports" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
-                        @foreach($exportOptions ?? ['none' => 'Not Available', 'basic' => 'PDF/CSV', 'white_label' => 'White-Label'] as $key => $label)
-                        <option value="{{ $key }}" {{ old('export_reports', $plan->export_reports) === $key ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                <label class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <div>
+                        <span class="font-medium text-gray-900 dark:text-white">Calendar & Scheduling</span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Post scheduling features</p>
+                    </div>
+                    <input type="checkbox" name="calendar_scheduling" value="1" {{ old('calendar_scheduling', $plan->calendar_scheduling) ? 'checked' : '' }}
+                        class="h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
+                </label>
+                <label class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <div>
+                        <span class="font-medium text-gray-900 dark:text-white">Export Reports</span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">PDF/CSV report exports</p>
+                    </div>
+                    <input type="checkbox" name="export_reports" value="1" {{ old('export_reports', $plan->export_reports) ? 'checked' : '' }}
+                        class="h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
+                </label>
                 <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
                     <label class="block font-medium text-gray-900 dark:text-white mb-2">Support Level</label>
                     <select name="support_level" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">

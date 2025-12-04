@@ -281,11 +281,10 @@ class SubscriptionPlanController extends Controller
             'ai_semantic_analysis' => 'boolean',
             'ai_driven_reporting' => 'boolean',
             'ai_content_generator' => 'boolean',
-            'social_profile_score' => 'nullable|string|in:none,basic,full',
-            
-            'calendar_scheduling' => 'nullable|string|in:none,basic,advanced',
+            'social_profile_score' => 'boolean',
+            'calendar_scheduling' => 'boolean',
             'unified_inbox' => 'boolean',
-            'export_reports' => 'nullable|string|in:none,basic,white_label',
+            'export_reports' => 'boolean',
             'white_label' => 'boolean',
             'fb_ads_analytics' => 'boolean',
             'fb_ads_creation' => 'boolean',
@@ -347,9 +346,9 @@ class SubscriptionPlanController extends Controller
         $validated['team_roles_permissions'] = $request->has('team_roles_permissions');
         $validated['client_workspaces'] = $request->has('client_workspaces');
         
-        $validated['social_profile_score'] = $request->input('social_profile_score', 'none');
-        $validated['calendar_scheduling'] = $request->input('calendar_scheduling', 'none');
-        $validated['export_reports'] = $request->input('export_reports', 'none');
+        $validated['social_profile_score'] = $request->has('social_profile_score');
+        $validated['calendar_scheduling'] = $request->has('calendar_scheduling');
+        $validated['export_reports'] = $request->has('export_reports');
         $validated['support_level'] = $request->input('support_level', 'standard');
         
         $validated['price'] = $validated['price'] ?? 0;

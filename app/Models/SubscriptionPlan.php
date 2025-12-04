@@ -79,7 +79,10 @@ class SubscriptionPlan extends Model
         'ai_semantic_analysis' => 'boolean',
         'ai_driven_reporting' => 'boolean',
         'ai_content_generator' => 'boolean',
+        'calendar_scheduling' => 'boolean',
+        'social_profile_score' => 'boolean',
         'unified_inbox' => 'boolean',
+        'export_reports' => 'boolean',
         'white_label' => 'boolean',
         'fb_ads_analytics' => 'boolean',
         'fb_ads_creation' => 'boolean',
@@ -305,32 +308,17 @@ class SubscriptionPlan extends Model
 
     public function getCalendarSchedulingLabelAttribute(): string
     {
-        return match ($this->calendar_scheduling) {
-            'none' => 'Not Available',
-            'basic' => 'Basic',
-            'advanced' => 'Advanced + Bulk',
-            default => 'Not Available',
-        };
+        return $this->calendar_scheduling ? 'Enabled' : 'Disabled';
     }
 
     public function getExportReportsLabelAttribute(): string
     {
-        return match ($this->export_reports) {
-            'none' => 'Not Available',
-            'basic' => 'PDF/CSV',
-            'white_label' => 'White-Label',
-            default => 'Not Available',
-        };
+        return $this->export_reports ? 'Enabled' : 'Disabled';
     }
 
     public function getSocialProfileScoreLabelAttribute(): string
     {
-        return match ($this->social_profile_score) {
-            'none' => 'Not Available',
-            'basic' => 'Basic',
-            'full' => 'Full',
-            default => 'Not Available',
-        };
+        return $this->social_profile_score ? 'Enabled' : 'Disabled';
     }
 
     public function subscriptions()
