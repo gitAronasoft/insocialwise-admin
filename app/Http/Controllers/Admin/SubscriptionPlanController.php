@@ -8,6 +8,7 @@ use App\Services\StripeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class SubscriptionPlanController extends Controller
 {
@@ -38,58 +39,26 @@ class SubscriptionPlanController extends Controller
     {
         $stripeConfigured = $this->stripeService->isConfigured();
         $platforms = $this->getAvailablePlatforms();
-        return view('admin.subscription-plans.create', compact('stripeConfigured', 'platforms'));
+        $supportLevels = $this->getSupportLevels();
+        $calendarOptions = $this->getCalendarOptions();
+        $exportOptions = $this->getExportOptions();
+        $profileScoreOptions = $this->getProfileScoreOptions();
+        
+        return view('admin.subscription-plans.create', compact(
+            'stripeConfigured', 
+            'platforms',
+            'supportLevels',
+            'calendarOptions',
+            'exportOptions',
+            'profileScoreOptions'
+        ));
     }
 
     public function store(Request $request)
     {
-        $rules = [
-            'name' => 'required|string|max:255',
-            'currency' => 'required|string|size:3',
-            'features' => 'nullable|array',
-            'features.*' => 'string',
-            'description' => 'nullable|string',
-            'active' => 'boolean',
-            'is_featured' => 'boolean',
-            'trial_period_days' => 'nullable|integer|min:0',
-            'trial_enabled' => 'boolean',
-            'skip_trial_discount_enabled' => 'boolean',
-            'skip_trial_discount_percent' => 'nullable|integer|min:0|max:100',
-            'is_contact_only' => 'boolean',
-            'show_on_landing' => 'boolean',
-            'max_social_accounts' => 'nullable|integer|min:-1',
-            'max_team_members' => 'nullable|integer|min:-1',
-            'max_scheduled_posts' => 'nullable|integer|min:-1',
-            'platform_limits' => 'nullable|array',
-            'yearly_price' => 'nullable|numeric|min:0',
-            'yearly_discount_percent' => 'nullable|integer|min:0|max:100',
-        ];
-
-        if (!$request->has('is_contact_only')) {
-            $rules['price'] = 'required|numeric|min:0';
-        } else {
-            $rules['price'] = 'nullable|numeric|min:0';
-        }
-
-        $validated = $request->validate($rules);
-
-        $validated['features'] = array_filter($request->features ?? []);
-        $validated['active'] = $request->has('active');
-        $validated['is_featured'] = $request->has('is_featured');
-        $validated['is_contact_only'] = $request->has('is_contact_only');
-        $validated['show_on_landing'] = $request->has('show_on_landing');
-        $validated['trial_enabled'] = $request->has('trial_enabled');
-        $validated['skip_trial_discount_enabled'] = $request->has('skip_trial_discount_enabled');
+        $validated = $request->validate($this->getValidationRules($request));
+        $validated = $this->processFormData($request, $validated);
         $validated['sort_order'] = SubscriptionPlan::max('sort_order') + 1;
-        $validated['price'] = $validated['price'] ?? 0;
-        
-        $validated['platform_limits'] = $this->processPlatformLimits($request->platform_limits ?? []);
-
-        if ($request->filled('yearly_discount_percent') && $request->filled('price')) {
-            $monthlyPrice = (float)$request->price;
-            $discountPercent = (int)$request->yearly_discount_percent;
-            $validated['yearly_price'] = round($monthlyPrice * 12 * (1 - $discountPercent / 100), 2);
-        }
 
         $plan = SubscriptionPlan::create($validated);
 
@@ -120,61 +89,26 @@ class SubscriptionPlanController extends Controller
     {
         $stripeConfigured = $this->stripeService->isConfigured();
         $platforms = $this->getAvailablePlatforms();
-        return view('admin.subscription-plans.edit', ['plan' => $subscriptionPlan, 'stripeConfigured' => $stripeConfigured, 'platforms' => $platforms]);
+        $supportLevels = $this->getSupportLevels();
+        $calendarOptions = $this->getCalendarOptions();
+        $exportOptions = $this->getExportOptions();
+        $profileScoreOptions = $this->getProfileScoreOptions();
+        
+        return view('admin.subscription-plans.edit', [
+            'plan' => $subscriptionPlan,
+            'stripeConfigured' => $stripeConfigured,
+            'platforms' => $platforms,
+            'supportLevels' => $supportLevels,
+            'calendarOptions' => $calendarOptions,
+            'exportOptions' => $exportOptions,
+            'profileScoreOptions' => $profileScoreOptions,
+        ]);
     }
 
     public function update(Request $request, SubscriptionPlan $subscriptionPlan)
     {
-        $rules = [
-            'name' => 'required|string|max:255',
-            'currency' => 'required|string|size:3',
-            'features' => 'nullable|array',
-            'features.*' => 'string',
-            'description' => 'nullable|string',
-            'active' => 'boolean',
-            'is_featured' => 'boolean',
-            'trial_period_days' => 'nullable|integer|min:0',
-            'trial_enabled' => 'boolean',
-            'skip_trial_discount_enabled' => 'boolean',
-            'skip_trial_discount_percent' => 'nullable|integer|min:0|max:100',
-            'is_contact_only' => 'boolean',
-            'show_on_landing' => 'boolean',
-            'max_social_accounts' => 'nullable|integer|min:-1',
-            'max_team_members' => 'nullable|integer|min:-1',
-            'max_scheduled_posts' => 'nullable|integer|min:-1',
-            'platform_limits' => 'nullable|array',
-            'yearly_price' => 'nullable|numeric|min:0',
-            'yearly_discount_percent' => 'nullable|integer|min:0|max:100',
-        ];
-
-        if (!$request->has('is_contact_only')) {
-            $rules['price'] = 'required|numeric|min:0';
-        } else {
-            $rules['price'] = 'nullable|numeric|min:0';
-        }
-
-        $validated = $request->validate($rules);
-
-        $validated['features'] = array_filter($request->features ?? []);
-        $validated['active'] = $request->has('active');
-        $validated['is_featured'] = $request->has('is_featured');
-        $validated['is_contact_only'] = $request->has('is_contact_only');
-        $validated['show_on_landing'] = $request->has('show_on_landing');
-        $validated['trial_enabled'] = $request->has('trial_enabled');
-        $validated['skip_trial_discount_enabled'] = $request->has('skip_trial_discount_enabled');
-        $validated['price'] = $validated['price'] ?? 0;
-        
-        $validated['platform_limits'] = $this->processPlatformLimits($request->platform_limits ?? []);
-
-        if ($request->filled('yearly_discount_percent') && $request->filled('price')) {
-            $monthlyPrice = (float)$request->price;
-            $discountPercent = (int)$request->yearly_discount_percent;
-            $validated['yearly_price'] = round($monthlyPrice * 12 * (1 - $discountPercent / 100), 2);
-        } elseif ($request->filled('yearly_price')) {
-            $validated['yearly_price'] = (float)$request->yearly_price;
-        } else {
-            $validated['yearly_price'] = null;
-        }
+        $validated = $request->validate($this->getValidationRules($request));
+        $validated = $this->processFormData($request, $validated);
 
         $subscriptionPlan->update($validated);
 
@@ -296,7 +230,10 @@ class SubscriptionPlanController extends Controller
 
         $plans = SubscriptionPlan::where('active', true)
             ->where('is_contact_only', false)
-            ->where('price', '>', 0)
+            ->where(function($q) {
+                $q->where('price', '>', 0)
+                  ->orWhere('monthly_price_usd', '>', 0);
+            })
             ->get();
             
         $synced = 0;
@@ -320,6 +257,124 @@ class SubscriptionPlanController extends Controller
         ]);
     }
 
+    protected function getValidationRules(Request $request): array
+    {
+        $rules = [
+            'name' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'currency' => 'required|string|size:3',
+            
+            'monthly_price_usd' => 'nullable|numeric|min:0',
+            'yearly_price_usd' => 'nullable|numeric|min:0',
+            'monthly_price_inr' => 'nullable|numeric|min:0',
+            'yearly_price_inr' => 'nullable|numeric|min:0',
+            'yearly_discount_percent' => 'nullable|integer|min:0|max:100',
+            
+            'max_social_accounts' => 'nullable|integer|min:-1',
+            'max_team_members' => 'nullable|integer|min:-1',
+            'max_scheduled_posts' => 'nullable|integer|min:-1',
+            'ai_tokens_per_month' => 'nullable|integer|min:-1',
+            
+            'ai_auto_comment_reply' => 'boolean',
+            'ai_auto_dm_reply' => 'boolean',
+            'ai_semantic_analysis' => 'boolean',
+            'ai_driven_reporting' => 'boolean',
+            'ai_content_generator' => 'boolean',
+            'social_profile_score' => 'nullable|string|in:none,basic,full',
+            
+            'calendar_scheduling' => 'nullable|string|in:none,basic,advanced',
+            'unified_inbox' => 'boolean',
+            'export_reports' => 'nullable|string|in:none,basic,white_label',
+            'white_label' => 'boolean',
+            'fb_ads_analytics' => 'boolean',
+            'fb_ads_creation' => 'boolean',
+            'team_roles_permissions' => 'boolean',
+            'client_workspaces' => 'boolean',
+            'support_level' => 'nullable|string|in:standard,priority,priority_chat,enterprise',
+            
+            'features' => 'nullable|array',
+            'features.*' => 'string',
+            'display_features' => 'nullable|array',
+            'display_features.*' => 'string',
+            
+            'platform_limits' => 'nullable|array',
+            
+            'active' => 'boolean',
+            'is_featured' => 'boolean',
+            'is_contact_only' => 'boolean',
+            'show_on_landing' => 'boolean',
+            'trial_enabled' => 'boolean',
+            'trial_period_days' => 'nullable|integer|min:0',
+            'skip_trial_discount_enabled' => 'boolean',
+            'skip_trial_discount_percent' => 'nullable|integer|min:0|max:100',
+        ];
+
+        if (!$request->has('is_contact_only')) {
+            $rules['price'] = 'nullable|numeric|min:0';
+        } else {
+            $rules['price'] = 'nullable|numeric|min:0';
+        }
+
+        return $rules;
+    }
+
+    protected function processFormData(Request $request, array $validated): array
+    {
+        if (empty($validated['slug']) && !empty($validated['name'])) {
+            $validated['slug'] = Str::slug($validated['name']);
+        }
+        
+        $validated['features'] = array_values(array_filter($request->features ?? []));
+        $validated['display_features'] = array_values(array_filter($request->display_features ?? []));
+        
+        $validated['active'] = $request->has('active');
+        $validated['is_featured'] = $request->has('is_featured');
+        $validated['is_contact_only'] = $request->has('is_contact_only');
+        $validated['show_on_landing'] = $request->has('show_on_landing');
+        $validated['trial_enabled'] = $request->has('trial_enabled');
+        $validated['skip_trial_discount_enabled'] = $request->has('skip_trial_discount_enabled');
+        
+        $validated['ai_auto_comment_reply'] = $request->has('ai_auto_comment_reply');
+        $validated['ai_auto_dm_reply'] = $request->has('ai_auto_dm_reply');
+        $validated['ai_semantic_analysis'] = $request->has('ai_semantic_analysis');
+        $validated['ai_driven_reporting'] = $request->has('ai_driven_reporting');
+        $validated['ai_content_generator'] = $request->has('ai_content_generator');
+        $validated['unified_inbox'] = $request->has('unified_inbox');
+        $validated['white_label'] = $request->has('white_label');
+        $validated['fb_ads_analytics'] = $request->has('fb_ads_analytics');
+        $validated['fb_ads_creation'] = $request->has('fb_ads_creation');
+        $validated['team_roles_permissions'] = $request->has('team_roles_permissions');
+        $validated['client_workspaces'] = $request->has('client_workspaces');
+        
+        $validated['social_profile_score'] = $request->input('social_profile_score', 'none');
+        $validated['calendar_scheduling'] = $request->input('calendar_scheduling', 'none');
+        $validated['export_reports'] = $request->input('export_reports', 'none');
+        $validated['support_level'] = $request->input('support_level', 'standard');
+        
+        $validated['price'] = $validated['price'] ?? 0;
+        $validated['monthly_price_usd'] = $validated['monthly_price_usd'] ?? 0;
+        $validated['monthly_price_inr'] = $validated['monthly_price_inr'] ?? 0;
+        
+        if ($request->filled('yearly_discount_percent')) {
+            $discountPercent = (int)$request->yearly_discount_percent;
+            
+            if ($request->filled('monthly_price_usd')) {
+                $validated['yearly_price_usd'] = round($validated['monthly_price_usd'] * 12 * (1 - $discountPercent / 100), 2);
+            }
+            if ($request->filled('monthly_price_inr')) {
+                $validated['yearly_price_inr'] = round($validated['monthly_price_inr'] * 12 * (1 - $discountPercent / 100), 2);
+            }
+            if ($request->filled('price')) {
+                $validated['yearly_price'] = round($validated['price'] * 12 * (1 - $discountPercent / 100), 2);
+            }
+        }
+        
+        $validated['platform_limits'] = $this->processPlatformLimits($request->platform_limits ?? []);
+
+        return $validated;
+    }
+
     protected function getAvailablePlatforms(): array
     {
         return [
@@ -331,6 +386,43 @@ class SubscriptionPlanController extends Controller
             'tiktok' => 'TikTok',
             'pinterest' => 'Pinterest',
             'threads' => 'Threads',
+        ];
+    }
+
+    protected function getSupportLevels(): array
+    {
+        return [
+            'standard' => 'Standard Email Support',
+            'priority' => 'Priority Support',
+            'priority_chat' => 'Priority Chat + Email',
+            'enterprise' => '24×7 Enterprise Support',
+        ];
+    }
+
+    protected function getCalendarOptions(): array
+    {
+        return [
+            'none' => 'Not Available',
+            'basic' => 'Basic',
+            'advanced' => 'Advanced + Bulk',
+        ];
+    }
+
+    protected function getExportOptions(): array
+    {
+        return [
+            'none' => 'Not Available',
+            'basic' => 'PDF/CSV',
+            'white_label' => 'White-Label',
+        ];
+    }
+
+    protected function getProfileScoreOptions(): array
+    {
+        return [
+            'none' => 'Not Available',
+            'basic' => 'Basic',
+            'full' => 'Full',
         ];
     }
 

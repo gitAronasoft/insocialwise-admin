@@ -1,13 +1,23 @@
 @extends('admin.layouts.app')
 @section('title', 'Subscription Plans')
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ viewMode: 'cards' }">
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Subscription Plans</h1>
             <p class="mt-1 text-gray-600 dark:text-gray-400">Manage subscription plans and pricing</p>
         </div>
-        <a href="{{ route('admin.subscription-plans.create') }}" class="btn btn-primary">Create Plan</a>
+        <div class="flex items-center gap-3">
+            <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                <button @click="viewMode = 'cards'" :class="viewMode === 'cards' ? 'bg-white dark:bg-gray-600 shadow-sm' : ''" class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                </button>
+                <button @click="viewMode = 'table'" :class="viewMode === 'table' ? 'bg-white dark:bg-gray-600 shadow-sm' : ''" class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                </button>
+            </div>
+            <a href="{{ route('admin.subscription-plans.create') }}" class="btn btn-primary">Create Plan</a>
+        </div>
     </div>
     
     @if(session('success'))
@@ -46,7 +56,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Featured</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Popular</p>
                     <p class="text-2xl font-bold mt-1 text-amber-600">{{ $stats['featured'] ?? 0 }}</p>
                 </div>
                 <div class="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
@@ -79,13 +89,120 @@
             </svg>
             <div>
                 <p class="font-medium text-amber-800 dark:text-amber-200">Stripe Integration Not Configured</p>
-                <p class="text-sm text-amber-600 dark:text-amber-400">Add STRIPE_SECRET_KEY to enable automatic Stripe sync when creating/updating plans.</p>
+                <p class="text-sm text-amber-600 dark:text-amber-400">Add STRIPE_SECRET_KEY to enable automatic Stripe sync.</p>
             </div>
         </div>
     </div>
     @endif
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div x-show="viewMode === 'table'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700/50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Plan</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">USD Pricing</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">INR Pricing</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Limits</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">AI Features</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    @forelse($plans ?? [] as $plan)
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-3">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold text-gray-900 dark:text-white">{{ $plan->name }}</span>
+                                        @if($plan->is_featured)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">Popular</span>
+                                        @endif
+                                    </div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ $plan->slug ?? '-' }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($plan->is_contact_only)
+                            <span class="text-purple-600 font-medium">Contact Sales</span>
+                            @else
+                            <div class="text-sm">
+                                <div class="font-semibold text-gray-900 dark:text-white">${{ number_format($plan->monthly_price_usd ?? $plan->price, 0) }}/mo</div>
+                                @if($plan->yearly_price_usd)
+                                <div class="text-gray-500">${{ number_format($plan->yearly_price_usd, 0) }}/yr</div>
+                                @endif
+                            </div>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($plan->is_contact_only)
+                            <span class="text-purple-600 font-medium">-</span>
+                            @else
+                            <div class="text-sm">
+                                @if($plan->monthly_price_inr)
+                                <div class="font-semibold text-gray-900 dark:text-white">&#8377;{{ number_format($plan->monthly_price_inr, 0) }}/mo</div>
+                                @if($plan->yearly_price_inr)
+                                <div class="text-gray-500">&#8377;{{ number_format($plan->yearly_price_inr, 0) }}/yr</div>
+                                @endif
+                                @else
+                                <span class="text-gray-400">-</span>
+                                @endif
+                            </div>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                            <div class="space-y-1">
+                                <div>{{ $plan->max_social_accounts == -1 ? '∞' : $plan->max_social_accounts ?? '-' }} profiles</div>
+                                <div>{{ $plan->max_team_members == -1 ? '∞' : $plan->max_team_members ?? '-' }} users</div>
+                                <div>{{ $plan->ai_tokens_per_month == -1 ? '∞' : number_format($plan->ai_tokens_per_month ?? 0) }} AI tokens</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-wrap gap-1">
+                                @if($plan->ai_auto_comment_reply)<span class="px-2 py-0.5 rounded text-xs bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300">Comment</span>@endif
+                                @if($plan->ai_auto_dm_reply)<span class="px-2 py-0.5 rounded text-xs bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300">DM</span>@endif
+                                @if($plan->ai_content_generator)<span class="px-2 py-0.5 rounded text-xs bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300">Content</span>@endif
+                                @if($plan->ai_driven_reporting)<span class="px-2 py-0.5 rounded text-xs bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300">Reports</span>@endif
+                                @if(!$plan->ai_auto_comment_reply && !$plan->ai_auto_dm_reply && !$plan->ai_content_generator && !$plan->ai_driven_reporting)
+                                <span class="text-gray-400 text-sm">None</span>
+                                @endif
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex flex-col gap-1">
+                                @if($plan->active)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">Active</span>
+                                @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">Inactive</span>
+                                @endif
+                                @if($plan->stripe_product_id)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">Stripe</span>
+                                @endif
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{{ route('admin.subscription-plans.edit', $plan) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Edit</a>
+                                <button onclick="confirmDelete({{ $plan->id }}, '{{ $plan->name }}')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                            No subscription plans yet. <a href="{{ route('admin.subscription-plans.create') }}" class="text-indigo-600 hover:underline">Create your first plan</a>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div x-show="viewMode === 'cards'" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         @forelse($plans ?? [] as $plan)
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all hover:shadow-md {{ $plan->is_featured ? 'ring-2 ring-indigo-500' : '' }}">
             @if($plan->is_featured)
@@ -102,16 +219,12 @@
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ $plan->name }}</h3>
+                        @if($plan->slug)<p class="text-xs text-gray-400 font-mono mt-0.5">{{ $plan->slug }}</p>@endif
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $plan->description ?: 'No description' }}</p>
                     </div>
                     <div class="flex flex-col items-end gap-1">
                         @if($plan->stripe_product_id)
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">
-                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            Stripe
-                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">Stripe</span>
                         @endif
                         @if($plan->active)
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">Active</span>
@@ -127,17 +240,24 @@
                         <span class="text-2xl font-bold text-gray-900 dark:text-white">Contact Sales</span>
                     </div>
                     @else
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-3xl font-bold text-gray-900 dark:text-white">{{ $plan->formatted_price }}</span>
-                        <span class="text-gray-500 dark:text-gray-400">/month</span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+                            <span class="text-xs text-blue-600 dark:text-blue-400 font-medium">USD</span>
+                            <div class="text-lg font-bold text-gray-900 dark:text-white">${{ number_format($plan->monthly_price_usd ?? $plan->price, 0) }}<span class="text-sm font-normal text-gray-500">/mo</span></div>
+                        </div>
+                        <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3">
+                            <span class="text-xs text-orange-600 dark:text-orange-400 font-medium">INR</span>
+                            <div class="text-lg font-bold text-gray-900 dark:text-white">
+                                @if($plan->monthly_price_inr)
+                                &#8377;{{ number_format($plan->monthly_price_inr, 0) }}<span class="text-sm font-normal text-gray-500">/mo</span>
+                                @else
+                                <span class="text-gray-400">-</span>
+                                @endif
+                            </div>
+                        </div>
                     </div>
-                    @if($plan->yearly_price)
-                    <p class="text-sm text-green-600 dark:text-green-400 mt-1">
-                        or ${{ number_format($plan->yearly_price, 2) }}/year 
-                        @if($plan->yearly_discount_percent)
-                        <span class="font-medium">(Save {{ $plan->yearly_discount_percent }}%)</span>
-                        @endif
-                    </p>
+                    @if($plan->yearly_discount_percent)
+                    <p class="text-sm text-green-600 dark:text-green-400 mt-2 font-medium">Save {{ $plan->yearly_discount_percent }}% with yearly billing</p>
                     @endif
                     @endif
                 </div>
@@ -151,37 +271,33 @@
                 </div>
                 @endif
 
-                <div class="space-y-3 mb-5">
-                    @if($plan->max_social_accounts)
+                <div class="space-y-2 mb-4">
                     <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
-                        <span>{{ $plan->max_social_accounts == -1 ? 'Unlimited' : $plan->max_social_accounts }} social accounts</span>
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span>{{ $plan->max_social_accounts == -1 ? 'Unlimited' : $plan->max_social_accounts ?? 0 }} social profiles</span>
                     </div>
-                    @endif
-                    @if($plan->max_team_members)
                     <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                        </svg>
-                        <span>{{ $plan->max_team_members == -1 ? 'Unlimited' : $plan->max_team_members }} team members</span>
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        <span>{{ $plan->max_team_members == -1 ? 'Unlimited' : $plan->max_team_members ?? 0 }} team members</span>
                     </div>
-                    @endif
-                    @if($plan->max_scheduled_posts)
                     <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        <span>{{ $plan->max_scheduled_posts == -1 ? 'Unlimited' : $plan->max_scheduled_posts }} scheduled posts</span>
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                        <span>{{ $plan->ai_tokens_per_month == -1 ? 'Unlimited' : number_format($plan->ai_tokens_per_month ?? 0) }} AI tokens/mo</span>
                     </div>
-                    @endif
                 </div>
 
-                @if($plan->features && count($plan->features) > 0)
-                <div class="border-t border-gray-100 dark:border-gray-700 pt-4 mb-5">
+                <div class="flex flex-wrap gap-1 mb-4">
+                    @if($plan->ai_auto_comment_reply)<span class="px-2 py-0.5 rounded text-xs bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300">AI Comment</span>@endif
+                    @if($plan->ai_auto_dm_reply)<span class="px-2 py-0.5 rounded text-xs bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300">AI DM</span>@endif
+                    @if($plan->ai_content_generator)<span class="px-2 py-0.5 rounded text-xs bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300">AI Content</span>@endif
+                    @if($plan->unified_inbox)<span class="px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">Unified Inbox</span>@endif
+                    @if($plan->white_label)<span class="px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">White Label</span>@endif
+                </div>
+
+                @if($plan->display_features && count($plan->display_features) > 0)
+                <div class="border-t border-gray-100 dark:border-gray-700 pt-4 mb-4">
                     <ul class="space-y-2">
-                        @foreach(array_slice($plan->features, 0, 4) as $feature)
+                        @foreach(array_slice($plan->display_features, 0, 4) as $feature)
                         <li class="text-sm flex items-start gap-2">
                             <svg class="w-4 h-4 mt-0.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
@@ -189,8 +305,8 @@
                             <span class="text-gray-600 dark:text-gray-400">{{ $feature }}</span>
                         </li>
                         @endforeach
-                        @if(count($plan->features) > 4)
-                        <li class="text-sm text-gray-500 dark:text-gray-500 pl-6">+{{ count($plan->features) - 4 }} more features</li>
+                        @if(count($plan->display_features) > 4)
+                        <li class="text-sm text-gray-500 dark:text-gray-500 pl-6">+{{ count($plan->display_features) - 4 }} more features</li>
                         @endif
                     </ul>
                 </div>

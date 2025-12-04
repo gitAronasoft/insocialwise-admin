@@ -8,6 +8,15 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        host: '0.0.0.0',
+        port: 5173,
+        hmr: {
+            host: process.env.REPLIT_DEV_DOMAIN,
+            protocol: 'wss',
+        },
+        allowedHosts: true,
+    },
     build: {
         outDir: 'public/build',
         rollupOptions: {
