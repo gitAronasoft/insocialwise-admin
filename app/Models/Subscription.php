@@ -40,6 +40,11 @@ class Subscription extends Model
         return $this->belongsTo(Customer::class, 'user_uuid', 'uuid');
     }
 
+    public function plan(): BelongsTo
+    {
+        return $this->belongsTo(SubscriptionPlan::class, 'price_id', 'stripe_price_id');
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';

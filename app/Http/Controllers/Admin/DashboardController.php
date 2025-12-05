@@ -9,6 +9,7 @@ use App\Models\UserPost;
 use App\Models\Activity;
 use App\Models\SocialUserPage;
 use App\Models\Transaction;
+use App\Services\AnalyticsService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -19,12 +20,31 @@ use Carbon\Carbon;
 class DashboardController extends Controller
 {
     private const CACHE_TTL = 300;
+    private AnalyticsService $analyticsService;
 
-    public function index()
+    public function __construct(AnalyticsService $analyticsService)
     {
+        $this->analyticsService = $analyticsService;
+    }
+
+    public function index(Request $request)
+    {
+        $period = $request->get('period', 'month');
+        $validPeriods = ['week', 'month', 'quarter', 'year'];
+        if (!in_array($period, $validPeriods)) {
+            $period = 'month';
+        }
+
         try {
-            $stats = Cache::remember('dashboard_stats', self::CACHE_TTL, function () {
-                return $this->getDashboardStats();
+            $analyticsStats = $this->analyticsService->getDashboardStats($period);
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch analytics stats: ' . $e->getMessage());
+            $analyticsStats = $this->getDefaultAnalyticsStats();
+        }
+
+        try {
+            $stats = Cache::remember("dashboard_stats_{$period}", self::CACHE_TTL, function () use ($period) {
+                return $this->getDashboardStats($period);
             });
         } catch (\Exception $e) {
             Log::error('Failed to fetch dashboard stats: ' . $e->getMessage());
@@ -68,14 +88,18 @@ class DashboardController extends Controller
 
         return view('admin.dashboard.index', compact(
             'stats',
+            'analyticsStats',
             'recentActivities',
             'recentCustomers',
-            'subscriptionsByStatus'
+            'subscriptionsByStatus',
+            'period'
         ));
     }
 
-    private function getDashboardStats(): array
+    private function getDashboardStats(string $period = 'month'): array
     {
+        $range = $this->analyticsService->getDateRange($period);
+
         return [
             'total_customers' => Customer::where('role', 'User')->count(),
             'active_subscriptions' => Subscription::where('status', 'active')->count(),
@@ -106,25 +130,29 @@ class DashboardController extends Controller
         ];
     }
 
-    public function getRevenueChart(): JsonResponse
+    private function getDefaultAnalyticsStats(): array
     {
+        return [
+            'revenue' => ['current' => 0, 'percentage' => 0, 'trend' => 'up', 'is_positive' => true, 'formatted' => '$0.00'],
+            'mrr' => ['current' => 0, 'percentage' => 0, 'trend' => 'up', 'is_positive' => true, 'formatted' => '$0.00'],
+            'arpu' => ['current' => 0, 'percentage' => 0, 'trend' => 'up', 'is_positive' => true, 'formatted' => '$0.00'],
+            'popular_plan' => ['plan' => null, 'all_plans' => []],
+            'active_subscriptions' => ['current' => 0, 'percentage' => 0, 'trend' => 'up', 'is_positive' => true],
+            'failed_subscriptions' => ['current' => 0, 'percentage' => 0, 'trend' => 'up', 'is_positive' => true],
+            'churn_rate' => ['current' => 0, 'percentage' => 0, 'trend' => 'up', 'is_positive' => true, 'formatted' => '0%'],
+            'trial_metrics' => ['conversion_rate' => 0, 'active_trials' => 0],
+            'subscription_health' => ['health_score' => ['score' => 100, 'status' => 'excellent', 'color' => '#10B981']],
+            'ltv' => ['average_ltv' => 0, 'formatted' => '$0.00'],
+            'nrr' => ['nrr' => 100, 'formatted' => '100%', 'status' => 'healthy'],
+        ];
+    }
+
+    public function getRevenueChart(Request $request): JsonResponse
+    {
+        $period = $request->get('period', 'month');
+        
         try {
-            $data = Cache::remember('dashboard_revenue_chart', self::CACHE_TTL, function () {
-                $months = [];
-                $revenues = [];
-                
-                for ($i = 11; $i >= 0; $i--) {
-                    $date = Carbon::now()->subMonths($i);
-                    $months[] = $date->format('M Y');
-                    $revenues[] = 0;
-                }
-                
-                return [
-                    'labels' => $months,
-                    'data' => $revenues,
-                    'total' => 0,
-                ];
-            });
+            $data = $this->analyticsService->getRevenueTrends($period);
 
             return response()->json([
                 'success' => true,
@@ -144,23 +172,39 @@ class DashboardController extends Controller
         }
     }
 
-    public function getCustomerGrowthChart(): JsonResponse
+    public function getCustomerGrowthChart(Request $request): JsonResponse
     {
+        $period = $request->get('period', 'month');
+        
         try {
-            $data = Cache::remember('dashboard_customer_growth', self::CACHE_TTL, function () {
+            $data = Cache::remember("dashboard_customer_growth_{$period}", self::CACHE_TTL, function () use ($period) {
                 $months = [];
                 $counts = [];
+                $numMonths = $period === 'year' ? 12 : ($period === 'quarter' ? 3 : ($period === 'week' ? 7 : 4));
                 
-                for ($i = 11; $i >= 0; $i--) {
-                    $date = Carbon::now()->subMonths($i);
-                    $months[] = $date->format('M Y');
-                    
-                    $monthCount = Customer::where('role', 'User')
-                        ->whereYear('createdAt', $date->year)
-                        ->whereMonth('createdAt', $date->month)
-                        ->count();
-                    
-                    $counts[] = $monthCount;
+                if ($period === 'week') {
+                    for ($i = 6; $i >= 0; $i--) {
+                        $date = Carbon::now()->subDays($i);
+                        $months[] = $date->format('D');
+                        
+                        $dayCount = Customer::where('role', 'User')
+                            ->whereDate('createdAt', $date)
+                            ->count();
+                        
+                        $counts[] = $dayCount;
+                    }
+                } else {
+                    for ($i = $numMonths - 1; $i >= 0; $i--) {
+                        $date = Carbon::now()->subMonths($i);
+                        $months[] = $date->format('M Y');
+                        
+                        $monthCount = Customer::where('role', 'User')
+                            ->whereYear('createdAt', $date->year)
+                            ->whereMonth('createdAt', $date->month)
+                            ->count();
+                        
+                        $counts[] = $monthCount;
+                    }
                 }
                 
                 return [
@@ -237,6 +281,54 @@ class DashboardController extends Controller
                     'labels' => [],
                     'data' => [],
                     'colors' => [],
+                    'total' => 0,
+                ],
+            ], 500);
+        }
+    }
+
+    public function getSubscriptionTrends(Request $request): JsonResponse
+    {
+        $period = $request->get('period', 'month');
+        
+        try {
+            $data = $this->analyticsService->getSubscriptionTrends($period);
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch subscription trends: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load subscription trends',
+                'data' => [
+                    'labels' => [],
+                    'datasets' => [],
+                ],
+            ], 500);
+        }
+    }
+
+    public function getRevenueByPlan(Request $request): JsonResponse
+    {
+        $period = $request->get('period', 'month');
+        
+        try {
+            $data = $this->analyticsService->getRevenueByPlan($period);
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch revenue by plan: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load revenue by plan',
+                'data' => [
+                    'plans' => [],
                     'total' => 0,
                 ],
             ], 500);

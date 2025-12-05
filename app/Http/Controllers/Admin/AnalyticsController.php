@@ -9,14 +9,56 @@ use App\Models\SocialMediaScore;
 use App\Models\SocialMediaPageScore;
 use App\Models\UserPost;
 use App\Models\Customer;
+use App\Models\Subscription;
+use App\Models\SubscriptionPlan;
+use App\Models\Transaction;
+use App\Services\AnalyticsService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class AnalyticsController extends Controller
 {
-    public function index()
+    private AnalyticsService $analyticsService;
+
+    public function __construct(AnalyticsService $analyticsService)
     {
+        $this->analyticsService = $analyticsService;
+    }
+
+    public function index(Request $request)
+    {
+        $period = $request->get('period', 'month');
+        $validPeriods = ['week', 'month', 'quarter', 'year'];
+        if (!in_array($period, $validPeriods)) {
+            $period = 'month';
+        }
+
+        try {
+            $dashboardStats = $this->analyticsService->getDashboardStats($period);
+            $planPerformance = $this->analyticsService->getPlanPerformance($period);
+            $revenueByPlan = $this->analyticsService->getRevenueByPlan($period);
+            $subscriptionTrends = $this->analyticsService->getSubscriptionTrends($period);
+            $trialMetrics = $this->analyticsService->getTrialMetrics($period);
+            $churnAnalytics = $this->analyticsService->getChurnAnalytics($period);
+            $subscriptionHealth = $this->analyticsService->getSubscriptionHealth();
+            $ltv = $this->analyticsService->getLTV();
+            $nrr = $this->analyticsService->getNRR($period);
+        } catch (\Exception $e) {
+            Log::error('Analytics error: ' . $e->getMessage());
+            $dashboardStats = [];
+            $planPerformance = ['plans' => []];
+            $revenueByPlan = ['plans' => [], 'total' => 0];
+            $subscriptionTrends = ['labels' => [], 'datasets' => []];
+            $trialMetrics = [];
+            $churnAnalytics = ['recently_churned' => [], 'churn_by_plan' => []];
+            $subscriptionHealth = [];
+            $ltv = [];
+            $nrr = [];
+        }
+
         $stats = [
             'total_posts' => UserPost::count(),
             'total_impressions' => UserPost::sum('impressions'),
@@ -33,7 +75,21 @@ class AnalyticsController extends Controller
             ->limit(10)
             ->get();
 
-        return view('admin.analytics.index', compact('stats', 'platformBreakdown', 'topPosts'));
+        return view('admin.analytics.index', compact(
+            'stats',
+            'platformBreakdown',
+            'topPosts',
+            'period',
+            'dashboardStats',
+            'planPerformance',
+            'revenueByPlan',
+            'subscriptionTrends',
+            'trialMetrics',
+            'churnAnalytics',
+            'subscriptionHealth',
+            'ltv',
+            'nrr'
+        ));
     }
 
     public function scores(Request $request)
@@ -77,6 +133,45 @@ class AnalyticsController extends Controller
         return view('admin.analytics.demographics', compact('demographics'));
     }
 
+    public function getPlanPerformance(Request $request): JsonResponse
+    {
+        $period = $request->get('period', 'month');
+        
+        try {
+            $data = $this->analyticsService->getPlanPerformance($period);
+            return response()->json(['success' => true, 'data' => $data]);
+        } catch (\Exception $e) {
+            Log::error('Plan performance error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => 'Failed to load data'], 500);
+        }
+    }
+
+    public function getChurnAnalytics(Request $request): JsonResponse
+    {
+        $period = $request->get('period', 'month');
+        
+        try {
+            $data = $this->analyticsService->getChurnAnalytics($period);
+            return response()->json(['success' => true, 'data' => $data]);
+        } catch (\Exception $e) {
+            Log::error('Churn analytics error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => 'Failed to load data'], 500);
+        }
+    }
+
+    public function getTrialAnalytics(Request $request): JsonResponse
+    {
+        $period = $request->get('period', 'month');
+        
+        try {
+            $data = $this->analyticsService->getTrialMetrics($period);
+            return response()->json(['success' => true, 'data' => $data]);
+        } catch (\Exception $e) {
+            Log::error('Trial analytics error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => 'Failed to load data'], 500);
+        }
+    }
+
     public function export(Request $request)
     {
         $type = $request->get('type', 'posts');
@@ -90,6 +185,12 @@ class AnalyticsController extends Controller
                 break;
             case 'scores':
                 $data = SocialMediaScore::with('customer')->get();
+                break;
+            case 'subscriptions':
+                $data = Subscription::with('customer')->get();
+                break;
+            case 'revenue':
+                $data = Transaction::with('customer')->where('status', 'succeeded')->get();
                 break;
             default:
                 $data = collect();

@@ -26,11 +26,24 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    
+
+    // Subscription Plans routes
+    Route::resource('plans', SubscriptionPlanController::class)->names([
+        'index' => 'plans.index',
+        'create' => 'plans.create',
+        'store' => 'plans.store',
+        'show' => 'plans.show',
+        'edit' => 'plans.edit',
+        'update' => 'plans.update',
+        'destroy' => 'plans.destroy',
+    ]);
+
     Route::get('/dashboard/revenue-chart', [DashboardController::class, 'getRevenueChart'])->name('dashboard.revenue-chart');
     Route::get('/dashboard/customer-growth', [DashboardController::class, 'getCustomerGrowthChart'])->name('dashboard.customer-growth');
     Route::get('/dashboard/subscription-pie', [DashboardController::class, 'getSubscriptionPieData'])->name('dashboard.subscription-pie');
     Route::get('/dashboard/recent-activity', [DashboardController::class, 'getRecentActivity'])->name('dashboard.recent-activity');
+    Route::get('/dashboard/subscription-trends', [DashboardController::class, 'getSubscriptionTrends'])->name('dashboard.subscription-trends');
+    Route::get('/dashboard/revenue-by-plan', [DashboardController::class, 'getRevenueByPlan'])->name('dashboard.revenue-by-plan');
 
     Route::get('/search', [SearchController::class, 'index'])->name('search.index');
     Route::get('/search/quick', [SearchController::class, 'quickSearch'])->name('search.quick');
@@ -78,7 +91,7 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
     Route::get('/transactions', [SubscriptionController::class, 'transactions'])->name('transactions.index');
     Route::get('/revenue', [SubscriptionController::class, 'revenue'])->name('revenue');
 
-    Route::resource('subscription-plans', SubscriptionPlanController::class);
+    Route::resource('subscription-plans', SubscriptionPlanController::class)->names('subscription-plans');
     Route::post('/subscription-plans/{subscriptionPlan}/toggle', [SubscriptionPlanController::class, 'toggleActive'])->name('subscription-plans.toggle');
     Route::post('/subscription-plans/reorder', [SubscriptionPlanController::class, 'reorder'])->name('subscription-plans.reorder');
 
