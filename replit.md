@@ -43,18 +43,31 @@ routes/
 - **Subscription Health Score**: Visual health indicator with at-risk subscriptions
 - **Key Metrics**: Customer LTV, Net Revenue Retention (NRR)
 - **Charts**: Revenue Overview, Revenue by Plan, Subscription Trends, Subscription Breakdown
-- Recent activity feed with real-time refresh
+- **Recent Activity Feed**: Real-time customer activity with color-coded events
+- **Customer Timeline Widget**: Quick view of recent customer journeys
 
 ### User Management
 - **Customers**: View, edit, toggle status, impersonate, bulk actions, export
+- **Customer Activity Timeline**: Full chronological history of customer actions
+- **Customer Journey Page**: Complete view with activity, subscription, and payment timelines
 - **Connected Pages**: View social media pages linked to customers
 - **Social Accounts**: Manage connected social media accounts with health status
 
-### Billing & Subscriptions
-- **Subscriptions**: View all subscriptions, filter by status, export
+### Billing & Subscriptions (Enhanced)
+- **Subscriptions**: View all subscriptions with lifecycle timeline, filter by status, export
+- **Subscription Timeline**: Visual journey from trial to active with milestones
 - **Subscription Plans**: Create/edit plans with Stripe sync, pricing tiers, trial periods
-- **Transactions**: View all payment transactions
+- **Transactions**: View all payment transactions with detailed payment info
 - **Revenue**: Revenue analytics and reporting
+- **Billing Activity Logs**: Complete audit trail of all billing events
+- **Notification Queue**: Manage scheduled billing notifications (trial reminders, renewal alerts)
+- **Payment Methods**: View customer payment methods
+
+### Admin Settings (Configurable via Panel)
+- **Email Configuration**: SMTP settings (host, port, user, password) stored securely
+- **Stripe Configuration**: API keys stored encrypted in database
+- **Webhook URLs**: N8N integrations and external webhook endpoints
+- **Notification Settings**: Control automated email notifications (trial reminders, payment alerts)
 
 ### Content Management
 - **Posts**: View user posts with filtering and search
@@ -95,7 +108,7 @@ routes/
 - **Admin Users**: Manage admin accounts with role-based permissions
 - **Activity Logs**: View all system activities
 - **Alerts**: System notifications and alerts
-- **Settings**: Application settings management
+- **Settings**: Application settings management with grouped configurations
 - **Master Control**: Feature flags and system toggles
 
 ### Profile Management
@@ -116,9 +129,12 @@ The application requires the following environment variables:
 - `APP_KEY` - Laravel encryption key
 - `APP_URL` - Application URL
 - `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` - Database connection
+- `ENCRYPTION_SECRET` - Secret key for encrypting sensitive admin settings
 
 ## Stripe Integration
-- Stripe credentials are configured in .env file (STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY)
+- Stripe credentials can be configured via Admin Panel (Settings > Stripe Config)
+- Credentials stored encrypted in admin_settings table
+- Falls back to .env if not configured in panel
 - Plans automatically sync to Stripe when created or updated via the admin panel
 - 4 default plans created: Starter ($19), Growth ($49), Agency ($99), Enterprise (contact-only)
 
@@ -149,14 +165,49 @@ php artisan view:clear
 - **IMPORTANT**: Always run `npm run build` for Vite before starting Laravel server
 
 ## Recent Changes
-- Initial setup for Replit environment (December 2024)
+
+### December 2024 - Enhanced Billing & Timeline Module
+- **Billing Notifications System**:
+  - billing_notifications table for scheduled email notifications
+  - Notification types: trial_ending, payment_succeeded, payment_failed, renewal_reminder, etc.
+  - Queue management with retry functionality
+  - Scheduler control (start/stop/run now)
+  
+- **Billing Activity Logs**:
+  - Complete audit trail of all billing events
+  - Tracks: subscription changes, payments, refunds, webhooks, admin actions
+  - Filterable by action type, status, date range
+  
+- **Admin Settings Service**:
+  - Encrypted storage for sensitive data (API keys, passwords)
+  - Grouped settings: email, stripe, webhooks, notifications
+  - Cache layer for performance
+  - Fallback to .env for missing settings
+
+- **Customer Activity Timeline**:
+  - Full chronological history of customer actions
+  - Visual timeline cards with icons and color-coding
+  - Events: signup, subscription, payments, logins, plan changes
+  
+- **Subscription Lifecycle Timeline**:
+  - Visual journey: Trial Started → Converted → Active → Renewal
+  - Payment history with status indicators
+  - Upcoming events preview (renewals, trial endings)
+
+- **Dashboard Enhancements**:
+  - Real-time activity feed widget
+  - Improved stats cards with live data
+  - Health indicators for attention items
+
+### Previous Changes (December 2024)
+- Initial setup for Replit environment
 - Configured Vite for Replit proxy support
 - Set up workflow on port 5000
-- Fixed tooltip CSS in subscription plan forms to display horizontally (December 2024)
-- StripeService uses .env credentials (STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY)
-- Plans now automatically sync to both Stripe and database when created/updated
+- Fixed tooltip CSS in subscription plan forms
+- StripeService uses .env credentials
+- Plans now automatically sync to both Stripe and database
 - Created 4 subscription plans: Starter, Growth, Agency, Enterprise
-- **Enhanced Dashboard & Analytics (December 2024)**:
+- **Enhanced Dashboard & Analytics**:
   - Created AnalyticsService for comprehensive subscription and revenue metrics
   - Added global time period filter component (week/month/quarter/year)
   - Enhanced dashboard with 8 new stat cards with growth indicators
@@ -167,6 +218,34 @@ php artisan view:clear
   - Added Trial Analytics section with conversion funnel
   - Added Churn Analytics with churn by plan breakdown
   - Implemented LTV (Lifetime Value) and NRR (Net Revenue Retention) calculations
+
+## Database Tables (Billing Module)
+
+### billing_notifications
+Stores scheduled and sent billing notifications
+- Types: trial_ending_24h, trial_ending_1h, payment_succeeded, payment_failed, renewal_reminder, etc.
+- Channels: email, in_app, sms, push
+- Priority levels: low, normal, high, urgent
+- Status tracking: pending, queued, sent, delivered, failed
+
+### billing_activity_logs
+Complete audit trail for billing events
+- Action types: subscription_created, payment_succeeded, payment_failed, refund, etc.
+- Actor types: user, admin, system, stripe, cron
+- Stores old/new values for changes
+- Links to subscriptions and transactions
+
+### payment_methods
+Customer payment methods
+- Card details (brand, last4, expiry)
+- Default payment method flag
+- Stripe payment method ID
+
+### admin_settings
+Configurable settings stored in database
+- Types: string, integer, boolean, json, email, encrypted
+- Groups: general, email, stripe, webhooks, notification
+- Encrypted type for sensitive data (API keys, passwords)
 
 ## Future Improvements Roadmap
 ### Revenue Intelligence
@@ -179,12 +258,6 @@ php artisan view:clear
 - Automated win-back campaign triggers
 - Churn reasons tracking and categorization
 
-### Alerts & Notifications
-- Revenue threshold alerts (spike/drop notifications)
-- Unusual churn rate notifications
-- Large transaction alerts
-- Failed payment spike alerts
-
 ### Advanced Reporting
 - Scheduled report exports (weekly/monthly PDF/Excel)
 - Custom date range reports
@@ -195,4 +268,3 @@ php artisan view:clear
 - Drag-and-drop widget arrangement
 - Favorite/pin important metrics
 - Custom KPI cards per admin user
-- Dark mode optimized charts

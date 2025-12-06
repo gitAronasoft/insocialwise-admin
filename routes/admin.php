@@ -22,6 +22,8 @@ use App\Http\Controllers\Admin\ApiKeyController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\SocialAccountController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\BillingController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -148,6 +150,21 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::get('/settings/create', [SettingsController::class, 'create'])->name('settings.create');
     Route::post('/settings', [SettingsController::class, 'store'])->name('settings.store');
+
+    Route::get('/settings/email', [SettingsController::class, 'emailConfig'])->name('settings.email');
+    Route::put('/settings/email', [SettingsController::class, 'updateEmailConfig'])->name('settings.email.update');
+    Route::post('/settings/email/test', [SettingsController::class, 'testEmailConfig'])->name('settings.email.test');
+
+    Route::get('/settings/stripe', [SettingsController::class, 'stripeConfig'])->name('settings.stripe');
+    Route::put('/settings/stripe', [SettingsController::class, 'updateStripeConfig'])->name('settings.stripe.update');
+    Route::post('/settings/stripe/test', [SettingsController::class, 'testStripeConfig'])->name('settings.stripe.test');
+
+    Route::get('/settings/webhooks', [SettingsController::class, 'webhooksConfig'])->name('settings.webhooks');
+    Route::put('/settings/webhooks', [SettingsController::class, 'updateWebhooksConfig'])->name('settings.webhooks.update');
+
+    Route::get('/settings/notifications', [SettingsController::class, 'notificationConfig'])->name('settings.notifications');
+    Route::put('/settings/notifications', [SettingsController::class, 'updateNotificationConfig'])->name('settings.notifications.update');
+
     Route::get('/settings/{group}/edit', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('/settings/{group}', [SettingsController::class, 'update'])->name('settings.update');
     Route::delete('/settings/{setting}', [SettingsController::class, 'destroy'])->name('settings.destroy');
@@ -155,6 +172,21 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
     Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
     Route::get('/activities/stats', [ActivityController::class, 'stats'])->name('activities.stats');
     Route::get('/activities/{activity}', [ActivityController::class, 'show'])->name('activities.show');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/stats', [NotificationController::class, 'stats'])->name('notifications.stats');
+    Route::get('/notifications/scheduler-status', [NotificationController::class, 'schedulerStatus'])->name('notifications.scheduler-status');
+    Route::post('/notifications/run-now', [NotificationController::class, 'runNow'])->name('notifications.run-now');
+    Route::post('/notifications/bulk-retry', [NotificationController::class, 'bulkRetry'])->name('notifications.bulk-retry');
+    Route::post('/notifications/bulk-cancel', [NotificationController::class, 'bulkCancel'])->name('notifications.bulk-cancel');
+    Route::get('/notifications/{notification}', [NotificationController::class, 'show'])->name('notifications.show');
+    Route::post('/notifications/{notification}/retry', [NotificationController::class, 'retry'])->name('notifications.retry');
+    Route::post('/notifications/{notification}/cancel', [NotificationController::class, 'cancel'])->name('notifications.cancel');
+
+    Route::get('/billing/overview', [BillingController::class, 'overview'])->name('billing.overview');
+    Route::get('/billing/activity-logs', [BillingController::class, 'activityLogs'])->name('billing.activity-logs');
+    Route::get('/billing/activity-logs/{log}', [BillingController::class, 'showLog'])->name('billing.show-log');
+    Route::get('/billing/payment-methods', [BillingController::class, 'paymentMethods'])->name('billing.payment-methods');
 
     Route::middleware('permission:view_admin_users')->group(function () {
         Route::get('/admin-users', [AdminUserController::class, 'index'])->name('admin-users.index');
