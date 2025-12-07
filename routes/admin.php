@@ -76,8 +76,6 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
     Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
     Route::post('/customers/{customer}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customers.toggle-status');
     Route::get('/customers/{customer}/social-accounts', [CustomerController::class, 'socialAccounts'])->name('customers.social-accounts');
-    Route::post('/customers/{customer}/impersonate', [CustomerController::class, 'impersonate'])->name('customers.impersonate');
-    Route::post('/stop-impersonation', [CustomerController::class, 'stopImpersonation'])->name('stop-impersonation');
 
     Route::get('/pages', [PageController::class, 'index'])->name('pages.index');
     Route::get('/pages/{page}', [PageController::class, 'show'])->name('pages.show');

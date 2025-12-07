@@ -28,7 +28,7 @@
                 <a href="{{ route('admin.compliance.policies') }}" class="block p-3 bg-gray-50 dark:bg-gray-700 rounded hover:bg-gray-100">
                     Manage Policies
                 </a>
-                <a href="{{ route('admin.compliance.create-policy') }}" class="block p-3 bg-primary-50 dark:bg-primary-900/20 rounded hover:bg-primary-100 text-primary-600">
+                <a href="{{ route('admin.compliance.policies.create') }}" class="block p-3 bg-primary-50 dark:bg-primary-900/20 rounded hover:bg-primary-100 text-primary-600">
                     Create Policy
                 </a>
             </div>

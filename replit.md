@@ -47,7 +47,7 @@ routes/
 - **Customer Timeline Widget**: Quick view of recent customer journeys
 
 ### User Management
-- **Customers**: View, edit, toggle status, impersonate, bulk actions, export
+- **Customers**: View, edit, toggle status, bulk actions, export
 - **Customer Activity Timeline**: Full chronological history of customer actions
 - **Customer Journey Page**: Complete view with activity, subscription, and payment timelines
 - **Connected Pages**: View social media pages linked to customers
@@ -268,3 +268,6 @@ Configurable settings stored in database
 - Drag-and-drop widget arrangement
 - Favorite/pin important metrics
 - Custom KPI cards per admin user
+
+## User Preferences
+- **No Customer Impersonation**: User requested to remove the customer impersonation feature from the admin panel (December 2024). This feature has been removed from routes, controllers, and views.

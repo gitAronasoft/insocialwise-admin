@@ -110,23 +110,6 @@ class CustomerController extends Controller
         return view('admin.customers.social-accounts', compact('customer', 'socialUsers'));
     }
 
-    public function impersonate(Customer $customer)
-    {
-        session(['impersonating' => $customer->uuid]);
-        session(['admin_id' => auth()->id()]);
-
-        return redirect()->route('admin.customers.index')
-            ->with('info', "You are now viewing as {$customer->full_name}. Impersonation mode is active.");
-    }
-
-    public function stopImpersonation()
-    {
-        session()->forget(['impersonating', 'admin_id']);
-
-        return redirect()->route('admin.customers.index')
-            ->with('success', 'Impersonation mode ended.');
-    }
-
     public function bulkDelete(Request $request)
     {
         $request->validate([

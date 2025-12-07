@@ -40,6 +40,8 @@ class SettingsController extends Controller
             'total' => AdminSetting::count(),
             'general' => AdminSetting::where('group', 'general')->count(),
             'email' => AdminSetting::where('group', 'email')->count(),
+            'api' => AdminSetting::where('group', 'api')->count(),
+            'payment' => AdminSetting::where('group', 'payment')->count(),
             'stripe' => AdminSetting::where('group', 'stripe')->count(),
             'notification' => AdminSetting::where('group', 'notification')->count(),
         ];

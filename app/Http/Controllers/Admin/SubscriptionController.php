@@ -139,9 +139,10 @@ class SubscriptionController extends Controller
             ->get();
 
         $dailyRevenue = Transaction::where('status', 'succeeded')
-            ->where('created_at', '>=', Carbon::now()->subDays(30))
+            ->whereNotNull('paid_at')
+            ->where('paid_at', '>=', Carbon::now()->subDays(30))
             ->select(
-                DB::raw('DATE(created_at) as date'),
+                DB::raw('DATE(paid_at) as date'),
                 DB::raw('SUM(amount) as total'),
                 DB::raw('COUNT(*) as count')
             )
@@ -150,10 +151,11 @@ class SubscriptionController extends Controller
             ->get();
 
         $weeklyRevenue = Transaction::where('status', 'succeeded')
-            ->where('created_at', '>=', Carbon::now()->subWeeks(12))
+            ->whereNotNull('paid_at')
+            ->where('paid_at', '>=', Carbon::now()->subWeeks(12))
             ->select(
-                DB::raw('YEAR(created_at) as year'),
-                DB::raw('WEEK(created_at) as week'),
+                DB::raw('YEAR(paid_at) as year'),
+                DB::raw('WEEK(paid_at) as week'),
                 DB::raw('SUM(amount) as total'),
                 DB::raw('COUNT(*) as count')
             )
@@ -171,10 +173,11 @@ class SubscriptionController extends Controller
             });
 
         $monthlyRevenue = Transaction::where('status', 'succeeded')
-            ->where('created_at', '>=', Carbon::now()->subMonths(12))
+            ->whereNotNull('paid_at')
+            ->where('paid_at', '>=', Carbon::now()->subMonths(12))
             ->select(
-                DB::raw('YEAR(created_at) as year'),
-                DB::raw('MONTH(created_at) as month'),
+                DB::raw('YEAR(paid_at) as year'),
+                DB::raw('MONTH(paid_at) as month'),
                 DB::raw('SUM(amount) as total'),
                 DB::raw('COUNT(*) as count')
             )

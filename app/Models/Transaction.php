@@ -44,14 +44,19 @@ class Transaction extends Model
         'metadata',
     ];
 
+    public $timestamps = false;
+
     protected $casts = [
         'amount' => 'integer',
         'amount_refunded' => 'integer',
         'card_exp_month' => 'integer',
         'card_exp_year' => 'integer',
         'disputed' => 'boolean',
+        'paid_at' => 'datetime',
         'refunded_at' => 'datetime',
         'disputed_at' => 'datetime',
+        'period_start' => 'datetime',
+        'period_end' => 'datetime',
         'metadata' => 'array',
     ];
 

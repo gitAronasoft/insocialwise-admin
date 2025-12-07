@@ -240,7 +240,7 @@ class BillingController extends Controller
 
         $sortColumn = $request->get('sort', 'payment_retry_count');
         $sortDirection = $request->get('direction', 'desc');
-        
+
         $allowedSorts = ['payment_retry_count', 'next_payment_retry_at', 'past_due_since', 'createdAt'];
         if (in_array($sortColumn, $allowedSorts)) {
             $query->orderBy($sortColumn, $sortDirection === 'asc' ? 'asc' : 'desc');
@@ -327,7 +327,7 @@ class BillingController extends Controller
             'subscription_canceled' => 'Subscription Canceled',
             'subscription_renewed' => 'Subscription Renewed',
             'trial_ending' => 'Trial Ending',
-            'trial_ended' => 'Trial Ended',
+            'trial_ended' => 'TrialEnded',
             'invoice_created' => 'Invoice Created',
             'invoice_paid' => 'Invoice Paid',
             'card_expiring' => 'Card Expiring',

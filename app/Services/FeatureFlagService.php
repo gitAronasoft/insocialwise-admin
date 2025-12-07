@@ -69,7 +69,6 @@ class FeatureFlagService
             ['feature_key' => 'subscription_management', 'feature_name' => 'Subscription Management', 'category' => 'admin', 'enabled' => true, 'force_enabled' => false, 'description' => 'Enable/disable subscription management'],
             ['feature_key' => 'system_settings', 'feature_name' => 'System Settings', 'category' => 'admin', 'enabled' => true, 'force_enabled' => true, 'description' => 'System settings (cannot be disabled)'],
             ['feature_key' => 'activity_logging', 'feature_name' => 'Activity Logging', 'category' => 'admin', 'enabled' => true, 'force_enabled' => false, 'description' => 'Enable/disable activity logging'],
-            ['feature_key' => 'user_impersonation', 'feature_name' => 'User Impersonation', 'category' => 'admin', 'enabled' => false, 'force_enabled' => false, 'description' => 'Allow admins to login as users'],
             
             ['feature_key' => 'two_factor_auth', 'feature_name' => 'Two-Factor Authentication', 'category' => 'security', 'enabled' => true, 'force_enabled' => false, 'description' => 'Enable 2FA for admin accounts'],
             ['feature_key' => 'ip_whitelisting', 'feature_name' => 'IP Whitelisting', 'category' => 'security', 'enabled' => false, 'force_enabled' => false, 'description' => 'Restrict admin access by IP'],
