@@ -83,13 +83,25 @@ class SubscriptionController extends Controller
 
     public function show(Subscription $subscription)
     {
-        $subscription->load('customer');
+        $subscription->load(['customer', 'plan', 'defaultPaymentMethod']);
 
         $transactions = Transaction::where('subscription_id', $subscription->id)
+            ->orWhere('user_uuid', $subscription->user_uuid)
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('admin.subscriptions.show', compact('subscription', 'transactions'));
+        $paymentMethod = $subscription->defaultPaymentMethod 
+            ?? $subscription->paymentMethods()->where('is_default', true)->first()
+            ?? $subscription->paymentMethods()->where('status', 'active')->first();
+
+        $subscriptionEvents = DB::table('subscription_events')
+            ->where('subscription_id', $subscription->id)
+            ->orWhere('user_uuid', $subscription->user_uuid)
+            ->orderBy('occurred_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        return view('admin.subscriptions.show', compact('subscription', 'transactions', 'paymentMethod', 'subscriptionEvents'));
     }
 
     public function transactions(Request $request)
@@ -120,19 +132,76 @@ class SubscriptionController extends Controller
         $transactionCount = Transaction::where('status', 'succeeded')->count();
         $mrr = Subscription::where('status', 'active')->count() * 29;
         
-        $recentTransactions = Transaction::where('status', 'succeeded')
+        $recentTransactions = Transaction::with('customer')
+            ->where('status', 'succeeded')
             ->orderBy('id', 'desc')
             ->limit(10)
             ->get();
 
-        $monthlyRevenue = [];
+        $dailyRevenue = Transaction::where('status', 'succeeded')
+            ->where('created_at', '>=', Carbon::now()->subDays(30))
+            ->select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('SUM(amount) as total'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        $weeklyRevenue = Transaction::where('status', 'succeeded')
+            ->where('created_at', '>=', Carbon::now()->subWeeks(12))
+            ->select(
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('WEEK(created_at) as week'),
+                DB::raw('SUM(amount) as total'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('year', 'week')
+            ->orderBy('year', 'asc')
+            ->orderBy('week', 'asc')
+            ->get()
+            ->map(function ($item) {
+                $date = Carbon::now()->setISODate($item->year, $item->week)->startOfWeek();
+                return [
+                    'label' => $date->format('M d'),
+                    'total' => $item->total,
+                    'count' => $item->count,
+                ];
+            });
+
+        $monthlyRevenue = Transaction::where('status', 'succeeded')
+            ->where('created_at', '>=', Carbon::now()->subMonths(12))
+            ->select(
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('SUM(amount) as total'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc')
+            ->get()
+            ->map(function ($item) {
+                $date = Carbon::createFromDate($item->year, $item->month, 1);
+                return [
+                    'label' => $date->format('M Y'),
+                    'total' => $item->total,
+                    'count' => $item->count,
+                ];
+            });
+
+        $avgTransactionValue = $transactionCount > 0 ? $totalRevenue / $transactionCount : 0;
 
         return view('admin.subscriptions.revenue', compact(
             'totalRevenue',
             'transactionCount',
             'mrr',
             'recentTransactions',
-            'monthlyRevenue'
+            'dailyRevenue',
+            'weeklyRevenue',
+            'monthlyRevenue',
+            'avgTransactionValue'
         ));
     }
 

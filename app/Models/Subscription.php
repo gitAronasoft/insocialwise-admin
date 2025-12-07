@@ -115,6 +115,16 @@ class Subscription extends Model
         return $this->hasMany(Transaction::class, 'user_uuid', 'user_uuid');
     }
 
+    public function defaultPaymentMethod(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMethod::class, 'default_payment_method_id', 'stripe_payment_method_id');
+    }
+
+    public function paymentMethods(): HasMany
+    {
+        return $this->hasMany(PaymentMethod::class, 'user_uuid', 'user_uuid');
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';

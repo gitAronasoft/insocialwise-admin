@@ -212,4 +212,130 @@ class BillingController extends Controller
             ->where('billing_interval', 'month')
             ->sum('amount') / 100;
     }
+
+    public function dunning(Request $request)
+    {
+        $query = Subscription::with(['customer', 'plan', 'defaultPaymentMethod'])
+            ->where(function ($q) {
+                $q->where(function ($inner) {
+                    $inner->whereNotNull('dunning_status')
+                          ->where('dunning_status', '!=', 'none');
+                })->orWhere('status', 'past_due');
+            });
+
+        if ($request->filled('dunning_status')) {
+            $query->where('dunning_status', $request->dunning_status);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('customer', function ($inner) use ($search) {
+                    $inner->where('firstName', 'like', "%{$search}%")
+                        ->orWhere('lastName', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $sortColumn = $request->get('sort', 'payment_retry_count');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        $allowedSorts = ['payment_retry_count', 'next_payment_retry_at', 'past_due_since', 'createdAt'];
+        if (in_array($sortColumn, $allowedSorts)) {
+            $query->orderBy($sortColumn, $sortDirection === 'asc' ? 'asc' : 'desc');
+        } else {
+            $query->orderBy('payment_retry_count', 'desc');
+        }
+
+        $subscriptions = $query->paginate(20);
+
+        $stats = [
+            'total_dunning' => Subscription::where('dunning_status', '!=', 'none')
+                ->whereNotNull('dunning_status')->count(),
+            'past_due' => Subscription::where('status', 'past_due')->count(),
+            'retry_pending' => Subscription::whereNotNull('next_payment_retry_at')
+                ->where('next_payment_retry_at', '>', now())->count(),
+            'high_risk' => Subscription::where('payment_retry_count', '>=', 3)->count(),
+            'total_at_risk_revenue' => Subscription::where(function ($q) {
+                $q->where('dunning_status', '!=', 'none')
+                  ->orWhere('status', 'past_due');
+            })->sum('amount') / 100,
+        ];
+
+        $dunningStatuses = ['active', 'escalated', 'final_notice', 'exhausted', 'resolved'];
+
+        return view('admin.billing.dunning', compact('subscriptions', 'stats', 'dunningStatuses'));
+    }
+
+    public function notifications(Request $request)
+    {
+        $query = \Illuminate\Support\Facades\DB::table('billing_notifications')
+            ->leftJoin('subscriptions', 'billing_notifications.subscription_id', '=', 'subscriptions.id')
+            ->leftJoin('users', 'billing_notifications.user_uuid', '=', 'users.uuid')
+            ->select(
+                'billing_notifications.*',
+                'users.firstName as customer_first_name',
+                'users.lastName as customer_last_name',
+                'users.email as customer_email',
+                'subscriptions.stripe_subscription_id'
+            );
+
+        if ($request->filled('type')) {
+            $query->where('billing_notifications.type', $request->type);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('billing_notifications.status', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('billing_notifications.recipient_email', 'like', "%{$search}%")
+                  ->orWhere('users.firstName', 'like', "%{$search}%")
+                  ->orWhere('users.lastName', 'like', "%{$search}%")
+                  ->orWhere('users.email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('billing_notifications.sent_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('billing_notifications.sent_at', '<=', $request->date_to);
+        }
+
+        $notifications = $query->orderBy('billing_notifications.sent_at', 'desc')
+            ->paginate(25);
+
+        $stats = [
+            'total' => \Illuminate\Support\Facades\DB::table('billing_notifications')->count(),
+            'sent' => \Illuminate\Support\Facades\DB::table('billing_notifications')->where('status', 'sent')->count(),
+            'delivered' => \Illuminate\Support\Facades\DB::table('billing_notifications')->where('status', 'delivered')->count(),
+            'failed' => \Illuminate\Support\Facades\DB::table('billing_notifications')->where('status', 'failed')->count(),
+            'today' => \Illuminate\Support\Facades\DB::table('billing_notifications')
+                ->whereDate('sent_at', Carbon::today())->count(),
+        ];
+
+        $notificationTypes = [
+            'payment_reminder' => 'Payment Reminder',
+            'payment_failed' => 'Payment Failed',
+            'payment_succeeded' => 'Payment Succeeded',
+            'subscription_created' => 'Subscription Created',
+            'subscription_canceled' => 'Subscription Canceled',
+            'subscription_renewed' => 'Subscription Renewed',
+            'trial_ending' => 'Trial Ending',
+            'trial_ended' => 'Trial Ended',
+            'invoice_created' => 'Invoice Created',
+            'invoice_paid' => 'Invoice Paid',
+            'card_expiring' => 'Card Expiring',
+            'dunning_notice' => 'Dunning Notice',
+        ];
+
+        $statuses = ['pending', 'sent', 'delivered', 'failed', 'bounced'];
+
+        return view('admin.billing.notifications', compact('notifications', 'stats', 'notificationTypes', 'statuses'));
+    }
 }

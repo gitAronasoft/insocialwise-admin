@@ -187,6 +187,8 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
     Route::get('/billing/activity-logs', [BillingController::class, 'activityLogs'])->name('billing.activity-logs');
     Route::get('/billing/activity-logs/{log}', [BillingController::class, 'showLog'])->name('billing.show-log');
     Route::get('/billing/payment-methods', [BillingController::class, 'paymentMethods'])->name('billing.payment-methods');
+    Route::get('/billing/dunning', [BillingController::class, 'dunning'])->name('billing.dunning');
+    Route::get('/billing/notifications', [BillingController::class, 'notifications'])->name('billing.notifications');
 
     Route::middleware('permission:view_admin_users')->group(function () {
         Route::get('/admin-users', [AdminUserController::class, 'index'])->name('admin-users.index');
