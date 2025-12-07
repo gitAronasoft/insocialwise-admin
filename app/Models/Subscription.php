@@ -117,7 +117,7 @@ class Subscription extends Model
 
     public function defaultPaymentMethod(): BelongsTo
     {
-        return $this->belongsTo(PaymentMethod::class, 'default_payment_method_id', 'stripe_payment_method_id');
+        return $this->belongsTo(PaymentMethod::class, 'default_payment_method_id', 'id');
     }
 
     public function paymentMethods(): HasMany

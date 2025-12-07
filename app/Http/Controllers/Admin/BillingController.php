@@ -42,14 +42,14 @@ class BillingController extends Controller
         }
 
         if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+            $query->whereDate('createdAt', '>=', $request->date_from);
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+            $query->whereDate('createdAt', '<=', $request->date_to);
         }
 
-        $logs = $query->orderBy('created_at', 'desc')->paginate(25);
+        $logs = $query->orderBy('createdAt', 'desc')->paginate(25);
 
         $stats = $this->getActivityStats();
         $actionTypes = $this->getActionTypes();
@@ -96,19 +96,19 @@ class BillingController extends Controller
             });
         }
 
-        $paymentMethods = $query->orderBy('created_at', 'desc')->paginate(20);
+        $paymentMethods = $query->orderBy('createdAt', 'desc')->paginate(20);
 
         $stats = [
             'total' => PaymentMethod::count(),
             'active' => PaymentMethod::where('status', 'active')->count(),
             'expiring_soon' => PaymentMethod::where('status', 'active')
-                ->whereRaw("STR_TO_DATE(CONCAT(card_exp_year, '-', card_exp_month, '-01'), '%Y-%m-%d') <= ?", 
+                ->whereRaw("STR_TO_DATE(CONCAT(exp_year, '-', exp_month, '-01'), '%Y-%m-%d') <= ?", 
                     [now()->addMonths(2)->format('Y-m-d')])
                 ->count(),
             'expired' => PaymentMethod::where('status', 'expired')->count(),
         ];
 
-        $cardBrands = PaymentMethod::distinct()->pluck('card_brand')->filter()->toArray();
+        $cardBrands = PaymentMethod::distinct()->pluck('brand')->filter()->toArray();
 
         return view('admin.billing.payment-methods', compact('paymentMethods', 'stats', 'cardBrands'));
     }
@@ -128,16 +128,16 @@ class BillingController extends Controller
             'mrr' => $this->calculateMRR(),
             'arr' => $this->calculateMRR() * 12,
             'revenue_this_month' => Transaction::where('status', 'succeeded')
-                ->where('created_at', '>=', $thisMonth)->sum('amount') / 100,
+                ->where('paid_at', '>=', $thisMonth)->sum('amount') / 100,
             'revenue_last_month' => Transaction::where('status', 'succeeded')
-                ->whereBetween('created_at', [$lastMonth, $thisMonth])->sum('amount') / 100,
-            'transactions_today' => Transaction::whereDate('created_at', $today)->count(),
+                ->whereBetween('paid_at', [$lastMonth, $thisMonth])->sum('amount') / 100,
+            'transactions_today' => Transaction::whereDate('paid_at', $today)->count(),
             'failed_payments' => Transaction::where('status', 'failed')
-                ->where('created_at', '>=', $thisMonth)->count(),
+                ->where('paid_at', '>=', $thisMonth)->count(),
         ];
 
         $recentLogs = BillingActivityLog::with('customer')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('createdAt', 'desc')
             ->limit(10)
             ->get();
 
@@ -158,8 +158,8 @@ class BillingController extends Controller
 
         return [
             'total' => BillingActivityLog::count(),
-            'today' => BillingActivityLog::whereDate('created_at', $today)->count(),
-            'this_week' => BillingActivityLog::where('created_at', '>=', $thisWeek)->count(),
+            'today' => BillingActivityLog::whereDate('createdAt', $today)->count(),
+            'this_week' => BillingActivityLog::where('createdAt', '>=', $thisWeek)->count(),
             'success' => BillingActivityLog::where('action_status', 'success')->count(),
             'failed' => BillingActivityLog::where('action_status', 'failed')->count(),
             'by_type' => BillingActivityLog::selectRaw('action_type, count(*) as count')

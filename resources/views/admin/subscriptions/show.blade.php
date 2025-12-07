@@ -68,10 +68,10 @@
                     // Add first successful payment as a milestone
                     if (isset($transactions) && $transactions->count() > 0) {
                         $firstPayment = $transactions->filter(fn($t) => $t->isSuccessful())->last();
-                        if ($firstPayment && $firstPayment->created_at) {
+                        if ($firstPayment && $firstPayment->paid_at) {
                             $stages[] = [
                                 'label' => 'First Payment',
-                                'date' => $firstPayment->created_at,
+                                'date' => $firstPayment->paid_at,
                                 'active' => true,
                                 'payment' => true,
                                 'icon' => '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>'
@@ -276,33 +276,33 @@
                             @endif
                         </div>
                         <div class="text-right">
-                            @if(strtolower($paymentMethod->card_brand ?? '') === 'visa')
+                            @if(strtolower($paymentMethod->brand ?? '') === 'visa')
                                 <span class="text-2xl font-bold tracking-wider">VISA</span>
-                            @elseif(strtolower($paymentMethod->card_brand ?? '') === 'mastercard')
+                            @elseif(strtolower($paymentMethod->brand ?? '') === 'mastercard')
                                 <div class="flex">
                                     <div class="w-8 h-8 bg-red-500 rounded-full -mr-3"></div>
                                     <div class="w-8 h-8 bg-yellow-500 rounded-full opacity-80"></div>
                                 </div>
-                            @elseif(strtolower($paymentMethod->card_brand ?? '') === 'amex')
+                            @elseif(strtolower($paymentMethod->brand ?? '') === 'amex')
                                 <span class="text-xl font-bold">AMEX</span>
                             @else
-                                <span class="text-lg font-bold">{{ strtoupper($paymentMethod->card_brand ?? 'CARD') }}</span>
+                                <span class="text-lg font-bold">{{ strtoupper($paymentMethod->brand ?? 'CARD') }}</span>
                             @endif
                         </div>
                     </div>
                     
                     <div class="mb-4">
-                        <p class="text-xl font-mono tracking-widest">•••• •••• •••• {{ $paymentMethod->card_last4 }}</p>
+                        <p class="text-xl font-mono tracking-widest">•••• •••• •••• {{ $paymentMethod->last4 }}</p>
                     </div>
                     
                     <div class="flex justify-between items-end">
                         <div>
                             <p class="text-xs text-gray-400 uppercase">Card Holder</p>
-                            <p class="font-medium">{{ $paymentMethod->billing_name ?? $subscription->customer->firstName ?? 'N/A' }}</p>
+                            <p class="font-medium">{{ $paymentMethod->card_holder ?? $subscription->customer->firstName ?? 'N/A' }}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-xs text-gray-400 uppercase">Expires</p>
-                            <p class="font-medium">{{ str_pad($paymentMethod->card_exp_month, 2, '0', STR_PAD_LEFT) }}/{{ $paymentMethod->card_exp_year % 100 }}</p>
+                            <p class="font-medium">{{ $paymentMethod->expiry_display }}</p>
                         </div>
                     </div>
                     
@@ -318,22 +318,22 @@
                 </div>
                 
                 <div class="mt-4 space-y-2 text-sm">
-                    @if($paymentMethod->card_funding)
+                    @if($paymentMethod->funding)
                         <div class="flex justify-between">
                             <span class="text-gray-500 dark:text-gray-400">Card Type</span>
-                            <span class="text-gray-900 dark:text-white capitalize">{{ $paymentMethod->card_funding }}</span>
+                            <span class="text-gray-900 dark:text-white capitalize">{{ $paymentMethod->funding }}</span>
                         </div>
                     @endif
-                    @if($paymentMethod->card_country)
+                    @if($paymentMethod->country)
                         <div class="flex justify-between">
                             <span class="text-gray-500 dark:text-gray-400">Country</span>
-                            <span class="text-gray-900 dark:text-white">{{ $paymentMethod->card_country }}</span>
+                            <span class="text-gray-900 dark:text-white">{{ $paymentMethod->country }}</span>
                         </div>
                     @endif
-                    @if($paymentMethod->last_used_at)
+                    @if($paymentMethod->createdAt)
                         <div class="flex justify-between">
-                            <span class="text-gray-500 dark:text-gray-400">Last Used</span>
-                            <span class="text-gray-900 dark:text-white">{{ $paymentMethod->last_used_at->format('M d, Y') }}</span>
+                            <span class="text-gray-500 dark:text-gray-400">Added</span>
+                            <span class="text-gray-900 dark:text-white">{{ $paymentMethod->createdAt->format('M d, Y') }}</span>
                         </div>
                     @endif
                 </div>
@@ -458,7 +458,7 @@
                             <span class="px-2 py-1 text-xs font-semibold rounded-full bg-{{ $transaction->status_color }}-100 text-{{ $transaction->status_color }}-800">
                                 {{ $transaction->status_label }}
                             </span>
-                            <p class="text-sm text-gray-500 mt-1">{{ $transaction->created_at?->format('M d, Y H:i') ?? 'N/A' }}</p>
+                            <p class="text-sm text-gray-500 mt-1">{{ $transaction->paid_at?->format('M d, Y H:i') ?? 'N/A' }}</p>
                         </div>
                     </div>
                 @endforeach

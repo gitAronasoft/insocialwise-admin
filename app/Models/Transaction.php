@@ -12,35 +12,26 @@ class Transaction extends Model
 
     protected $fillable = [
         'user_uuid',
-        'stripe_payment_id',
+        'stripe_payment_intent_id',
         'stripe_invoice_id',
         'stripe_charge_id',
         'stripe_refund_id',
         'subscription_id',
         'amount',
-        'amount_refunded',
         'currency',
         'status',
-        'type',
-        'description',
-        'payment_method',
-        'payment_method_type',
-        'card_brand',
-        'card_last4',
-        'card_exp_month',
-        'card_exp_year',
-        'receipt_url',
-        'invoice_pdf_url',
+        'plan_id',
+        'stripe_subscription_id',
+        'stripe_customer_id',
+        'stripe_payment_method_id',
         'invoice_number',
+        'invoice_pdf_url',
         'billing_reason',
         'failure_code',
         'failure_message',
         'refund_reason',
         'refunded_at',
         'disputed',
-        'dispute_status',
-        'dispute_reason',
-        'disputed_at',
         'metadata',
     ];
 
@@ -48,15 +39,9 @@ class Transaction extends Model
 
     protected $casts = [
         'amount' => 'integer',
-        'amount_refunded' => 'integer',
-        'card_exp_month' => 'integer',
-        'card_exp_year' => 'integer',
         'disputed' => 'boolean',
         'paid_at' => 'datetime',
         'refunded_at' => 'datetime',
-        'disputed_at' => 'datetime',
-        'period_start' => 'datetime',
-        'period_end' => 'datetime',
         'metadata' => 'array',
     ];
 
@@ -138,18 +123,12 @@ class Transaction extends Model
 
     public function getPaymentMethodDisplayAttribute(): string
     {
-        if ($this->card_brand && $this->card_last4) {
-            return ucfirst($this->card_brand) . ' •••• ' . $this->card_last4;
-        }
-        return $this->payment_method_type ?? $this->payment_method ?? 'Unknown';
+        return 'Payment received';
     }
 
     public function getCardExpiryAttribute(): ?string
     {
-        if (!$this->card_exp_month || !$this->card_exp_year) {
-            return null;
-        }
-        return sprintf('%02d/%02d', $this->card_exp_month, $this->card_exp_year % 100);
+        return null;
     }
 
     public function isSuccessful(): bool
