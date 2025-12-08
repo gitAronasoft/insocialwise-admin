@@ -8,6 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('billing_activity_logs')) {
+            return;
+        }
         Schema::create('billing_activity_logs', function (Blueprint $table) {
             $table->id();
             $table->string('user_uuid')->nullable()->comment('User UUID reference');

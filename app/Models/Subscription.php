@@ -206,7 +206,8 @@ class Subscription extends Model
             return null;
         }
         $currency = strtoupper($this->currency ?? 'USD');
-        return $currency . ' ' . number_format($this->amount / 100, 2);
+        // Amount is stored in dollars, not cents
+        return $currency . ' ' . number_format($this->amount, 2);
     }
 
     public function needsTrialReminder(): bool

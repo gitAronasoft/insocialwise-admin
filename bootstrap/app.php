@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'permission' => \App\Http\Middleware\CheckPermission::class,
+            'admin.audit' => \App\Http\Middleware\AdminAuditMiddleware::class,
         ]);
 
         $middleware->redirectGuestsTo(fn (Request $request) => route('admin.login'));

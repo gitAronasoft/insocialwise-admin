@@ -8,6 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('billing_notifications')) {
+            return;
+        }
         Schema::create('billing_notifications', function (Blueprint $table) {
             $table->id();
             $table->string('user_uuid')->comment('User UUID reference');

@@ -137,15 +137,12 @@ class AnalyticsService
         return Cache::remember($cacheKey, self::CACHE_TTL, function () {
             try {
                 $activeSubscriptions = Subscription::where('status', 'active')
-                    ->with('plan')
                     ->get();
 
                 $currentMRR = 0;
                 foreach ($activeSubscriptions as $subscription) {
-                    if ($subscription->plan) {
-                        $price = $subscription->plan->monthly_price_usd ?? $subscription->plan->price ?? 0;
-                        $currentMRR += $price;
-                    }
+                    // Use the subscription amount directly (already in dollars)
+                    $currentMRR += $subscription->amount ?? 0;
                 }
 
                 $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();

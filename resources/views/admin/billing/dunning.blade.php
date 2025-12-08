@@ -155,7 +155,7 @@
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="text-sm font-semibold text-gray-900">
-                                    ${{ number_format(($subscription->amount ?? 0) / 100, 2) }}
+                                    ${{ number_format(($subscription->amount ?? 0), 2) }}
                                 </div>
                                 <div class="text-xs text-gray-500">
                                     /{{ $subscription->billing_interval ?? 'month' }}

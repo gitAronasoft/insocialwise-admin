@@ -166,6 +166,31 @@ php artisan view:clear
 
 ## Recent Changes
 
+### December 2024 - Admin Audit Trail
+- **Admin Audit Logs**:
+  - Complete tracking of all admin actions (login, logout, CRUD operations)
+  - IP address and user agent logging for security monitoring
+  - Action types: login, logout, login_failed, customer/subscription/plan operations
+  - Severity levels: info, warning, error, critical
+  - Filterable by action type, admin user, date range
+  
+- **Admin Session Management**:
+  - Track active admin sessions with device info
+  - View all sessions or just current admin's sessions
+  - Revoke individual sessions or all other sessions
+  - Session activity tracking with last activity timestamps
+  - Browser, OS, and device type detection from user agent
+
+- **Security Overview Dashboard**:
+  - Login attempt statistics (successful vs failed)
+  - Unique IP addresses accessing the system
+  - Security alerts for suspicious activity
+  - Recent activity feed
+
+- **Database Tables**:
+  - admin_audit_logs: Complete audit trail with action details, old/new values, metadata
+  - admin_sessions: Active session tracking with device fingerprinting
+
 ### December 2024 - Enhanced Billing & Timeline Module
 - **Billing Notifications System**:
   - billing_notifications table for scheduled email notifications

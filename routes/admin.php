@@ -24,9 +24,10 @@ use App\Http\Controllers\Admin\SocialAccountController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\BillingController;
+use App\Http\Controllers\Admin\AuditLogController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Subscription Plans routes
@@ -197,4 +198,12 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
         Route::delete('/admin-users/{adminUser}', [AdminUserController::class, 'destroy'])->name('admin-users.destroy')->middleware('permission:manage_admin_users');
         Route::post('/admin-users/{adminUser}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('admin-users.toggle-status')->middleware('permission:manage_admin_users');
     });
+
+    Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+    Route::get('/audit-logs/sessions', [AuditLogController::class, 'sessions'])->name('audit-logs.sessions');
+    Route::get('/audit-logs/my-sessions', [AuditLogController::class, 'mySessions'])->name('audit-logs.my-sessions');
+    Route::get('/audit-logs/security', [AuditLogController::class, 'securityOverview'])->name('audit-logs.security');
+    Route::post('/audit-logs/sessions/{session}/revoke', [AuditLogController::class, 'revokeSession'])->name('audit-logs.revoke-session');
+    Route::post('/audit-logs/revoke-all-other', [AuditLogController::class, 'revokeAllOtherSessions'])->name('audit-logs.revoke-all-other');
+    Route::get('/audit-logs/{auditLog}', [AuditLogController::class, 'show'])->name('audit-logs.show');
 });
