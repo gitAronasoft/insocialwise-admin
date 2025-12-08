@@ -65,6 +65,11 @@ class Transaction extends Model
         return $this->hasMany(BillingActivityLog::class, 'transaction_id');
     }
 
+    public function paymentMethod(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMethod::class, 'stripe_payment_method_id', 'stripe_payment_method_id');
+    }
+
     public function getFormattedAmountAttribute(): string
     {
         $currency = strtoupper($this->currency ?? 'USD');

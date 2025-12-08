@@ -184,6 +184,7 @@ Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.'
 
     Route::get('/billing/overview', [BillingController::class, 'overview'])->name('billing.overview');
     Route::get('/billing/payments', [BillingController::class, 'payments'])->name('billing.payments');
+    Route::get('/billing/transactions/{id}', [BillingController::class, 'transactionDetail'])->name('billing.transaction-detail');
     Route::get('/billing/activity-logs', [BillingController::class, 'activityLogs'])->name('billing.activity-logs');
     Route::get('/billing/activity-logs/{log}', [BillingController::class, 'showLog'])->name('billing.show-log');
     Route::get('/billing/payment-methods', [BillingController::class, 'paymentMethods'])->name('billing.payment-methods');

@@ -9,6 +9,7 @@ use App\Models\Subscription;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class BillingController extends Controller
 {
@@ -271,112 +272,65 @@ class BillingController extends Controller
     public function payments(Request $request)
     {
         $perPage = 20;
-        $page = $request->get('page', 1);
-        $typeFilter = $request->get('type', '');
         $statusFilter = $request->get('status', '');
         $search = $request->get('search', '');
 
-        $paymentMethods = collect();
-        $transactions = collect();
+        $query = Transaction::query()
+            ->with(['customer'])
+            ->leftJoin('payment_methods', function($join) {
+                $join->on(DB::raw('transactions.stripe_payment_method_id COLLATE utf8mb4_unicode_ci'), '=', DB::raw('payment_methods.stripe_payment_method_id COLLATE utf8mb4_unicode_ci'));
+            })
+            ->leftJoin('users', DB::raw('transactions.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'))
+            ->leftJoin('subscriptions', 'transactions.subscription_id', '=', 'subscriptions.id')
+            ->select(
+                'transactions.*',
+                'users.firstName as customer_first_name',
+                'users.lastName as customer_last_name',
+                'users.email as customer_email',
+                'users.uuid as customer_uuid',
+                'payment_methods.brand as pm_brand',
+                'payment_methods.last4 as pm_last4',
+                'payment_methods.exp_month as pm_exp_month',
+                'payment_methods.exp_year as pm_exp_year',
+                'payment_methods.is_default as pm_is_default',
+                'payment_methods.status as pm_status',
+                'subscriptions.stripe_subscription_id'
+            );
 
-        if ($typeFilter !== 'transaction') {
-            $pmQuery = PaymentMethod::with('customer');
-            
-            if ($statusFilter) {
-                $pmQuery->where('status', $statusFilter);
-            }
-            
-            if ($search) {
-                $pmQuery->where(function ($q) use ($search) {
-                    $q->where('last4', 'like', "%{$search}%")
-                      ->orWhere('brand', 'like', "%{$search}%")
-                      ->orWhereHas('customer', function ($inner) use ($search) {
-                          $inner->where('firstName', 'like', "%{$search}%")
-                                ->orWhere('lastName', 'like', "%{$search}%")
-                                ->orWhere('email', 'like', "%{$search}%");
-                      });
-                });
-            }
-            
-            $paymentMethods = $pmQuery->get()->map(function ($pm) {
-                return [
-                    'id' => $pm->id,
-                    'record_type' => 'payment_method',
-                    'customer' => $pm->customer,
-                    'customer_name' => $pm->customer ? ($pm->customer->firstName . ' ' . $pm->customer->lastName) : 'Unknown',
-                    'customer_email' => $pm->customer->email ?? 'N/A',
-                    'description' => $pm->display_name,
-                    'brand' => $pm->brand,
-                    'last4' => $pm->last4,
-                    'expiry' => $pm->expiry_display,
-                    'amount' => null,
-                    'formatted_amount' => '-',
-                    'status' => $pm->status,
-                    'status_color' => $pm->status_color,
-                    'is_default' => $pm->is_default,
-                    'date' => $pm->createdAt,
-                    'date_formatted' => $pm->createdAt ? $pm->createdAt->format('M d, Y H:i') : 'N/A',
-                    'stripe_id' => $pm->stripe_payment_method_id,
-                ];
+        if ($statusFilter) {
+            $query->where('transactions.status', $statusFilter);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('transactions.stripe_invoice_id', 'like', "%{$search}%")
+                  ->orWhere('transactions.invoice_number', 'like', "%{$search}%")
+                  ->orWhere('users.firstName', 'like', "%{$search}%")
+                  ->orWhere('users.lastName', 'like', "%{$search}%")
+                  ->orWhere('users.email', 'like', "%{$search}%")
+                  ->orWhere('payment_methods.last4', 'like', "%{$search}%");
             });
         }
 
-        if ($typeFilter !== 'payment_method') {
-            $txQuery = Transaction::with(['customer', 'subscription']);
-            
-            if ($statusFilter) {
-                $txQuery->where('status', $statusFilter);
-            }
-            
-            if ($search) {
-                $txQuery->where(function ($q) use ($search) {
-                    $q->where('stripe_invoice_id', 'like', "%{$search}%")
-                      ->orWhere('invoice_number', 'like', "%{$search}%")
-                      ->orWhereHas('customer', function ($inner) use ($search) {
-                          $inner->where('firstName', 'like', "%{$search}%")
-                                ->orWhere('lastName', 'like', "%{$search}%")
-                                ->orWhere('email', 'like', "%{$search}%");
-                      });
-                });
-            }
-            
-            $transactions = $txQuery->get()->map(function ($tx) {
-                return [
-                    'id' => $tx->id,
-                    'record_type' => 'transaction',
-                    'customer' => $tx->customer,
-                    'customer_name' => $tx->customer ? ($tx->customer->firstName . ' ' . $tx->customer->lastName) : 'Unknown',
-                    'customer_email' => $tx->customer->email ?? 'N/A',
-                    'description' => $tx->invoice_number ? "Invoice #{$tx->invoice_number}" : 'Payment',
-                    'brand' => $tx->card_brand ?? null,
-                    'last4' => $tx->card_last4 ?? null,
-                    'expiry' => null,
-                    'amount' => $tx->amount,
-                    'formatted_amount' => $tx->formatted_amount,
-                    'status' => $tx->status,
-                    'status_color' => $tx->status_color,
-                    'is_default' => false,
-                    'date' => $tx->paid_at ?? $tx->createdAt,
-                    'date_formatted' => $tx->paid_at ? $tx->paid_at->format('M d, Y H:i') : ($tx->createdAt ? $tx->createdAt->format('M d, Y H:i') : 'N/A'),
-                    'stripe_id' => $tx->stripe_payment_intent_id ?? $tx->stripe_invoice_id,
-                ];
-            });
-        }
+        $payments = $query->orderBy('transactions.paid_at', 'desc')
+            ->orderBy('transactions.id', 'desc')
+            ->paginate($perPage);
 
-        $combined = $paymentMethods->merge($transactions)
-            ->sortByDesc('date')
-            ->values();
-
-        $total = $combined->count();
-        $items = $combined->forPage($page, $perPage);
-        
-        $payments = new \Illuminate\Pagination\LengthAwarePaginator(
-            $items,
-            $total,
-            $perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
+        // Load payment method relationship for each payment if not already loaded via join
+        $payments->getCollection()->transform(function ($payment) {
+            if (!$payment->pm_brand && $payment->stripe_payment_method_id) {
+                $paymentMethod = PaymentMethod::where('stripe_payment_method_id', $payment->stripe_payment_method_id)->first();
+                if ($paymentMethod) {
+                    $payment->pm_brand = $paymentMethod->brand;
+                    $payment->pm_last4 = $paymentMethod->last4;
+                    $payment->pm_exp_month = $paymentMethod->exp_month;
+                    $payment->pm_exp_year = $paymentMethod->exp_year;
+                    $payment->pm_is_default = $paymentMethod->is_default;
+                    $payment->pm_status = $paymentMethod->status;
+                }
+            }
+            return $payment;
+        });
 
         $stats = [
             'total_payment_methods' => PaymentMethod::count(),
@@ -386,12 +340,69 @@ class BillingController extends Controller
             'total_revenue' => Transaction::whereIn('status', ['succeeded', 'paid'])->sum('amount') / 100,
         ];
 
-        return view('admin.billing.payments', compact('payments', 'stats', 'typeFilter', 'statusFilter', 'search'));
+        return view('admin.billing.payments', compact('payments', 'stats', 'statusFilter', 'search'));
+    }
+
+    public function transactionDetail($id)
+    {
+        $transaction = Transaction::query()
+            ->leftJoin('payment_methods', function ($join) {
+                $join->on(DB::raw('transactions.stripe_payment_method_id COLLATE utf8mb4_unicode_ci'), '=', DB::raw('payment_methods.stripe_payment_method_id COLLATE utf8mb4_unicode_ci'));
+            })
+            ->leftJoin('users', DB::raw('transactions.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'))
+            ->leftJoin('subscriptions', 'transactions.subscription_id', '=', 'subscriptions.id')
+            ->leftJoin('subscription_plans', 'subscriptions.plan_id', '=', 'subscription_plans.id')
+            ->where('transactions.id', $id)
+            ->select(
+                'transactions.*',
+                'users.firstName as customer_first_name',
+                'users.lastName as customer_last_name',
+                'users.email as customer_email',
+                'users.uuid as customer_uuid',
+                'users.billing_address_line1',
+                'users.billing_address_line2',
+                'users.billing_city',
+                'users.billing_state',
+                'users.billing_postal_code',
+                'users.billing_country',
+                'payment_methods.brand as pm_brand',
+                'payment_methods.last4 as pm_last4',
+                'payment_methods.exp_month as pm_exp_month',
+                'payment_methods.exp_year as pm_exp_year',
+                'payment_methods.funding as pm_funding',
+                'payment_methods.country as pm_country',
+                'subscriptions.stripe_subscription_id',
+                'subscriptions.billing_interval',
+                'subscription_plans.name as plan_name',
+                'subscription_plans.price as plan_price'
+            )
+            ->firstOrFail();
+
+        // Fallback: Try to load payment method if join didn't work
+        if (!$transaction->pm_brand && $transaction->stripe_payment_method_id) {
+            $paymentMethod = PaymentMethod::where('stripe_payment_method_id', $transaction->stripe_payment_method_id)->first();
+            if ($paymentMethod) {
+                $transaction->pm_brand = $paymentMethod->brand;
+                $transaction->pm_last4 = $paymentMethod->last4;
+                $transaction->pm_exp_month = $paymentMethod->exp_month;
+                $transaction->pm_exp_year = $paymentMethod->exp_year;
+                $transaction->pm_funding = $paymentMethod->funding;
+                $transaction->pm_country = $paymentMethod->country;
+            }
+        }
+
+        $relatedTransactions = Transaction::where('user_uuid', $transaction->user_uuid)
+            ->where('id', '!=', $id)
+            ->orderBy('paid_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        return view('admin.billing.transaction-detail', compact('transaction', 'relatedTransactions'));
     }
 
     public function notifications(Request $request)
     {
-        $query = \Illuminate\Support\Facades\DB::table('billing_notifications')
+        $query = DB::table('billing_notifications')
             ->leftJoin('subscriptions', 'billing_notifications.subscription_id', '=', 'subscriptions.id')
             ->leftJoin('users', 'billing_notifications.user_uuid', '=', 'users.uuid')
             ->select(
@@ -432,11 +443,11 @@ class BillingController extends Controller
             ->paginate(25);
 
         $stats = [
-            'total' => \Illuminate\Support\Facades\DB::table('billing_notifications')->count(),
-            'sent' => \Illuminate\Support\Facades\DB::table('billing_notifications')->where('status', 'sent')->count(),
-            'delivered' => \Illuminate\Support\Facades\DB::table('billing_notifications')->where('status', 'delivered')->count(),
-            'failed' => \Illuminate\Support\Facades\DB::table('billing_notifications')->where('status', 'failed')->count(),
-            'today' => \Illuminate\Support\Facades\DB::table('billing_notifications')
+            'total' => DB::table('billing_notifications')->count(),
+            'sent' => DB::table('billing_notifications')->where('status', 'sent')->count(),
+            'delivered' => DB::table('billing_notifications')->where('status', 'delivered')->count(),
+            'failed' => DB::table('billing_notifications')->where('status', 'failed')->count(),
+            'today' => DB::table('billing_notifications')
                 ->whereDate('sent_at', Carbon::today())->count(),
         ];
 
