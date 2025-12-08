@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Subscriptions', 'url' => null], ['label' => 'Transactions', 'url' => null]
+    ]" />
     <div class="bg-white rounded-xl shadow-sm p-6">
         <form action="{{ route('admin.transactions.index') }}" method="GET" class="flex flex-wrap gap-4 mb-6">
             <div class="flex-1 min-w-[200px]">

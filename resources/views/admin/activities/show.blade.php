@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Activities', 'url' => route('admin.activities.index')], ['label' => 'View Details', 'url' => null]
+    ]" />
     <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-900">Activity Details</h3>
         <a href="{{ route('admin.activities.index') }}" class="text-indigo-600 hover:text-indigo-900">Back to Activities</a>

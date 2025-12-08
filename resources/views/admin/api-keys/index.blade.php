@@ -2,6 +2,9 @@
 @section('title', 'API Keys')
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Api Keys', 'url' => null]
+    ]" />
     <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">API Keys & Integration Settings</h1>
         <p class="mt-1 text-gray-600 dark:text-gray-400">Manage external service integrations and credentials</p>

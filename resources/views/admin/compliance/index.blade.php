@@ -2,6 +2,9 @@
 @section('title', 'Compliance & Legal')
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Compliance', 'url' => null]
+    ]" />
     <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Compliance & Legal Management</h1>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">

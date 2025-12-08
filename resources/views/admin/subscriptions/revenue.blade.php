@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Subscriptions', 'url' => null], ['label' => 'Revenue', 'url' => null]
+    ]" />
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</p>

@@ -58,6 +58,7 @@ routes/
 - **Subscription Timeline**: Visual journey from trial to active with milestones
 - **Subscription Plans**: Create/edit plans with Stripe sync, pricing tiers, trial periods
 - **Transactions**: View all payment transactions with detailed payment info
+- **Payments (Unified View)**: Combined display of payment methods + transactions in single view with type filtering
 - **Revenue**: Revenue analytics and reporting
 - **Billing Activity Logs**: Complete audit trail of all billing events
 - **Notification Queue**: Manage scheduled billing notifications (trial reminders, renewal alerts)
@@ -165,6 +166,15 @@ php artisan view:clear
 - **IMPORTANT**: Always run `npm run build` for Vite before starting Laravel server
 
 ## Recent Changes
+
+### December 2024 - Unified Payments View
+- **Payments Page**: Combined view of payment methods and transactions
+  - Single unified display showing both cards and transactions together
+  - Type filter to show All, Payment Methods only, or Transactions only
+  - Status filter (active, succeeded, paid, failed, expired)
+  - Search across cards, invoices, and customers
+  - Stats cards showing payment methods count, active cards, transactions, success rate, and total revenue
+  - Amount displays correctly converted from cents to dollars
 
 ### December 2024 - Admin Audit Trail
 - **Admin Audit Logs**:

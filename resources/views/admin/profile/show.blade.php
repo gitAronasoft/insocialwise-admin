@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Profile', 'url' => route('admin.profile.index')], ['label' => 'View Details', 'url' => null]
+    ]" />
     <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-900">My Profile</h3>
         <a href="{{ route('admin.profile.edit') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Edit Profile</a>

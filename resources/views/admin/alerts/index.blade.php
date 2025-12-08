@@ -2,6 +2,9 @@
 @section('title', 'Alerts & Notifications')
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Alerts', 'url' => null]
+    ]" />
     <div class="flex justify-between items-center">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Alerts & Notifications</h1>
         <a href="{{ route('admin.alerts.index') }}" class="btn btn-primary">View All</a>

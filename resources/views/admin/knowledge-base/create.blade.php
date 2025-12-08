@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Knowledge Base', 'url' => route('admin.knowledge-base.index')], ['label' => 'Create New', 'url' => null]
+    ]" />
     <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-900">Create New Article</h3>
         <a href="{{ route('admin.knowledge-base.index') }}" class="text-indigo-600 hover:text-indigo-900">Back</a>

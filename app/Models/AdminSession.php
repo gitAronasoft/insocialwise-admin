@@ -82,10 +82,10 @@ class AdminSession extends Model
         ]);
     }
 
-    public function touch(): bool
+    public function touch($attribute = null)
     {
         $this->last_activity_at = now();
-        return $this->save();
+        return parent::touch($attribute);
     }
 
     public static function parseUserAgent(?string $userAgent): array

@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Settings', 'url' => null]
+    ]" />
     <div class="flex justify-between items-center">
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4 flex-1 mr-4">
             <div class="bg-white rounded-xl shadow-sm p-4">

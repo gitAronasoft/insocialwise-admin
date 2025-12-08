@@ -2,6 +2,9 @@
 @section('title', 'Global Search')
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Search', 'url' => null]
+    ]" />
     <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Global Search</h1>
         <p class="mt-2 text-gray-600 dark:text-gray-400">Search across all customers, posts, transactions, and more</p>

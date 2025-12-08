@@ -141,8 +141,8 @@ class AnalyticsService
 
                 $currentMRR = 0;
                 foreach ($activeSubscriptions as $subscription) {
-                    // Use the subscription amount directly (already in dollars)
-                    $currentMRR += $subscription->amount ?? 0;
+                    // Amount is stored in cents, convert to dollars
+                    $currentMRR += ($subscription->amount ?? 0) / 100;
                 }
 
                 $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
@@ -150,7 +150,7 @@ class AnalyticsService
 
                 $previousMRR = Transaction::where('status', 'succeeded')
                     ->whereBetween('paid_at', [$lastMonthStart, $lastMonthEnd])
-                    ->sum('amount');
+                    ->sum('amount') / 100;
 
                 $growth = $this->calculateGrowth($currentMRR, (float)$previousMRR);
 

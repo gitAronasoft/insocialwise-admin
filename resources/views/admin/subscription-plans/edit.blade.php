@@ -21,6 +21,9 @@
 </style>
 
 <div class="space-y-6" x-data="planForm()">
+    <x-breadcrumb :items="[
+        ['label' => 'Subscription Plans', 'url' => route('admin.subscription-plans.index')], ['label' => 'Edit', 'url' => null]
+    ]" />
     <div class="flex items-center justify-between">
         <div>
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Subscription Plan</h3>

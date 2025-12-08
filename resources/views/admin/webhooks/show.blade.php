@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6" x-data="webhookDetails()">
+    <x-breadcrumb :items="[
+        ['label' => 'Webhooks', 'url' => route('admin.webhooks.index')], ['label' => 'View Details', 'url' => null]
+    ]" />
     <div class="flex items-center justify-between">
         <div>
             <a href="{{ route('admin.webhooks.index') }}" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 mb-2">

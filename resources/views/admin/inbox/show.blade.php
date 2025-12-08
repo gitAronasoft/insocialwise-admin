@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Inbox', 'url' => route('admin.inbox.index')], ['label' => 'View Details', 'url' => null]
+    ]" />
     <div class="flex items-center justify-between">
         <div>
             <h3 class="text-lg font-semibold text-gray-900">{{ $conversation->external_username ?? 'Unknown User' }}</h3>

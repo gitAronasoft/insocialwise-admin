@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Customers', 'url' => route('admin.customers.index')], ['label' => 'Edit', 'url' => null]
+    ]" />
     <a href="{{ route('admin.customers.show', $customer) }}" class="text-indigo-600 hover:text-indigo-800">&larr; Back to Customer</a>
 
     <div class="bg-white rounded-xl shadow-sm p-6">

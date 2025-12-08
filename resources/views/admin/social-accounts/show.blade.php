@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Social Accounts', 'url' => route('admin.social-accounts.index')], ['label' => 'View Details', 'url' => null]
+    ]" />
     <div class="flex justify-between items-center">
         <a href="{{ route('admin.social-accounts.index') }}" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300">
             &larr; Back to Social Accounts

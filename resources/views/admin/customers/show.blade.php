@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Customers', 'url' => route('admin.customers.index')], ['label' => 'View Details', 'url' => null]
+    ]" />
     <div class="flex justify-between items-center">
         <a href="{{ route('admin.customers.index') }}" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

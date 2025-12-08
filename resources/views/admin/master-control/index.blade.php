@@ -4,6 +4,11 @@
 
 @section('content')
 <div x-data="masterControl()" class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'System', 'url' => null],
+        ['label' => 'Master Control', 'url' => null]
+    ]" />
+
     <div x-show="toast.show" 
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 transform translate-y-2"

@@ -2,6 +2,9 @@
 @section('title', 'Webhooks')
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Webhooks', 'url' => null]
+    ]" />
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Webhooks</h1>

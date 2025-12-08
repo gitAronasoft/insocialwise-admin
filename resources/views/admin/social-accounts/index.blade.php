@@ -2,6 +2,9 @@
 @section('title', 'Social Accounts')
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Social Accounts', 'url' => null]
+    ]" />
     <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Social Accounts</h1>
         <p class="mt-1 text-gray-600 dark:text-gray-400">View and manage all connected social media accounts</p>

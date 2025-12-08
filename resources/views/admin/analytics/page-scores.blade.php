@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Analytics', 'url' => null], ['label' => 'Page Scores', 'url' => null]
+    ]" />
     <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-900">Page Performance Scores</h3>
     </div>

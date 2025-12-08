@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Knowledge Base', 'url' => route('admin.knowledge-base.index')], ['label' => 'View Details', 'url' => null]
+    ]" />
     <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-900">{{ $knowledgeBase->knowledgeBase_title }}</h3>
         <div class="flex space-x-2">

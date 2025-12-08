@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Notifications', 'url' => route('admin.notifications.index')], ['label' => 'View Details', 'url' => null]
+    ]" />
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">Notification Details</h1>

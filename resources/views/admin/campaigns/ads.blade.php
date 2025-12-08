@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Campaigns', 'url' => null], ['label' => 'Ads', 'url' => null]
+    ]" />
     <div class="flex justify-between items-center">
         <h3 class="text-lg font-semibold text-gray-900">Ads</h3>
     </div>

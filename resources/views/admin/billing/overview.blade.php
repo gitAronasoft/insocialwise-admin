@@ -132,7 +132,7 @@
                             </div>
                         </div>
                         <div class="text-right flex-shrink-0 ml-4">
-                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">${{ number_format(($subscription->amount ?? 0), 2) }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">${{ number_format((($subscription->amount ?? 0) / 100), 2) }}</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">{{ $subscription->current_period_end?->format('M d') }}</p>
                         </div>
                     </div>

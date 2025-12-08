@@ -268,6 +268,127 @@ class BillingController extends Controller
         return view('admin.billing.dunning', compact('subscriptions', 'stats', 'dunningStatuses'));
     }
 
+    public function payments(Request $request)
+    {
+        $perPage = 20;
+        $page = $request->get('page', 1);
+        $typeFilter = $request->get('type', '');
+        $statusFilter = $request->get('status', '');
+        $search = $request->get('search', '');
+
+        $paymentMethods = collect();
+        $transactions = collect();
+
+        if ($typeFilter !== 'transaction') {
+            $pmQuery = PaymentMethod::with('customer');
+            
+            if ($statusFilter) {
+                $pmQuery->where('status', $statusFilter);
+            }
+            
+            if ($search) {
+                $pmQuery->where(function ($q) use ($search) {
+                    $q->where('last4', 'like', "%{$search}%")
+                      ->orWhere('brand', 'like', "%{$search}%")
+                      ->orWhereHas('customer', function ($inner) use ($search) {
+                          $inner->where('firstName', 'like', "%{$search}%")
+                                ->orWhere('lastName', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                      });
+                });
+            }
+            
+            $paymentMethods = $pmQuery->get()->map(function ($pm) {
+                return [
+                    'id' => $pm->id,
+                    'record_type' => 'payment_method',
+                    'customer' => $pm->customer,
+                    'customer_name' => $pm->customer ? ($pm->customer->firstName . ' ' . $pm->customer->lastName) : 'Unknown',
+                    'customer_email' => $pm->customer->email ?? 'N/A',
+                    'description' => $pm->display_name,
+                    'brand' => $pm->brand,
+                    'last4' => $pm->last4,
+                    'expiry' => $pm->expiry_display,
+                    'amount' => null,
+                    'formatted_amount' => '-',
+                    'status' => $pm->status,
+                    'status_color' => $pm->status_color,
+                    'is_default' => $pm->is_default,
+                    'date' => $pm->createdAt,
+                    'date_formatted' => $pm->createdAt ? $pm->createdAt->format('M d, Y H:i') : 'N/A',
+                    'stripe_id' => $pm->stripe_payment_method_id,
+                ];
+            });
+        }
+
+        if ($typeFilter !== 'payment_method') {
+            $txQuery = Transaction::with(['customer', 'subscription']);
+            
+            if ($statusFilter) {
+                $txQuery->where('status', $statusFilter);
+            }
+            
+            if ($search) {
+                $txQuery->where(function ($q) use ($search) {
+                    $q->where('stripe_invoice_id', 'like', "%{$search}%")
+                      ->orWhere('invoice_number', 'like', "%{$search}%")
+                      ->orWhereHas('customer', function ($inner) use ($search) {
+                          $inner->where('firstName', 'like', "%{$search}%")
+                                ->orWhere('lastName', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                      });
+                });
+            }
+            
+            $transactions = $txQuery->get()->map(function ($tx) {
+                return [
+                    'id' => $tx->id,
+                    'record_type' => 'transaction',
+                    'customer' => $tx->customer,
+                    'customer_name' => $tx->customer ? ($tx->customer->firstName . ' ' . $tx->customer->lastName) : 'Unknown',
+                    'customer_email' => $tx->customer->email ?? 'N/A',
+                    'description' => $tx->invoice_number ? "Invoice #{$tx->invoice_number}" : 'Payment',
+                    'brand' => $tx->card_brand ?? null,
+                    'last4' => $tx->card_last4 ?? null,
+                    'expiry' => null,
+                    'amount' => $tx->amount,
+                    'formatted_amount' => $tx->formatted_amount,
+                    'status' => $tx->status,
+                    'status_color' => $tx->status_color,
+                    'is_default' => false,
+                    'date' => $tx->paid_at ?? $tx->createdAt,
+                    'date_formatted' => $tx->paid_at ? $tx->paid_at->format('M d, Y H:i') : ($tx->createdAt ? $tx->createdAt->format('M d, Y H:i') : 'N/A'),
+                    'stripe_id' => $tx->stripe_payment_intent_id ?? $tx->stripe_invoice_id,
+                ];
+            });
+        }
+
+        $combined = $paymentMethods->merge($transactions)
+            ->sortByDesc('date')
+            ->values();
+
+        $total = $combined->count();
+        $items = $combined->forPage($page, $perPage);
+        
+        $payments = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        $stats = [
+            'total_payment_methods' => PaymentMethod::count(),
+            'active_cards' => PaymentMethod::where('status', 'active')->count(),
+            'total_transactions' => Transaction::count(),
+            'successful_transactions' => Transaction::whereIn('status', ['succeeded', 'paid'])->count(),
+            'total_revenue' => Transaction::whereIn('status', ['succeeded', 'paid'])->sum('amount') / 100,
+        ];
+
+        return view('admin.billing.payments', compact('payments', 'stats', 'typeFilter', 'statusFilter', 'search'));
+    }
+
     public function notifications(Request $request)
     {
         $query = \Illuminate\Support\Facades\DB::table('billing_notifications')

@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Activities', 'url' => null]
+    ]" />
     <div class="flex justify-between items-center">
         <h3 class="text-lg font-semibold text-gray-900">Activity Logs</h3>
         <a href="{{ route('admin.activities.stats') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">View Stats</a>

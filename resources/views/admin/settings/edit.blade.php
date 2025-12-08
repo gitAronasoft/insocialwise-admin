@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Settings', 'url' => route('admin.settings.index')], ['label' => 'Edit', 'url' => null]
+    ]" />
     <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-900">Edit Setting: {{ $setting->key }}</h3>
         <a href="{{ route('admin.settings.index') }}" class="text-indigo-600 hover:text-indigo-900">Back to Settings</a>

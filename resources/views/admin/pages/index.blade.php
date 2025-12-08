@@ -2,6 +2,9 @@
 @section('title', 'Connected Pages')
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Pages', 'url' => null]
+    ]" />
     <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Connected Pages</h1>
         <p class="mt-1 text-gray-600 dark:text-gray-400">Manage all social media pages connected through InSocialWise</p>

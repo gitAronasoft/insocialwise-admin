@@ -2,6 +2,9 @@
 @section('title', 'Subscription Plans')
 @section('content')
 <div class="space-y-6" x-data="{ viewMode: 'cards' }">
+    <x-breadcrumb :items="[
+        ['label' => 'Subscription Plans', 'url' => null]
+    ]" />
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Subscription Plans</h1>

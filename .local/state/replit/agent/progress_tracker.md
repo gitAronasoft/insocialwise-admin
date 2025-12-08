@@ -50,3 +50,40 @@ Amount Format Fixes Applied:
 - Workflow restarted with all fixes applied
 
 All subscription amounts, MRR, and billing calculations now display correctly in USD format ($19.00, not $0.19).
+
+## Breadcrumb Navigation (December 8, 2025)
+[x] 12. Added breadcrumb navigation to all admin view pages (December 8, 2025)
+
+Breadcrumb Implementation Summary:
+- Added breadcrumbs to 65 total admin pages (63 via automated script + 2 manual fixes)
+- Pages with breadcrumbs: activities, admin-users, alerts, analytics, api-keys, audit-logs, billing, campaigns, compliance, customers, dashboard, inbox, knowledge-base, master-control, notifications, pages, posts, profile, reports, search, settings, social-accounts, subscription-plans, subscriptions, webhooks
+- All breadcrumbs follow the standard format with Dashboard as root link
+- Breadcrumb items are contextual based on page type (index, show, create, edit)
+- Workflow restarted and verified running successfully on port 5000
+
+## Billing & Subscription Amount Display Fixes (December 8, 2025)
+[x] 13. Fixed all billing and subscription amounts to display in dollars (from cents) (December 8, 2025)
+
+Amount Conversion Fixes Applied:
+- **Subscription Model**: Updated getFormattedAmountAttribute() to divide amount by 100 (cents to dollars)
+- **Billing Overview Page**: Fixed upcoming renewals amount display to divide by 100
+- **Dunning Page**: Fixed recovery amount display to divide by 100
+- **Subscriptions Show Page**: Fixed fallback amount formatting to divide by 100
+- **AnalyticsService.getMRR()**: Fixed MRR calculation to divide subscription amounts by 100
+- **AnalyticsService.getMRR()**: Fixed previous month transaction sum to divide by 100
+
+All subscription amounts now correctly display in USD format:
+- Subscription amount fields (stored as cents in DB) convert to dollars for display
+- Monthly Recurring Revenue (MRR) calculations use correct dollar amounts
+- Transaction amounts continue using correct cents-to-dollars conversion
+- Cache cleared and workflow restarted with all fixes applied
+
+## AdminSession Method Signature Fix (December 8, 2025)
+[x] 14. Resolved FatalError - Fixed AdminSession::touch() method signature incompatibility (December 8, 2025)
+
+Issue Resolved:
+- **Error**: Declaration of App\Models\AdminSession::touch(): bool must be compatible with Illuminate\Database\Eloquent\Model::touch($attribute = null)
+- **Root Cause**: The touch() method had an incompatible return type (bool instead of matching parent class)
+- **Solution**: Updated method signature to match parent class - removed explicit bool return type and added $attribute parameter, calls parent::touch($attribute)
+- **File Changed**: app/Models/AdminSession.php (lines 88-92)
+- **Status**: ✅ Application running error-free on port 5000

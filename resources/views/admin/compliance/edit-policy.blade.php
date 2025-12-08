@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Compliance', 'url' => null], ['label' => 'Edit Policy', 'url' => null]
+    ]" />
     <div class="flex items-center justify-between">
         <div>
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Edit Policy</h3>

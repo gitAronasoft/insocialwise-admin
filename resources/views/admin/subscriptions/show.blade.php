@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Subscriptions', 'url' => route('admin.subscriptions.index')], ['label' => 'View Details', 'url' => null]
+    ]" />
     <div class="flex justify-between items-center">
         <a href="{{ route('admin.subscriptions.index') }}" class="text-indigo-600 hover:text-indigo-800">&larr; Back to Subscriptions</a>
         @if($subscription->customer)
@@ -210,7 +213,7 @@
             <div class="space-y-4">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Amount</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $subscription->formatted_amount ?? '$' . number_format(($subscription->amount ?? 0), 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $subscription->formatted_amount ?? '$' . number_format((($subscription->amount ?? 0) / 100), 2) }}</p>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Billing Interval</p>
