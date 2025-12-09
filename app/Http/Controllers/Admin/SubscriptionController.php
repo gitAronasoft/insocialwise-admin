@@ -50,9 +50,9 @@ class SubscriptionController extends Controller
                     'id' => $sub->id,
                     'stripe_subscription_id' => $sub->stripe_subscription_id,
                     'status' => $sub->status,
-                    'current_period_start' => $sub->current_period_start?->format('Y-m-d H:i:s'),
-                    'current_period_end' => $sub->current_period_end?->format('Y-m-d H:i:s'),
-                    'createdAt' => $sub->createdAt?->format('Y-m-d H:i:s'),
+                    'current_period_start' => $sub->current_period_start?->toIso8601String(),
+                    'current_period_end' => $sub->current_period_end?->toIso8601String(),
+                    'createdAt' => $sub->createdAt?->toIso8601String(),
                     'customer' => $sub->customer ? [
                         'id' => $sub->customer->id,
                         'firstName' => $sub->customer->firstName,

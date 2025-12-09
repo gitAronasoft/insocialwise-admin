@@ -171,6 +171,26 @@
                                             @endif
                                         </div>
                                     </div>
+                                @elseif($payment->brand && $payment->last4)
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded flex items-center justify-center mr-2 shadow-sm">
+                                            @if(strtolower($payment->brand) === 'visa')
+                                                <span class="text-[10px] font-bold text-blue-600 dark:text-blue-400">VISA</span>
+                                            @elseif(strtolower($payment->brand) === 'mastercard')
+                                                <span class="text-[10px] font-bold text-red-600 dark:text-red-400">MC</span>
+                                            @elseif(strtolower($payment->brand) === 'amex')
+                                                <span class="text-[10px] font-bold text-blue-800 dark:text-blue-300">AMEX</span>
+                                            @else
+                                                <span class="text-[10px] font-bold text-gray-600 dark:text-gray-400">{{ strtoupper(substr($payment->brand, 0, 4)) }}</span>
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <span class="font-mono text-sm text-gray-700 dark:text-gray-300">**** {{ $payment->last4 }}</span>
+                                            @if($payment->exp_month && $payment->exp_year)
+                                                <span class="ml-1 text-xs text-gray-500 dark:text-gray-400">({{ sprintf('%02d/%02d', $payment->exp_month, $payment->exp_year % 100) }})</span>
+                                            @endif
+                                        </div>
+                                    </div>
                                 @elseif($payment->card_brand && $payment->card_last4)
                                     <div class="flex items-center">
                                         <div class="w-10 h-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded flex items-center justify-center mr-2 shadow-sm">
@@ -199,9 +219,10 @@
                                 <div class="flex items-center space-x-2">
                                     <a href="{{ route('admin.billing.transaction-detail', ['id' => $payment->id]) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">
                                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                         </svg>
-                                        Invoice
+                                        View
                                     </a>
                                     @if($payment->invoice_pdf_url)
                                         <a href="{{ $payment->invoice_pdf_url }}" target="_blank" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">

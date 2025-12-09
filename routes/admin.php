@@ -87,9 +87,7 @@ Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.'
 
     Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
     Route::post('/subscriptions/export', [SubscriptionController::class, 'export'])->name('subscriptions.export');
-    Route::get('/subscriptions/transactions', [SubscriptionController::class, 'transactions'])->name('subscriptions.transactions');
     Route::get('/subscriptions/{subscription}', [SubscriptionController::class, 'show'])->name('subscriptions.show');
-    Route::get('/transactions', [SubscriptionController::class, 'transactions'])->name('transactions.index');
     Route::get('/revenue', [SubscriptionController::class, 'revenue'])->name('revenue');
 
     Route::resource('subscription-plans', SubscriptionPlanController::class)->names('subscription-plans');
@@ -187,7 +185,6 @@ Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.'
     Route::get('/billing/transactions/{id}', [BillingController::class, 'transactionDetail'])->name('billing.transaction-detail');
     Route::get('/billing/activity-logs', [BillingController::class, 'activityLogs'])->name('billing.activity-logs');
     Route::get('/billing/activity-logs/{log}', [BillingController::class, 'showLog'])->name('billing.show-log');
-    Route::get('/billing/payment-methods', [BillingController::class, 'paymentMethods'])->name('billing.payment-methods');
     Route::get('/billing/dunning', [BillingController::class, 'dunning'])->name('billing.dunning');
     Route::get('/billing/notifications', [BillingController::class, 'notifications'])->name('billing.notifications');
 

@@ -515,78 +515,6 @@
         </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
-            <button 
-                @click="refreshActivity()" 
-                :disabled="loadingActivity"
-                class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-                <svg :class="{ 'animate-spin': loadingActivity }" class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-                Refresh
-            </button>
-        </div>
-        
-        <div class="overflow-x-auto">
-            <template x-if="loadingActivity && !activityData.length">
-                <div class="space-y-3">
-                    <div class="animate-pulse flex space-x-4 p-4">
-                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
-                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/6"></div>
-                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
-                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/6"></div>
-                    </div>
-                </div>
-            </template>
-            
-            <template x-if="activityError">
-                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-                    <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <p>Failed to load activity data</p>
-                    <button @click="refreshActivity()" class="mt-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 text-sm">Retry</button>
-                </div>
-            </template>
-
-            <template x-if="!loadingActivity || activityData.length">
-                <table x-show="activityData.length" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead>
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Action</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Time</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                        <template x-for="activity in activityData" :key="activity.id">
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="text-sm text-gray-900 dark:text-gray-200" x-text="activity.user_name"></span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200" x-text="activity.activity_type"></span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400" x-text="activity.action"></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400" x-text="activity.time"></td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </template>
-            
-            <template x-if="!loadingActivity && !activityError && !activityData.length">
-                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-                    <p>No recent activity</p>
-                </div>
-            </template>
-        </div>
-        <a href="{{ route('admin.activities.index') }}" class="mt-4 block text-center text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 text-sm">View All Activity</a>
-    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -599,19 +527,16 @@ function dashboardData() {
         subscriptionData: null,
         planRevenueData: null,
         trendsData: null,
-        activityData: [],
         loadingRevenue: true,
         loadingCustomer: true,
         loadingSubscription: true,
         loadingPlanRevenue: true,
         loadingTrends: true,
-        loadingActivity: true,
         revenueError: false,
         customerError: false,
         subscriptionError: false,
         planRevenueError: false,
         trendsError: false,
-        activityError: false,
         revenueChart: null,
         customerChart: null,
         subscriptionChart: null,
@@ -623,7 +548,6 @@ function dashboardData() {
             this.loadSubscriptionChart();
             this.loadPlanRevenueChart();
             this.loadTrendsChart();
-            this.refreshActivity();
         },
 
         async loadRevenueChart() {
@@ -852,23 +776,6 @@ function dashboardData() {
             });
         },
 
-        async refreshActivity() {
-            this.loadingActivity = true;
-            this.activityError = false;
-            try {
-                const response = await fetch('/admin/dashboard/recent-activity');
-                const data = await response.json();
-                if (data.success) {
-                    this.activityData = data.data;
-                } else {
-                    this.activityError = true;
-                }
-            } catch (error) {
-                this.activityError = true;
-            } finally {
-                this.loadingActivity = false;
-            }
-        }
     };
 }
 </script>

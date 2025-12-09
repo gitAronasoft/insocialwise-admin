@@ -310,15 +310,15 @@ class AnalyticsService
 
                     $planRevenue[] = [
                         'name' => $plan->name,
-                        'revenue' => (float)$revenue,
-                        'formatted' => '$' . number_format($revenue, 2),
+                        'revenue' => (float)($revenue / 100),
+                        'formatted' => '$' . number_format($revenue / 100, 2),
                         'color' => $this->getPlanColor($plan->name),
                     ];
                 }
 
                 foreach ($planRevenue as &$plan) {
                     $plan['percentage'] = $totalRevenue > 0 
-                        ? round(($plan['revenue'] / $totalRevenue) * 100, 1) 
+                        ? round(($plan['revenue'] / ($totalRevenue / 100)) * 100, 1) 
                         : 0;
                 }
 
@@ -328,8 +328,8 @@ class AnalyticsService
 
                 return [
                     'plans' => $planRevenue,
-                    'total' => $totalRevenue,
-                    'formatted_total' => '$' . number_format($totalRevenue, 2),
+                    'total' => $totalRevenue / 100,
+                    'formatted_total' => '$' . number_format($totalRevenue / 100, 2),
                     'period_label' => $range['label'],
                 ];
             } catch (\Exception $e) {
@@ -705,15 +705,15 @@ class AnalyticsService
                         ->whereBetween('paid_at', [$point['start'], $point['end']])
                         ->sum('amount');
                     
-                    $revenues[] = (float)$revenue;
+                    $revenues[] = (float)($revenue / 100);
                     $total += $revenue;
                 }
 
                 return [
                     'labels' => $labels,
                     'data' => $revenues,
-                    'total' => $total,
-                    'formatted_total' => '$' . number_format($total, 2),
+                    'total' => $total / 100,
+                    'formatted_total' => '$' . number_format($total / 100, 2),
                 ];
             } catch (\Exception $e) {
                 Log::warning('Analytics: getRevenueTrends error', ['error' => $e->getMessage()]);

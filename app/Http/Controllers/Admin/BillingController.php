@@ -300,10 +300,11 @@ class BillingController extends Controller
 
         $query = Transaction::query()
             ->with(['customer'])
-            ->leftJoin('payment_methods', function($join) {
-                $join->on(DB::raw('transactions.stripe_payment_method_id COLLATE utf8mb4_unicode_ci'), '=', DB::raw('payment_methods.stripe_payment_method_id COLLATE utf8mb4_unicode_ci'));
-            })
             ->leftJoin('users', DB::raw('transactions.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'))
+            ->leftJoin('payment_methods', function($join) {
+                $join->on(DB::raw('transactions.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('payment_methods.user_uuid COLLATE utf8mb4_unicode_ci'))
+                     ->on(DB::raw('transactions.stripe_customer_id COLLATE utf8mb4_unicode_ci'), '=', DB::raw('payment_methods.stripe_customer_id COLLATE utf8mb4_unicode_ci'));
+            })
             ->leftJoin('subscriptions', 'transactions.subscription_id', '=', 'subscriptions.id')
             ->leftJoin('subscription_plans', 'subscriptions.plan_id', '=', 'subscription_plans.id')
             ->select(
@@ -345,20 +346,21 @@ class BillingController extends Controller
             ->orderBy('transactions.id', 'desc')
             ->paginate($perPage);
 
-        $missingPaymentMethodIds = $payments->getCollection()
-            ->filter(fn($p) => !$p->pm_brand && $p->stripe_payment_method_id)
-            ->pluck('stripe_payment_method_id')
+        $missingPaymentUserIds = $payments->getCollection()
+            ->filter(fn($p) => !$p->pm_brand && $p->user_uuid)
+            ->pluck('user_uuid')
             ->unique()
             ->values();
 
-        if ($missingPaymentMethodIds->isNotEmpty()) {
-            $paymentMethodsMap = PaymentMethod::whereIn('stripe_payment_method_id', $missingPaymentMethodIds)
+        if ($missingPaymentUserIds->isNotEmpty()) {
+            $paymentMethodsMap = PaymentMethod::whereIn('user_uuid', $missingPaymentUserIds)
+                ->where('status', 'active')
                 ->get()
-                ->keyBy('stripe_payment_method_id');
+                ->keyBy('user_uuid');
 
             $payments->getCollection()->transform(function ($payment) use ($paymentMethodsMap) {
-                if (!$payment->pm_brand && $payment->stripe_payment_method_id) {
-                    $paymentMethod = $paymentMethodsMap->get($payment->stripe_payment_method_id);
+                if (!$payment->pm_brand && $payment->user_uuid) {
+                    $paymentMethod = $paymentMethodsMap->get($payment->user_uuid);
                     if ($paymentMethod) {
                         $payment->pm_brand = $paymentMethod->brand;
                         $payment->pm_last4 = $paymentMethod->last4;
@@ -395,10 +397,11 @@ class BillingController extends Controller
     public function transactionDetail($id)
     {
         $transaction = Transaction::query()
-            ->leftJoin('payment_methods', function ($join) {
-                $join->on(DB::raw('transactions.stripe_payment_method_id COLLATE utf8mb4_unicode_ci'), '=', DB::raw('payment_methods.stripe_payment_method_id COLLATE utf8mb4_unicode_ci'));
-            })
             ->leftJoin('users', DB::raw('transactions.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'))
+            ->leftJoin('payment_methods', function ($join) {
+                $join->on(DB::raw('transactions.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('payment_methods.user_uuid COLLATE utf8mb4_unicode_ci'))
+                     ->on(DB::raw('transactions.stripe_customer_id COLLATE utf8mb4_unicode_ci'), '=', DB::raw('payment_methods.stripe_customer_id COLLATE utf8mb4_unicode_ci'));
+            })
             ->leftJoin('subscriptions', 'transactions.subscription_id', '=', 'subscriptions.id')
             ->leftJoin('subscription_plans', 'subscriptions.plan_id', '=', 'subscription_plans.id')
             ->where('transactions.id', $id)
@@ -427,8 +430,10 @@ class BillingController extends Controller
             )
             ->firstOrFail();
 
-        if (!$transaction->pm_brand && $transaction->stripe_payment_method_id) {
-            $paymentMethod = PaymentMethod::where('stripe_payment_method_id', $transaction->stripe_payment_method_id)->first();
+        if (!$transaction->pm_brand && $transaction->user_uuid) {
+            $paymentMethod = PaymentMethod::where('user_uuid', $transaction->user_uuid)
+                ->where('status', 'active')
+                ->first();
             if ($paymentMethod) {
                 $transaction->pm_brand = $paymentMethod->brand;
                 $transaction->pm_last4 = $paymentMethod->last4;
