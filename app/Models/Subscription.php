@@ -2,10 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @method static Builder|Subscription query()
+ * @method static Builder|Subscription where($column, $operator = null, $value = null)
+ * @method static Builder|Subscription whereNotNull($column)
+ * @method static Builder|Subscription selectRaw($expression, array $bindings = [])
+ * @method static int count($columns = '*')
+ * @method static float|int sum($column)
+ * @mixin Builder
+ */
 class Subscription extends Model
 {
     protected $table = 'subscriptions';

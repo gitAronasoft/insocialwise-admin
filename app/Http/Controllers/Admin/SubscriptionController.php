@@ -128,9 +128,15 @@ class SubscriptionController extends Controller
 
     public function revenue()
     {
-        $totalRevenue = Transaction::where('status', 'succeeded')->sum('amount');
+        $totalRevenueRaw = Transaction::where('status', 'succeeded')->sum('amount');
+        $totalRevenue = $totalRevenueRaw / 100;
         $transactionCount = Transaction::where('status', 'succeeded')->count();
-        $mrr = Subscription::where('status', 'active')->count() * 29;
+        
+        $mrrRaw = Subscription::where('status', 'active')
+            ->whereNotNull('amount')
+            ->where('billing_interval', 'month')
+            ->sum('amount');
+        $mrr = $mrrRaw / 100;
         
         $recentTransactions = Transaction::with('customer')
             ->where('status', 'succeeded')
@@ -143,7 +149,7 @@ class SubscriptionController extends Controller
             ->where('paid_at', '>=', Carbon::now()->subDays(30))
             ->select(
                 DB::raw('DATE(paid_at) as date'),
-                DB::raw('SUM(amount) as total'),
+                DB::raw('SUM(amount) / 100 as total'),
                 DB::raw('COUNT(*) as count')
             )
             ->groupBy('date')
@@ -156,7 +162,7 @@ class SubscriptionController extends Controller
             ->select(
                 DB::raw('YEAR(paid_at) as year'),
                 DB::raw('WEEK(paid_at) as week'),
-                DB::raw('SUM(amount) as total'),
+                DB::raw('SUM(amount) / 100 as total'),
                 DB::raw('COUNT(*) as count')
             )
             ->groupBy('year', 'week')
@@ -167,7 +173,7 @@ class SubscriptionController extends Controller
                 $date = Carbon::now()->setISODate($item->year, $item->week)->startOfWeek();
                 return [
                     'label' => $date->format('M d'),
-                    'total' => $item->total,
+                    'total' => (float) $item->total,
                     'count' => $item->count,
                 ];
             });
@@ -178,7 +184,7 @@ class SubscriptionController extends Controller
             ->select(
                 DB::raw('YEAR(paid_at) as year'),
                 DB::raw('MONTH(paid_at) as month'),
-                DB::raw('SUM(amount) as total'),
+                DB::raw('SUM(amount) / 100 as total'),
                 DB::raw('COUNT(*) as count')
             )
             ->groupBy('year', 'month')
@@ -189,7 +195,7 @@ class SubscriptionController extends Controller
                 $date = Carbon::createFromDate($item->year, $item->month, 1);
                 return [
                     'label' => $date->format('M Y'),
-                    'total' => $item->total,
+                    'total' => (float) $item->total,
                     'count' => $item->count,
                 ];
             });

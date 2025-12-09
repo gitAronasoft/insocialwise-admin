@@ -2,10 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @method static Builder|Transaction query()
+ * @method static Builder|Transaction where($column, $operator = null, $value = null)
+ * @method static Builder|Transaction whereIn($column, $values)
+ * @method static Builder|Transaction whereDate($column, $operator, $value = null)
+ * @method static Builder|Transaction selectRaw($expression, array $bindings = [])
+ * @method static int count($columns = '*')
+ * @method static float|int sum($column)
+ * @mixin Builder
+ */
 class Transaction extends Model
 {
     protected $table = 'transactions';

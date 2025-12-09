@@ -86,7 +86,7 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                {{ strtoupper($transaction->currency ?? 'USD') }} {{ number_format($transaction->amount, 2) }}
+                                {{ strtoupper($transaction->currency ?? 'USD') }} {{ number_format($transaction->amount / 100, 2) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 

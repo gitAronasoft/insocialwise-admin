@@ -1,0 +1,5 @@
+$trans = \App\Models\Transaction::select('id', 'amount', 'stripe_payment_method_id', 'user_uuid')->first();
+echo "Transaction: " . json_encode($trans, JSON_PRETTY_PRINT) . "\n";
+$pm = \App\Models\PaymentMethod::select('id', 'stripe_payment_method_id', 'brand', 'last4')->first();
+echo "Payment Method: " . json_encode($pm, JSON_PRETTY_PRINT) . "\n";
+exit;

@@ -8,6 +8,7 @@ use App\Models\SocialUser;
 use App\Models\SocialUserPage;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CustomerController extends Controller
@@ -15,7 +16,22 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $query = Customer::where('role', 'User')
-            ->withCount(['socialUsers', 'socialPages', 'posts']);
+            ->select('users.*')
+            ->selectSub(function ($q) {
+                $q->selectRaw('COUNT(*)')
+                    ->from('social_users')
+                    ->whereColumn(DB::raw('social_users.user_id COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'));
+            }, 'social_users_count')
+            ->selectSub(function ($q) {
+                $q->selectRaw('COUNT(*)')
+                    ->from('social_page')
+                    ->whereColumn(DB::raw('social_page.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'));
+            }, 'social_pages_count')
+            ->selectSub(function ($q) {
+                $q->selectRaw('COUNT(*)')
+                    ->from('posts')
+                    ->whereColumn(DB::raw('posts.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'));
+            }, 'posts_count');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -175,7 +191,22 @@ class CustomerController extends Controller
         
         $customers = Customer::where('role', 'User')
             ->whereIn('id', $ids)
-            ->withCount(['socialUsers', 'socialPages', 'posts'])
+            ->select('users.*')
+            ->selectSub(function ($q) {
+                $q->selectRaw('COUNT(*)')
+                    ->from('social_users')
+                    ->whereColumn(DB::raw('social_users.user_id COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'));
+            }, 'social_users_count')
+            ->selectSub(function ($q) {
+                $q->selectRaw('COUNT(*)')
+                    ->from('social_page')
+                    ->whereColumn(DB::raw('social_page.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'));
+            }, 'social_pages_count')
+            ->selectSub(function ($q) {
+                $q->selectRaw('COUNT(*)')
+                    ->from('posts')
+                    ->whereColumn(DB::raw('posts.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'));
+            }, 'posts_count')
             ->get();
 
         $headers = [

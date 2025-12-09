@@ -99,17 +99,15 @@ class BillingController extends Controller
 
         $paymentMethods = $query->orderBy('createdAt', 'desc')->paginate(20);
 
-        $stats = [
-            'total' => PaymentMethod::count(),
-            'active' => PaymentMethod::where('status', 'active')->count(),
-            'expiring_soon' => PaymentMethod::where('status', 'active')
-                ->whereRaw("STR_TO_DATE(CONCAT(exp_year, '-', exp_month, '-01'), '%Y-%m-%d') <= ?", 
-                    [now()->addMonths(2)->format('Y-m-d')])
-                ->count(),
-            'expired' => PaymentMethod::where('status', 'expired')->count(),
-        ];
+        $twoMonthsFromNow = now()->addMonths(2)->format('Y-m-d');
+        $stats = PaymentMethod::selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
+            SUM(CASE WHEN status = 'active' AND STR_TO_DATE(CONCAT(exp_year, '-', exp_month, '-01'), '%Y-%m-%d') <= ? THEN 1 ELSE 0 END) as expiring_soon,
+            SUM(CASE WHEN status = 'expired' THEN 1 ELSE 0 END) as expired
+        ", [$twoMonthsFromNow])->first();
 
-        $cardBrands = PaymentMethod::distinct()->pluck('brand')->filter()->toArray();
+        $cardBrands = PaymentMethod::select('brand')->distinct()->whereNotNull('brand')->pluck('brand')->toArray();
 
         return view('admin.billing.payment-methods', compact('paymentMethods', 'stats', 'cardBrands'));
     }
@@ -120,21 +118,33 @@ class BillingController extends Controller
         $thisMonth = Carbon::now()->startOfMonth();
         $lastMonth = Carbon::now()->subMonth()->startOfMonth();
 
+        $subscriptionStats = Subscription::selectRaw("
+            SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_subscriptions,
+            SUM(CASE WHEN status = 'trialing' THEN 1 ELSE 0 END) as trialing,
+            SUM(CASE WHEN status = 'past_due' THEN 1 ELSE 0 END) as past_due,
+            SUM(CASE WHEN status = 'canceled' AND canceled_at >= ? THEN 1 ELSE 0 END) as canceled_this_month
+        ", [$thisMonth])->first();
+
+        $transactionStats = Transaction::selectRaw("
+            SUM(CASE WHEN status = 'succeeded' AND paid_at >= ? THEN amount ELSE 0 END) as revenue_this_month,
+            SUM(CASE WHEN status = 'succeeded' AND paid_at >= ? AND paid_at < ? THEN amount ELSE 0 END) as revenue_last_month,
+            SUM(CASE WHEN DATE(paid_at) = ? THEN 1 ELSE 0 END) as transactions_today,
+            SUM(CASE WHEN status = 'failed' AND paid_at >= ? THEN 1 ELSE 0 END) as failed_payments
+        ", [$thisMonth, $lastMonth, $thisMonth, $today, $thisMonth])->first();
+
+        $mrr = $this->calculateMRR();
+
         $stats = [
-            'active_subscriptions' => Subscription::where('status', 'active')->count(),
-            'trialing' => Subscription::where('status', 'trialing')->count(),
-            'past_due' => Subscription::where('status', 'past_due')->count(),
-            'canceled_this_month' => Subscription::where('status', 'canceled')
-                ->where('canceled_at', '>=', $thisMonth)->count(),
-            'mrr' => $this->calculateMRR(),
-            'arr' => $this->calculateMRR() * 12,
-            'revenue_this_month' => Transaction::where('status', 'succeeded')
-                ->where('paid_at', '>=', $thisMonth)->sum('amount') / 100,
-            'revenue_last_month' => Transaction::where('status', 'succeeded')
-                ->whereBetween('paid_at', [$lastMonth, $thisMonth])->sum('amount') / 100,
-            'transactions_today' => Transaction::whereDate('paid_at', $today)->count(),
-            'failed_payments' => Transaction::where('status', 'failed')
-                ->where('paid_at', '>=', $thisMonth)->count(),
+            'active_subscriptions' => (int) $subscriptionStats->active_subscriptions,
+            'trialing' => (int) $subscriptionStats->trialing,
+            'past_due' => (int) $subscriptionStats->past_due,
+            'canceled_this_month' => (int) $subscriptionStats->canceled_this_month,
+            'mrr' => $mrr,
+            'arr' => $mrr * 12,
+            'revenue_this_month' => ($transactionStats->revenue_this_month ?? 0) / 100,
+            'revenue_last_month' => ($transactionStats->revenue_last_month ?? 0) / 100,
+            'transactions_today' => (int) $transactionStats->transactions_today,
+            'failed_payments' => (int) $transactionStats->failed_payments,
         ];
 
         $recentLogs = BillingActivityLog::with('customer')
@@ -157,18 +167,28 @@ class BillingController extends Controller
         $today = Carbon::today();
         $thisWeek = Carbon::now()->startOfWeek();
 
+        $stats = BillingActivityLog::selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN DATE(createdAt) = ? THEN 1 ELSE 0 END) as today,
+            SUM(CASE WHEN createdAt >= ? THEN 1 ELSE 0 END) as this_week,
+            SUM(CASE WHEN action_status = 'success' THEN 1 ELSE 0 END) as success,
+            SUM(CASE WHEN action_status = 'failed' THEN 1 ELSE 0 END) as failed
+        ", [$today, $thisWeek])->first();
+
+        $byType = BillingActivityLog::selectRaw('action_type, COUNT(*) as count')
+            ->groupBy('action_type')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->pluck('count', 'action_type')
+            ->toArray();
+
         return [
-            'total' => BillingActivityLog::count(),
-            'today' => BillingActivityLog::whereDate('createdAt', $today)->count(),
-            'this_week' => BillingActivityLog::where('createdAt', '>=', $thisWeek)->count(),
-            'success' => BillingActivityLog::where('action_status', 'success')->count(),
-            'failed' => BillingActivityLog::where('action_status', 'failed')->count(),
-            'by_type' => BillingActivityLog::selectRaw('action_type, count(*) as count')
-                ->groupBy('action_type')
-                ->orderByDesc('count')
-                ->limit(5)
-                ->pluck('count', 'action_type')
-                ->toArray(),
+            'total' => (int) $stats->total,
+            'today' => (int) $stats->today,
+            'this_week' => (int) $stats->this_week,
+            'success' => (int) $stats->success,
+            'failed' => (int) $stats->failed,
+            'by_type' => $byType,
         ];
     }
 
@@ -251,22 +271,25 @@ class BillingController extends Controller
 
         $subscriptions = $query->paginate(20);
 
-        $stats = [
-            'total_dunning' => Subscription::where('dunning_status', '!=', 'none')
-                ->whereNotNull('dunning_status')->count(),
-            'past_due' => Subscription::where('status', 'past_due')->count(),
-            'retry_pending' => Subscription::whereNotNull('next_payment_retry_at')
-                ->where('next_payment_retry_at', '>', now())->count(),
-            'high_risk' => Subscription::where('payment_retry_count', '>=', 3)->count(),
-            'total_at_risk_revenue' => Subscription::where(function ($q) {
-                $q->where('dunning_status', '!=', 'none')
-                  ->orWhere('status', 'past_due');
-            })->sum('amount') / 100,
+        $stats = Subscription::selectRaw("
+            SUM(CASE WHEN dunning_status IS NOT NULL AND dunning_status != 'none' THEN 1 ELSE 0 END) as total_dunning,
+            SUM(CASE WHEN status = 'past_due' THEN 1 ELSE 0 END) as past_due,
+            SUM(CASE WHEN next_payment_retry_at IS NOT NULL AND next_payment_retry_at > NOW() THEN 1 ELSE 0 END) as retry_pending,
+            SUM(CASE WHEN payment_retry_count >= 3 THEN 1 ELSE 0 END) as high_risk,
+            SUM(CASE WHEN (dunning_status IS NOT NULL AND dunning_status != 'none') OR status = 'past_due' THEN amount ELSE 0 END) as total_at_risk_revenue
+        ")->first();
+
+        $statsArray = [
+            'total_dunning' => (int) $stats->total_dunning,
+            'past_due' => (int) $stats->past_due,
+            'retry_pending' => (int) $stats->retry_pending,
+            'high_risk' => (int) $stats->high_risk,
+            'total_at_risk_revenue' => ($stats->total_at_risk_revenue ?? 0) / 100,
         ];
 
         $dunningStatuses = ['active', 'escalated', 'final_notice', 'exhausted', 'resolved'];
 
-        return view('admin.billing.dunning', compact('subscriptions', 'stats', 'dunningStatuses'));
+        return view('admin.billing.dunning', compact('subscriptions', 'statsArray', 'dunningStatuses'))->with('stats', $statsArray);
     }
 
     public function payments(Request $request)
@@ -282,6 +305,7 @@ class BillingController extends Controller
             })
             ->leftJoin('users', DB::raw('transactions.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'))
             ->leftJoin('subscriptions', 'transactions.subscription_id', '=', 'subscriptions.id')
+            ->leftJoin('subscription_plans', 'subscriptions.plan_id', '=', 'subscription_plans.id')
             ->select(
                 'transactions.*',
                 'users.firstName as customer_first_name',
@@ -294,7 +318,12 @@ class BillingController extends Controller
                 'payment_methods.exp_year as pm_exp_year',
                 'payment_methods.is_default as pm_is_default',
                 'payment_methods.status as pm_status',
-                'subscriptions.stripe_subscription_id'
+                'payment_methods.funding as pm_funding',
+                'payment_methods.country as pm_country',
+                'subscriptions.stripe_subscription_id',
+                'subscriptions.plan_id',
+                'subscription_plans.name as plan_name',
+                'subscription_plans.billing_cycle'
             );
 
         if ($statusFilter) {
@@ -316,31 +345,51 @@ class BillingController extends Controller
             ->orderBy('transactions.id', 'desc')
             ->paginate($perPage);
 
-        // Load payment method relationship for each payment if not already loaded via join
-        $payments->getCollection()->transform(function ($payment) {
-            if (!$payment->pm_brand && $payment->stripe_payment_method_id) {
-                $paymentMethod = PaymentMethod::where('stripe_payment_method_id', $payment->stripe_payment_method_id)->first();
-                if ($paymentMethod) {
-                    $payment->pm_brand = $paymentMethod->brand;
-                    $payment->pm_last4 = $paymentMethod->last4;
-                    $payment->pm_exp_month = $paymentMethod->exp_month;
-                    $payment->pm_exp_year = $paymentMethod->exp_year;
-                    $payment->pm_is_default = $paymentMethod->is_default;
-                    $payment->pm_status = $paymentMethod->status;
-                }
-            }
-            return $payment;
-        });
+        $missingPaymentMethodIds = $payments->getCollection()
+            ->filter(fn($p) => !$p->pm_brand && $p->stripe_payment_method_id)
+            ->pluck('stripe_payment_method_id')
+            ->unique()
+            ->values();
 
-        $stats = [
-            'total_payment_methods' => PaymentMethod::count(),
-            'active_cards' => PaymentMethod::where('status', 'active')->count(),
-            'total_transactions' => Transaction::count(),
-            'successful_transactions' => Transaction::whereIn('status', ['succeeded', 'paid'])->count(),
-            'total_revenue' => Transaction::whereIn('status', ['succeeded', 'paid'])->sum('amount') / 100,
+        if ($missingPaymentMethodIds->isNotEmpty()) {
+            $paymentMethodsMap = PaymentMethod::whereIn('stripe_payment_method_id', $missingPaymentMethodIds)
+                ->get()
+                ->keyBy('stripe_payment_method_id');
+
+            $payments->getCollection()->transform(function ($payment) use ($paymentMethodsMap) {
+                if (!$payment->pm_brand && $payment->stripe_payment_method_id) {
+                    $paymentMethod = $paymentMethodsMap->get($payment->stripe_payment_method_id);
+                    if ($paymentMethod) {
+                        $payment->pm_brand = $paymentMethod->brand;
+                        $payment->pm_last4 = $paymentMethod->last4;
+                        $payment->pm_exp_month = $paymentMethod->exp_month;
+                        $payment->pm_exp_year = $paymentMethod->exp_year;
+                        $payment->pm_is_default = $paymentMethod->is_default;
+                        $payment->pm_status = $paymentMethod->status;
+                    }
+                }
+                return $payment;
+            });
+        }
+
+        $stats = DB::selectOne("
+            SELECT
+                (SELECT COUNT(*) FROM payment_methods) as total_payment_methods,
+                (SELECT COUNT(*) FROM payment_methods WHERE status = 'active') as active_cards,
+                (SELECT COUNT(*) FROM transactions) as total_transactions,
+                (SELECT COUNT(*) FROM transactions WHERE status IN ('succeeded', 'paid')) as successful_transactions,
+                (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE status IN ('succeeded', 'paid')) as total_revenue
+        ");
+
+        $statsArray = [
+            'total_payment_methods' => (int) $stats->total_payment_methods,
+            'active_cards' => (int) $stats->active_cards,
+            'total_transactions' => (int) $stats->total_transactions,
+            'successful_transactions' => (int) $stats->successful_transactions,
+            'total_revenue' => ($stats->total_revenue ?? 0) / 100,
         ];
 
-        return view('admin.billing.payments', compact('payments', 'stats', 'statusFilter', 'search'));
+        return view('admin.billing.payments', compact('payments', 'statusFilter', 'search'))->with('stats', $statsArray);
     }
 
     public function transactionDetail($id)
@@ -378,7 +427,6 @@ class BillingController extends Controller
             )
             ->firstOrFail();
 
-        // Fallback: Try to load payment method if join didn't work
         if (!$transaction->pm_brand && $transaction->stripe_payment_method_id) {
             $paymentMethod = PaymentMethod::where('stripe_payment_method_id', $transaction->stripe_payment_method_id)->first();
             if ($paymentMethod) {
@@ -442,13 +490,22 @@ class BillingController extends Controller
         $notifications = $query->orderBy('billing_notifications.sent_at', 'desc')
             ->paginate(25);
 
-        $stats = [
-            'total' => DB::table('billing_notifications')->count(),
-            'sent' => DB::table('billing_notifications')->where('status', 'sent')->count(),
-            'delivered' => DB::table('billing_notifications')->where('status', 'delivered')->count(),
-            'failed' => DB::table('billing_notifications')->where('status', 'failed')->count(),
-            'today' => DB::table('billing_notifications')
-                ->whereDate('sent_at', Carbon::today())->count(),
+        $stats = DB::selectOne("
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as sent,
+                SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered,
+                SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed,
+                SUM(CASE WHEN DATE(sent_at) = CURDATE() THEN 1 ELSE 0 END) as today
+            FROM billing_notifications
+        ");
+
+        $statsArray = [
+            'total' => (int) ($stats->total ?? 0),
+            'sent' => (int) ($stats->sent ?? 0),
+            'delivered' => (int) ($stats->delivered ?? 0),
+            'failed' => (int) ($stats->failed ?? 0),
+            'today' => (int) ($stats->today ?? 0),
         ];
 
         $notificationTypes = [
@@ -459,7 +516,7 @@ class BillingController extends Controller
             'subscription_canceled' => 'Subscription Canceled',
             'subscription_renewed' => 'Subscription Renewed',
             'trial_ending' => 'Trial Ending',
-            'trial_ended' => 'TrialEnded',
+            'trial_ended' => 'Trial Ended',
             'invoice_created' => 'Invoice Created',
             'invoice_paid' => 'Invoice Paid',
             'card_expiring' => 'Card Expiring',
@@ -468,6 +525,6 @@ class BillingController extends Controller
 
         $statuses = ['pending', 'sent', 'delivered', 'failed', 'bounced'];
 
-        return view('admin.billing.notifications', compact('notifications', 'stats', 'notificationTypes', 'statuses'));
+        return view('admin.billing.notifications', compact('notifications', 'notificationTypes', 'statuses'))->with('stats', $statsArray);
     }
 }

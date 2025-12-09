@@ -93,13 +93,16 @@ class AnalyticsService
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($range) {
             try {
-                $current = Transaction::where('status', 'succeeded')
+                $currentCents = Transaction::whereIn('status', ['succeeded', 'paid'])
                     ->whereBetween('paid_at', [$range['start'], $range['end']])
                     ->sum('amount');
 
-                $previous = Transaction::where('status', 'succeeded')
+                $previousCents = Transaction::whereIn('status', ['succeeded', 'paid'])
                     ->whereBetween('paid_at', [$range['previous_start'], $range['previous_end']])
                     ->sum('amount');
+
+                $current = $currentCents / 100;
+                $previous = $previousCents / 100;
 
                 $growth = $this->calculateGrowth((float)$current, (float)$previous);
 
@@ -148,7 +151,7 @@ class AnalyticsService
                 $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
                 $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
 
-                $previousMRR = Transaction::where('status', 'succeeded')
+                $previousMRR = Transaction::whereIn('status', ['succeeded', 'paid'])
                     ->whereBetween('paid_at', [$lastMonthStart, $lastMonthEnd])
                     ->sum('amount') / 100;
 
@@ -181,16 +184,19 @@ class AnalyticsService
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($range) {
             try {
-                $currentRevenue = Transaction::where('status', 'succeeded')
+                $currentRevenueCents = Transaction::whereIn('status', ['succeeded', 'paid'])
                     ->whereBetween('paid_at', [$range['start'], $range['end']])
                     ->sum('amount');
 
+                $currentRevenue = $currentRevenueCents / 100;
                 $activeUsers = Subscription::where('status', 'active')->count();
                 $currentARPU = $activeUsers > 0 ? $currentRevenue / $activeUsers : 0;
 
-                $previousRevenue = Transaction::where('status', 'succeeded')
+                $previousRevenueCents = Transaction::whereIn('status', ['succeeded', 'paid'])
                     ->whereBetween('paid_at', [$range['previous_start'], $range['previous_end']])
                     ->sum('amount');
+                
+                $previousRevenue = $previousRevenueCents / 100;
 
                 $previousActiveUsers = Subscription::where('status', 'active')
                     ->where('createdAt', '<=', $range['previous_end'])
@@ -243,7 +249,7 @@ class AnalyticsService
                             ->orWhere('price_id', $plan->stripe_yearly_price_id);
                     })->pluck('user_uuid');
 
-                    $revenue = Transaction::where('status', 'succeeded')
+                    $revenue = Transaction::whereIn('status', ['succeeded', 'paid'])
                         ->whereIn('user_uuid', $subscriptionIds)
                         ->sum('amount');
 
@@ -295,7 +301,7 @@ class AnalyticsService
                             ->orWhere('price_id', $plan->stripe_yearly_price_id);
                     })->pluck('user_uuid');
 
-                    $revenue = Transaction::where('status', 'succeeded')
+                    $revenue = Transaction::whereIn('status', ['succeeded', 'paid'])
                         ->whereIn('user_uuid', $subscriptionIds)
                         ->whereBetween('paid_at', [$range['start'], $range['end']])
                         ->sum('amount');
@@ -695,7 +701,7 @@ class AnalyticsService
                 foreach ($dataPoints as $point) {
                     $labels[] = $point['label'];
                     
-                    $revenue = Transaction::where('status', 'succeeded')
+                    $revenue = Transaction::whereIn('status', ['succeeded', 'paid'])
                         ->whereBetween('paid_at', [$point['start'], $point['end']])
                         ->sum('amount');
                     
@@ -901,12 +907,12 @@ class AnalyticsService
                             ->orWhere('price_id', $plan->stripe_yearly_price_id);
                     })->pluck('user_uuid');
 
-                    $revenue = Transaction::where('status', 'succeeded')
+                    $revenue = Transaction::whereIn('status', ['succeeded', 'paid'])
                         ->whereIn('user_uuid', $subscriptionIds)
                         ->whereBetween('paid_at', [$range['start'], $range['end']])
                         ->sum('amount');
 
-                    $totalRevenue = Transaction::where('status', 'succeeded')
+                    $totalRevenue = Transaction::whereIn('status', ['succeeded', 'paid'])
                         ->whereIn('user_uuid', $subscriptionIds)
                         ->sum('amount');
 
@@ -989,7 +995,7 @@ class AnalyticsService
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () {
             try {
-                $totalRevenue = Transaction::where('status', 'succeeded')->sum('amount');
+                $totalRevenue = Transaction::whereIn('status', ['succeeded', 'paid'])->sum('amount');
                 $totalCustomers = Customer::where('role', 'User')
                     ->whereHas('subscriptions')
                     ->count();
@@ -1029,11 +1035,11 @@ class AnalyticsService
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($range) {
             try {
-                $startingMRR = Transaction::where('status', 'succeeded')
+                $startingMRR = Transaction::whereIn('status', ['succeeded', 'paid'])
                     ->whereBetween('paid_at', [$range['previous_start'], $range['previous_end']])
                     ->sum('amount');
 
-                $currentMRR = Transaction::where('status', 'succeeded')
+                $currentMRR = Transaction::whereIn('status', ['succeeded', 'paid'])
                     ->whereBetween('paid_at', [$range['start'], $range['end']])
                     ->sum('amount');
 

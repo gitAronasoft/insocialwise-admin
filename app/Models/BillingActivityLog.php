@@ -2,9 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @method static Builder|BillingActivityLog query()
+ * @method static Builder|BillingActivityLog where($column, $operator = null, $value = null)
+ * @method static Builder|BillingActivityLog whereDate($column, $operator, $value = null)
+ * @method static Builder|BillingActivityLog selectRaw($expression, array $bindings = [])
+ * @method static int count($columns = '*')
+ * @mixin Builder
+ */
 class BillingActivityLog extends Model
 {
     protected $table = 'billing_activity_logs';
