@@ -16,6 +16,11 @@ APP_URL = "https://a63ad6d2-ed93-4996-9cec-3d614d7fd977-00-3kj5er1a58goq.pike.re
 SESSION_DRIVER = "file"
 CACHE_STORE = "file"
 DB_CONNECTION = "pgsql"
+DB_HOST = "helium"
+DB_PORT = "5432"
+DB_DATABASE = "heliumdb"
+DB_USERNAME = "postgres"
+DB_PASSWORD = "password"
 
 [userenv.development]
 

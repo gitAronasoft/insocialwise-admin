@@ -11,7 +11,7 @@ This project is a comprehensive Laravel 12 Admin Panel designed for managing soc
 - **No Customer Impersonation**: User requested to remove the customer impersonation feature from the admin panel. This feature has been removed from routes, controllers, and views.
 
 ## System Architecture
-The InSocialWise Admin Panel is built on a Laravel 12 (PHP 8.2) backend, utilizing Blade Templates, Tailwind CSS, and Alpine.js for the frontend, with Vite 7 for asset building. It connects to a remote MySQL database.
+The InSocialWise Admin Panel is built on a Laravel 12 (PHP 8.2) backend, utilizing Blade Templates, Tailwind CSS, and Alpine.js for the frontend, with Vite 7 for asset building. It connects to Replit's built-in PostgreSQL database (Neon-backed).
 
 **UI/UX Decisions:**
 - Enhanced Dashboard with comprehensive analytics, including global time period filters, various revenue and subscription metrics (MRR, ARPU, LTV, NRR), and detailed charts.
@@ -32,8 +32,8 @@ The InSocialWise Admin Panel is built on a Laravel 12 (PHP 8.2) backend, utilizi
 - **Authentication:** Admin guard authentication with email/password and role-based access control (RBAC).
 
 **System Design Choices:**
-- **Database Schema:** Includes `billing_notifications` for scheduled communications, `billing_activity_logs` for audit trails, `payment_methods` for customer payment details, and `admin_settings` for configurable application parameters, with encryption for sensitive data.
-- **Stripe Integration:** Deep integration for subscription management, plan syncing, and payment processing, with credentials configurable via the admin panel and fallback to `.env`.
+- **Database Schema:** PostgreSQL database with comprehensive billing tables including `billing_notifications` for scheduled communications, `billing_activity_logs` for audit trails, `payment_methods` for customer payment details, `webhook_events` for Stripe webhook tracking, `subscription_events` for subscription lifecycle tracking, and `admin_settings` for configurable application parameters, with encryption for sensitive data.
+- **Stripe Webhook Integration:** Full webhook handling at `/stripe/webhook` endpoint processes all Stripe events (subscription CRUD, invoices, payments, refunds, payment methods). Credentials should be configured via Replit Secrets: STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET.
 - **Modularity:** Organized project structure with dedicated directories for controllers, models, services, and views.
 - **Performance:** Database query optimizations applied to enhance performance and address N+1 issues.
 - **Security:** Admin audit logs track all admin actions, IP addresses, and user agents. Admin session management allows tracking and revocation of sessions. Sensitive data (API keys, passwords) is stored encrypted.
@@ -43,7 +43,7 @@ The InSocialWise Admin Panel is built on a Laravel 12 (PHP 8.2) backend, utilizi
 - **Tailwind CSS**: Frontend styling.
 - **Alpine.js**: Lightweight JavaScript framework for frontend interactivity.
 - **Vite 7**: Frontend build tool.
-- **MySQL**: Remote database system.
-- **Stripe**: Payment gateway for subscriptions and transactions.
+- **PostgreSQL**: Replit's built-in database (Neon-backed) for data persistence.
+- **Stripe**: Payment gateway for subscriptions and transactions, with webhook integration for real-time event processing.
 - **Spatie Laravel Permission**: For role-based access control.
 - **N8N**: For webhook integrations.
