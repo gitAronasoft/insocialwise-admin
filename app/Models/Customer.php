@@ -74,6 +74,12 @@ class Customer extends Model
 
     public function getFullNameAttribute(): string
     {
-        return "{$this->firstName} {$this->lastName}";
+        return trim("{$this->firstname} {$this->lastname}");
+    }
+
+    public function getNameAttribute(): string
+    {
+        $name = trim("{$this->firstname} {$this->lastname}");
+        return $name ?: ($this->email ?? 'Unknown');
     }
 }

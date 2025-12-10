@@ -34,11 +34,10 @@ class StripeWebhookService
         $payloadHash = hash('sha256', json_encode($event->toArray()));
 
         $webhookEvent = WebhookEvent::create([
-            'webhook_id' => 0,
             'stripe_event_id' => $event->id,
             'event_type' => $event->type,
             'api_version' => $event->api_version,
-            'livemode' => $event->livemode,
+            'livemode' => (bool) $event->livemode,
             'object_type' => $event->data->object->object ?? null,
             'object_id' => $event->data->object->id ?? null,
             'customer_id' => $event->data->object->customer ?? null,

@@ -62,6 +62,16 @@ class WebhookEvent extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
+    public function setLivemodeAttribute($value): void
+    {
+        $this->attributes['livemode'] = $value ? 1 : 0;
+    }
+
+    public function setSignatureVerifiedAttribute($value): void
+    {
+        $this->attributes['signature_verified'] = $value ? 1 : 0;
+    }
+
     public function webhook(): BelongsTo
     {
         return $this->belongsTo(Webhook::class, 'webhook_id');

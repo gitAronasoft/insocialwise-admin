@@ -1,0 +1,389 @@
+{
+  "message": "SQLSTATE[42703]: Undefined column: 7 ERROR:  column \"webhook_id\" of relation \"webhook_events\" does not exist\nLINE 1: insert into \"webhook_events\" (\"webhook_id\", \"stripe_event_id...\n                                      ^ (Connection: pgsql, SQL: insert into \"webhook_events\" (\"webhook_id\", \"stripe_event_id\", \"event_type\", \"api_version\", \"livemode\", \"object_type\", \"object_id\", \"customer_id\", \"subscription_id\", \"invoice_id\", \"payment_intent_id\", \"payload\", \"payload_hash\", \"status\", \"received_at\", \"ip_address\", \"signature_verified\", \"updated_at\", \"created_at\") values (0, evt_1ScsE3HpVJPrOqLkUcNQNFVK, invoice.payment_succeeded, 2018-05-21, 0, invoice, in_1ScsDzHpVJPrOqLkJAk7gbBU, cus_Ta2Irus2Ytugvx, sub_1ScsDzHpVJPrOqLkZZMvZ16C, in_1ScsDzHpVJPrOqLkJAk7gbBU, pi_3ScsE0HpVJPrOqLk0J3HLCCo, {\"id\":\"evt_1ScsE3HpVJPrOqLkUcNQNFVK\",\"object\":\"event\",\"api_version\":\"2018-05-21\",\"created\":1765391698,\"data\":{\"object\":{\"id\":\"in_1ScsDzHpVJPrOqLkJAk7gbBU\",\"object\":\"invoice\",\"account_country\":\"SE\",\"account_name\":\"Aronasoft\",\"account_tax_ids\":null,\"amount_due\":9900,\"amount_overpaid\":0,\"amount_paid\":9900,\"amount_remaining\":0,\"amount_shipping\":0,\"application\":null,\"application_fee\":null,\"attempt_count\":1,\"attempted\":true,\"auto_advance\":false,\"automatic_tax\":{\"disabled_reason\":null,\"enabled\":false,\"liability\":null,\"provider\":null,\"status\":null},\"automatically_finalizes_at\":null,\"billing\":\"charge_automatically\",\"billing_reason\":\"subscription_update\",\"charge\":\"ch_3ScsE0HpVJPrOqLk0WpqsgvT\",\"closed\":true,\"collection_method\":\"charge_automatically\",\"created\":1765391695,\"currency\":\"usd\",\"custom_fields\":null,\"customer\":\"cus_Ta2Irus2Ytugvx\",\"customer_account\":null,\"customer_address\":null,\"customer_email\":\"tesst@gmail.com\",\"customer_name\":\"Baljeet Singh\",\"customer_phone\":\"(949) 760-1886\",\"customer_shipping\":null,\"customer_tax_exempt\":\"none\",\"customer_tax_ids\":[],\"date\":1765391695,\"default_payment_method\":null,\"default_source\":null,\"default_tax_rates\":[],\"description\":null,\"discount\":null,\"discounts\":[],\"due_date\":null,\"effective_at\":1765391695,\"ending_balance\":0,\"finalized_at\":1765391695,\"footer\":null,\"forgiven\":false,\"from_invoice\":null,\"hosted_invoice_url\":\"https:\\/\\/invoice.stripe.com\\/i\\/acct_1AC6lAHpVJPrOqLk\\/test_YWNjdF8xQUM2bEFIcFZKUHJPcUxrLF9UYTJJUEs4SzJYWUFvMWYwZWhSRnRoSG1Zcnh5ZmZtLDE1NTkzMjQ5OQ0200bwshnogy?s=ap\",\"invoice_pdf\":\"https:\\/\\/pay.stripe.com\\/invoice\\/acct_1AC6lAHpVJPrOqLk\\/test_YWNjdF8xQUM2bEFIcFZKUHJPcUxrLF9UYTJJUEs4SzJYWUFvMWYwZWhSRnRoSG1Zcnh5ZmZtLDE1NTkzMjQ5OQ0200bwshnogy\\/pdf?s=ap\",\"issuer\":{\"type\":\"self\"},\"last_finalization_error\":null,\"latest_revision\":null,\"lines\":{\"object\":\"list\",\"data\":[{\"id\":\"il_1ScsDzHpVJPrOqLkhrif8kXk\",\"object\":\"line_item\",\"amount\":9900,\"amount_excluding_tax\":9900,\"currency\":\"usd\",\"description\":\"1 \\u00d7 Agency (at $99.00 \\/ month)\",\"discount_amounts\":[],\"discountable\":true,\"discounts\":[],\"invoice\":\"in_1ScsDzHpVJPrOqLkJAk7gbBU\",\"livemode\":false,\"metadata\":[],\"parent\":{\"invoice_item_details\":null,\"subscription_item_details\":{\"invoice_item\":null,\"proration\":false,\"proration_details\":{\"credited_items\":null},\"subscription\":\"sub_1ScsDzHpVJPrOqLkZZMvZ16C\",\"subscription_item\":\"si_Ta2IWbodMBLtRT\"},\"type\":\"subscription_item_details\"},\"period\":{\"end\":1768070095,\"start\":1765391695},\"plan\":{\"id\":\"price_1SactGHpVJPrOqLkrdqk0HUK\",\"object\":\"plan\",\"active\":true,\"aggregate_usage\":null,\"amount\":9900,\"amount_decimal\":\"9900\",\"billing_scheme\":\"per_unit\",\"created\":1764856094,\"currency\":\"usd\",\"interval\":\"month\",\"interval_count\":1,\"livemode\":false,\"metadata\":{\"features\":\"[]\",\"max_scheduled_posts\":\"-1\",\"max_social_accounts\":\"100\",\"plan_id\":\"3\",\"billing_cycle\":\"monthly\",\"max_team_members\":\"10\",\"trial_days\":\"14\"},\"meter\":null,\"nickname\":null,\"product\":\"prod_TXiJSc9kvYKDXH\",\"tiers\":null,\"tiers_mode\":null,\"transform_usage\":null,\"trial_period_days\":null,\"usage_type\":\"licensed\"},\"pretax_credit_amounts\":[],\"price\":{\"id\":\"price_1SactGHpVJPrOqLkrdqk0HUK\",\"object\":\"price\",\"active\":true,\"billing_scheme\":\"per_unit\",\"created\":1764856094,\"currency\":\"usd\",\"custom_unit_amount\":null,\"livemode\":false,\"lookup_key\":null,\"metadata\":{\"features\":\"[]\",\"max_scheduled_posts\":\"-1\",\"max_social_accounts\":\"100\",\"plan_id\":\"3\",\"billing_cycle\":\"monthly\",\"max_team_members\":\"10\",\"trial_days\":\"14\"},\"nickname\":null,\"product\":\"prod_TXiJSc9kvYKDXH\",\"recurring\":{\"aggregate_usage\":null,\"interval\":\"month\",\"interval_count\":1,\"meter\":null,\"trial_period_days\":null,\"usage_type\":\"licensed\"},\"tax_behavior\":\"unspecified\",\"tiers_mode\":null,\"transform_quantity\":null,\"type\":\"recurring\",\"unit_amount\":9900,\"unit_amount_decimal\":\"9900\"},\"pricing\":{\"price_details\":{\"price\":\"price_1SactGHpVJPrOqLkrdqk0HUK\",\"product\":\"prod_TXiJSc9kvYKDXH\"},\"type\":\"price_details\",\"unit_amount_decimal\":\"9900\"},\"proration\":false,\"proration_details\":{\"credited_items\":null},\"quantity\":1,\"subscription\":\"sub_1ScsDzHpVJPrOqLkZZMvZ16C\",\"subscription_item\":\"si_Ta2IWbodMBLtRT\",\"tax_amounts\":[],\"tax_rates\":[],\"taxes\":[],\"type\":\"subscription\",\"unique_id\":\"il_1ScsDzHpVJPrOqLkhrif8kXk\",\"unit_amount_excluding_tax\":\"9900\"}],\"has_more\":false,\"total_count\":1,\"url\":\"\\/v1\\/invoices\\/in_1ScsDzHpVJPrOqLkJAk7gbBU\\/lines\"},\"livemode\":false,\"metadata\":[],\"next_payment_attempt\":null,\"number\":\"FM2GKQSR-0001\",\"on_behalf_of\":null,\"paid\":true,\"paid_out_of_band\":false,\"parent\":{\"quote_details\":null,\"subscription_details\":{\"metadata\":[],\"subscription\":\"sub_1ScsDzHpVJPrOqLkZZMvZ16C\"},\"type\":\"subscription_details\"},\"payment_intent\":\"pi_3ScsE0HpVJPrOqLk0J3HLCCo\",\"payment_settings\":{\"default_mandate\":null,\"payment_method_options\":null,\"payment_method_types\":null},\"period_end\":1765391695,\"period_start\":1765391695,\"post_payment_credit_notes_amount\":0,\"pre_payment_credit_notes_amount\":0,\"quote\":null,\"receipt_number\":null,\"rendering\":null,\"rendering_options\":null,\"shipping_cost\":null,\"shipping_details\":null,\"starting_balance\":0,\"statement_descriptor\":null,\"status\":\"paid\",\"status_transitions\":{\"finalized_at\":1765391695,\"marked_uncollectible_at\":null,\"paid_at\":1765391695,\"voided_at\":null},\"subscription\":\"sub_1ScsDzHpVJPrOqLkZZMvZ16C\",\"subscription_details\":{\"metadata\":[]},\"subtotal\":9900,\"subtotal_excluding_tax\":9900,\"tax\":null,\"tax_percent\":null,\"test_clock\":null,\"total\":9900,\"total_discount_amounts\":[],\"total_excluding_tax\":9900,\"total_pretax_credit_amounts\":[],\"total_tax_amounts\":[],\"total_taxes\":[],\"transfer_data\":null,\"webhooks_delivered_at\":1765391695}},\"livemode\":false,\"pending_webhooks\":1,\"request\":{\"id\":\"req_30a4Li0u9YsY6Z\",\"idempotency_key\":\"stripe-node-retry-7589b6a6-ce78-4123-941f-d3954f9229d0\"},\"type\":\"invoice.payment_succeeded\"}, b3d64d41d2c15a8b2b6998427585eadf2d78274b51948446241c8701b6a89604, processing, 2025-12-10 18:46:38, 172.31.98.98, 1, 2025-12-10 18:46:38, 2025-12-10 18:46:38) returning \"id\")",
+  "exception": "Illuminate\\Database\\QueryException",
+  "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Connection.php",
+  "line": 824,
+  "trace": [
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Connection.php",
+      "line": 778,
+      "function": "runQueryCallback",
+      "class": "Illuminate\\Database\\Connection",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Connection.php",
+      "line": 397,
+      "function": "run",
+      "class": "Illuminate\\Database\\Connection",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Connection.php",
+      "line": 384,
+      "function": "select",
+      "class": "Illuminate\\Database\\Connection",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php",
+      "line": 24,
+      "function": "selectFromWriteConnection",
+      "class": "Illuminate\\Database\\Connection",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php",
+      "line": 3853,
+      "function": "processInsertGetId",
+      "class": "Illuminate\\Database\\Query\\Processors\\PostgresProcessor",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php",
+      "line": 2235,
+      "function": "insertGetId",
+      "class": "Illuminate\\Database\\Query\\Builder",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php",
+      "line": 1436,
+      "function": "__call",
+      "class": "Illuminate\\Database\\Eloquent\\Builder",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php",
+      "line": 1401,
+      "function": "insertAndSetId",
+      "class": "Illuminate\\Database\\Eloquent\\Model",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php",
+      "line": 1240,
+      "function": "performInsert",
+      "class": "Illuminate\\Database\\Eloquent\\Model",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php",
+      "line": 1219,
+      "function": "save",
+      "class": "Illuminate\\Database\\Eloquent\\Model",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Support/helpers.php",
+      "line": 390,
+      "function": "Illuminate\\Database\\Eloquent\\{closure}",
+      "class": "Illuminate\\Database\\Eloquent\\Builder",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php",
+      "line": 1218,
+      "function": "tap"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php",
+      "line": 23,
+      "function": "create",
+      "class": "Illuminate\\Database\\Eloquent\\Builder",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php",
+      "line": 2540,
+      "function": "forwardCallTo",
+      "class": "Illuminate\\Database\\Eloquent\\Model",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php",
+      "line": 2556,
+      "function": "__call",
+      "class": "Illuminate\\Database\\Eloquent\\Model",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/app/Services/StripeWebhookService.php",
+      "line": 36,
+      "function": "__callStatic",
+      "class": "Illuminate\\Database\\Eloquent\\Model",
+      "type": "::"
+    },
+    {
+      "file": "/home/runner/workspace/app/Http/Controllers/StripeWebhookController.php",
+      "line": 49,
+      "function": "processEvent",
+      "class": "App\\Services\\StripeWebhookService",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php",
+      "line": 46,
+      "function": "handleWebhook",
+      "class": "App\\Http\\Controllers\\StripeWebhookController",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Routing/Route.php",
+      "line": 265,
+      "function": "dispatch",
+      "class": "Illuminate\\Routing\\ControllerDispatcher",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Routing/Route.php",
+      "line": 211,
+      "function": "runController",
+      "class": "Illuminate\\Routing\\Route",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Routing/Router.php",
+      "line": 822,
+      "function": "run",
+      "class": "Illuminate\\Routing\\Route",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 180,
+      "function": "Illuminate\\Routing\\{closure}",
+      "class": "Illuminate\\Routing\\Router",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php",
+      "line": 50,
+      "function": "Illuminate\\Pipeline\\{closure}",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 219,
+      "function": "handle",
+      "class": "Illuminate\\Routing\\Middleware\\SubstituteBindings",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 137,
+      "function": "Illuminate\\Pipeline\\{closure}",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Routing/Router.php",
+      "line": 821,
+      "function": "then",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Routing/Router.php",
+      "line": 800,
+      "function": "runRouteWithinStack",
+      "class": "Illuminate\\Routing\\Router",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Routing/Router.php",
+      "line": 764,
+      "function": "runRoute",
+      "class": "Illuminate\\Routing\\Router",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Routing/Router.php",
+      "line": 753,
+      "function": "dispatchToRoute",
+      "class": "Illuminate\\Routing\\Router",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php",
+      "line": 200,
+      "function": "dispatch",
+      "class": "Illuminate\\Routing\\Router",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 180,
+      "function": "Illuminate\\Foundation\\Http\\{closure}",
+      "class": "Illuminate\\Foundation\\Http\\Kernel",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php",
+      "line": 21,
+      "function": "Illuminate\\Pipeline\\{closure}",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php",
+      "line": 31,
+      "function": "handle",
+      "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 219,
+      "function": "handle",
+      "class": "Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php",
+      "line": 21,
+      "function": "Illuminate\\Pipeline\\{closure}",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php",
+      "line": 51,
+      "function": "handle",
+      "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 219,
+      "function": "handle",
+      "class": "Illuminate\\Foundation\\Http\\Middleware\\TrimStrings",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php",
+      "line": 27,
+      "function": "Illuminate\\Pipeline\\{closure}",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 219,
+      "function": "handle",
+      "class": "Illuminate\\Http\\Middleware\\ValidatePostSize",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php",
+      "line": 109,
+      "function": "Illuminate\\Pipeline\\{closure}",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 219,
+      "function": "handle",
+      "class": "Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php",
+      "line": 61,
+      "function": "Illuminate\\Pipeline\\{closure}",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 219,
+      "function": "handle",
+      "class": "Illuminate\\Http\\Middleware\\HandleCors",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php",
+      "line": 58,
+      "function": "Illuminate\\Pipeline\\{closure}",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 219,
+      "function": "handle",
+      "class": "Illuminate\\Http\\Middleware\\TrustProxies",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php",
+      "line": 22,
+      "function": "Illuminate\\Pipeline\\{closure}",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 219,
+      "function": "handle",
+      "class": "Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePathEncoding.php",
+      "line": 26,
+      "function": "Illuminate\\Pipeline\\{closure}",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 219,
+      "function": "handle",
+      "class": "Illuminate\\Http\\Middleware\\ValidatePathEncoding",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",
+      "line": 137,
+      "function": "Illuminate\\Pipeline\\{closure}",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php",
+      "line": 175,
+      "function": "then",
+      "class": "Illuminate\\Pipeline\\Pipeline",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php",
+      "line": 144,
+      "function": "sendRequestThroughRouter",
+      "class": "Illuminate\\Foundation\\Http\\Kernel",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Foundation/Application.php",
+      "line": 1220,
+      "function": "handle",
+      "class": "Illuminate\\Foundation\\Http\\Kernel",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/public/index.php",
+      "line": 20,
+      "function": "handleRequest",
+      "class": "Illuminate\\Foundation\\Application",
+      "type": "->"
+    },
+    {
+      "file": "/home/runner/workspace/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php",
+      "line": 23,
+      "function": "require_once"
+    }
+  ]
+}

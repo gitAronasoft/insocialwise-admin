@@ -53,7 +53,7 @@ class PaymentMethod extends Model
 
     public function scopeDefault($query)
     {
-        return $query->where('is_default', true);
+        return $query->whereRaw('is_default = true');
     }
 
     public function getCardBrandIconAttribute(): string

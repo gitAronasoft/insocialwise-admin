@@ -37,7 +37,7 @@ class BillingController extends Controller
                     ->orWhere('stripe_event_id', 'ilike', "%{$search}%")
                     ->orWhereHas('customer', function ($q) use ($search) {
                         $q->where('email', 'ilike', "%{$search}%")
-                            ->orWhere('name', 'ilike', "%{$search}%");
+                            ->orWhereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$search}%"]);
                     });
             });
         }
@@ -81,7 +81,8 @@ class BillingController extends Controller
         }
 
         if ($request->filled('is_default')) {
-            $query->where('is_default', $request->is_default === 'true');
+            $isDefault = $request->is_default === 'true' ? 'true' : 'false';
+            $query->whereRaw("is_default = {$isDefault}");
         }
 
         if ($request->filled('search')) {
@@ -90,7 +91,7 @@ class BillingController extends Controller
                 $q->where('last4', 'ilike', "%{$search}%")
                     ->orWhereHas('customer', function ($q) use ($search) {
                         $q->where('email', 'ilike', "%{$search}%")
-                            ->orWhere('name', 'ilike', "%{$search}%");
+                            ->orWhereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$search}%"]);
                     });
             });
         }
@@ -250,7 +251,7 @@ class BillingController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->whereHas('customer', function ($inner) use ($search) {
-                    $inner->where('name', 'ilike', "%{$search}%")
+                    $inner->whereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$search}%"])
                         ->orWhere('email', 'ilike', "%{$search}%");
                 });
             });
@@ -306,7 +307,7 @@ class BillingController extends Controller
             ->leftJoin('subscription_plans', 'subscriptions.plan_id', '=', 'subscription_plans.id')
             ->select(
                 'transactions.*',
-                'users.name as customer_name',
+                DB::raw("CONCAT(users.firstname, ' ', users.lastname) as customer_name"),
                 'users.email as customer_email',
                 'users.uuid as customer_uuid',
                 'payment_methods.brand as pm_brand',
@@ -331,7 +332,7 @@ class BillingController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('transactions.stripe_invoice_id', 'ilike', "%{$search}%")
                   ->orWhere('transactions.invoice_number', 'ilike', "%{$search}%")
-                  ->orWhere('users.name', 'ilike', "%{$search}%")
+                  ->orWhereRaw("CONCAT(users.firstname, ' ', users.lastname) ILIKE ?", ["%{$search}%"])
                   ->orWhere('users.email', 'ilike', "%{$search}%")
                   ->orWhere('payment_methods.last4', 'ilike', "%{$search}%");
             });
@@ -402,7 +403,7 @@ class BillingController extends Controller
             ->where('transactions.id', $id)
             ->select(
                 'transactions.*',
-                'users.name as customer_name',
+                DB::raw("CONCAT(users.firstname, ' ', users.lastname) as customer_name"),
                 'users.email as customer_email',
                 'users.uuid as customer_uuid',
                 'users.country as customer_country',
@@ -450,7 +451,7 @@ class BillingController extends Controller
             ->leftJoin('users', 'billing_notifications.user_uuid', '=', 'users.uuid')
             ->select(
                 'billing_notifications.*',
-                'users.name as customer_name',
+                DB::raw("CONCAT(users.firstname, ' ', users.lastname) as customer_name"),
                 'users.email as customer_email',
                 'subscriptions.stripe_subscription_id'
             );
@@ -467,7 +468,7 @@ class BillingController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('billing_notifications.recipient_email', 'ilike', "%{$search}%")
-                  ->orWhere('users.name', 'ilike', "%{$search}%")
+                  ->orWhereRaw("CONCAT(users.firstname, ' ', users.lastname) ILIKE ?", ["%{$search}%"])
                   ->orWhere('users.email', 'ilike', "%{$search}%");
             });
         }

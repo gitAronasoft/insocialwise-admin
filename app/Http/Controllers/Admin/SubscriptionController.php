@@ -23,9 +23,9 @@ class SubscriptionController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('customer', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            })->orWhere('stripe_subscription_id', 'like', "%{$search}%");
+                $q->whereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$search}%"])
+                    ->orWhere('email', 'ilike', "%{$search}%");
+            })->orWhere('stripe_subscription_id', 'ilike', "%{$search}%");
         }
 
         $sortColumn = $request->get('sort', 'created_at');
@@ -89,7 +89,7 @@ class SubscriptionController extends Controller
             ->get();
 
         $paymentMethod = $subscription->defaultPaymentMethod 
-            ?? $subscription->paymentMethods()->where('is_default', true)->first()
+            ?? $subscription->paymentMethods()->whereRaw('is_default = true')->first()
             ?? $subscription->paymentMethods()->where('status', 'active')->first();
 
         $subscriptionEvents = DB::table('subscription_events')
@@ -113,8 +113,8 @@ class SubscriptionController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('customer', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $q->whereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$search}%"])
+                    ->orWhere('email', 'ilike', "%{$search}%");
             });
         }
 
