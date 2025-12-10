@@ -87,17 +87,19 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DATABASE_URL'),
-            'host' => env('PGHOST', env('DB_HOST', '127.0.0.1')),
-            'port' => env('PGPORT', env('DB_PORT', '5432')),
-            'database' => env('PGDATABASE', env('DB_DATABASE', 'laravel')),
-            'username' => env('PGUSER', env('DB_USERNAME', 'root')),
-            'password' => env('PGPASSWORD', env('DB_PASSWORD', '')),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => 'disable',
+            'sslmode' => 'prefer',
+            'options' => [
+                PDO::ATTR_EMULATE_PREPARES => env('DB_PREPARED_STATEMENTS', true) ? false : true,
+            ],
         ],
 
         'sqlsrv' => [

@@ -1,4 +1,4 @@
-modules = ["php-8.2", "nodejs-20", "web", "postgresql-16"]
+modules = ["php-8.2", "nodejs-20", "web", "bash", "postgresql-16"]
 [agent]
 expertMode = true
 integrations = ["stripe:1.0.0"]
@@ -9,18 +9,18 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.shared]
-APP_NAME = "Social Media Admin"
-APP_ENV = "local"
-APP_DEBUG = "true"
-APP_URL = "https://a63ad6d2-ed93-4996-9cec-3d614d7fd977-00-3kj5er1a58goq.pike.replit.dev"
-SESSION_DRIVER = "file"
-CACHE_STORE = "file"
-DB_CONNECTION = "pgsql"
-DB_HOST = "helium"
-DB_PORT = "5432"
-DB_DATABASE = "heliumdb"
-DB_USERNAME = "postgres"
-DB_PASSWORD = "password"
+# APP_NAME = "Social Media Admin"
+# APP_ENV = "local"
+# APP_DEBUG = "true"
+# APP_URL = "https://a63ad6d2-ed93-4996-9cec-3d614d7fd977-00-3kj5er1a58goq.pike.replit.dev"
+# SESSION_DRIVER = "file"
+# CACHE_STORE = "file"
+# DB_CONNECTION = "pgsql"
+# DB_HOST = "helium"
+# DB_PORT = "5432"
+# DB_DATABASE = "heliumdb"
+# DB_USERNAME = "postgres"
+# DB_PASSWORD = "password"
 
 [userenv.development]
 
@@ -55,6 +55,10 @@ externalPort = 80
 [[ports]]
 localPort = 35867
 externalPort = 6000
+
+[[ports]]
+localPort = 38945
+externalPort = 5173
 
 [[ports]]
 localPort = 39347
