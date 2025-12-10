@@ -84,10 +84,10 @@
             <td class="px-4 py-4">
                 <div class="flex items-center">
                     <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-sm text-indigo-600 dark:text-indigo-400 font-medium" x-text="item.customer && item.customer.firstName ? item.customer.firstName.charAt(0).toUpperCase() : '?'"></span>
+                        <span class="text-sm text-indigo-600 dark:text-indigo-400 font-medium" x-text="item.customer && item.customer.name ? item.customer.name.charAt(0).toUpperCase() : '?'"></span>
                     </div>
                     <div class="ml-3">
-                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100" x-text="item.customer ? ((item.customer.firstName || '') + ' ' + (item.customer.lastName || '')) : 'N/A'"></div>
+                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100" x-text="item.customer ? (item.customer.name || 'N/A') : 'N/A'"></div>
                         <div class="text-xs text-gray-500 dark:text-gray-400" x-text="item.customer ? item.customer.email : ''"></div>
                     </div>
                 </div>

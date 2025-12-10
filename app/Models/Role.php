@@ -12,13 +12,8 @@ class Role extends Model
 
     protected $fillable = [
         'name',
-        'display_name',
+        'guard_name',
         'description',
-        'is_super_admin',
-    ];
-
-    protected $casts = [
-        'is_super_admin' => 'boolean',
     ];
 
     public function permissions(): BelongsToMany
@@ -33,7 +28,7 @@ class Role extends Model
 
     public function hasPermission(string $permission): bool
     {
-        if ($this->is_super_admin) {
+        if ($this->name === 'super_admin') {
             return true;
         }
 

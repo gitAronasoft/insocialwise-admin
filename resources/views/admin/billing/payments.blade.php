@@ -131,12 +131,12 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center">
                                     <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <span class="text-xs text-white font-medium">{{ strtoupper(substr($payment->customer_first_name ?? '?', 0, 1)) }}</span>
+                                        <span class="text-xs text-white font-medium">{{ strtoupper(substr($payment->customer_name ?? '?', 0, 1)) }}</span>
                                     </div>
                                     <div class="ml-3">
                                         @if($payment->customer_uuid)
                                             <a href="{{ route('admin.customers.show', ['customer' => $payment->customer_uuid]) }}" class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300">
-                                                {{ trim(($payment->customer_first_name ?? '') . ' ' . ($payment->customer_last_name ?? '')) ?: 'Unknown' }}
+                                                {{ $payment->customer_name ?? 'Unknown' }}
                                             </a>
                                         @else
                                             <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Unknown</span>

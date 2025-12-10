@@ -250,8 +250,7 @@ class BillingController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->whereHas('customer', function ($inner) use ($search) {
-                    $inner->where('firstName', 'ilike', "%{$search}%")
-                        ->orWhere('lastName', 'ilike', "%{$search}%")
+                    $inner->where('name', 'ilike', "%{$search}%")
                         ->orWhere('email', 'ilike', "%{$search}%");
                 });
             });
@@ -307,8 +306,7 @@ class BillingController extends Controller
             ->leftJoin('subscription_plans', 'subscriptions.plan_id', '=', 'subscription_plans.id')
             ->select(
                 'transactions.*',
-                'users.firstName as customer_first_name',
-                'users.lastName as customer_last_name',
+                'users.name as customer_name',
                 'users.email as customer_email',
                 'users.uuid as customer_uuid',
                 'payment_methods.brand as pm_brand',
@@ -322,7 +320,7 @@ class BillingController extends Controller
                 'subscriptions.stripe_subscription_id',
                 'subscriptions.plan_id',
                 'subscription_plans.name as plan_name',
-                'subscription_plans.billing_cycle'
+                'subscription_plans.billing_interval'
             );
 
         if ($statusFilter) {
@@ -333,8 +331,7 @@ class BillingController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('transactions.stripe_invoice_id', 'ilike', "%{$search}%")
                   ->orWhere('transactions.invoice_number', 'ilike', "%{$search}%")
-                  ->orWhere('users.firstName', 'ilike', "%{$search}%")
-                  ->orWhere('users.lastName', 'ilike', "%{$search}%")
+                  ->orWhere('users.name', 'ilike', "%{$search}%")
                   ->orWhere('users.email', 'ilike', "%{$search}%")
                   ->orWhere('payment_methods.last4', 'ilike', "%{$search}%");
             });
@@ -405,16 +402,11 @@ class BillingController extends Controller
             ->where('transactions.id', $id)
             ->select(
                 'transactions.*',
-                'users.firstName as customer_first_name',
-                'users.lastName as customer_last_name',
+                'users.name as customer_name',
                 'users.email as customer_email',
                 'users.uuid as customer_uuid',
-                'users.billing_address_line1',
-                'users.billing_address_line2',
-                'users.billing_city',
-                'users.billing_state',
-                'users.billing_postal_code',
-                'users.billing_country',
+                'users.country as customer_country',
+                'users.phone as customer_phone',
                 'payment_methods.brand as pm_brand',
                 'payment_methods.last4 as pm_last4',
                 'payment_methods.exp_month as pm_exp_month',
@@ -458,8 +450,7 @@ class BillingController extends Controller
             ->leftJoin('users', 'billing_notifications.user_uuid', '=', 'users.uuid')
             ->select(
                 'billing_notifications.*',
-                'users.firstName as customer_first_name',
-                'users.lastName as customer_last_name',
+                'users.name as customer_name',
                 'users.email as customer_email',
                 'subscriptions.stripe_subscription_id'
             );
@@ -476,8 +467,7 @@ class BillingController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('billing_notifications.recipient_email', 'ilike', "%{$search}%")
-                  ->orWhere('users.firstName', 'ilike', "%{$search}%")
-                  ->orWhere('users.lastName', 'ilike', "%{$search}%")
+                  ->orWhere('users.name', 'ilike', "%{$search}%")
                   ->orWhere('users.email', 'ilike', "%{$search}%");
             });
         }

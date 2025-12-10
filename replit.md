@@ -35,7 +35,7 @@ The InSocialWise Admin Panel is built on a Laravel 12 (PHP 8.2) backend, utilizi
 - **Database Schema:** PostgreSQL database with comprehensive billing tables including `billing_notifications` for scheduled communications, `billing_activity_logs` for audit trails, `payment_methods` for customer payment details, `webhook_events` for Stripe webhook tracking, `subscription_events` for subscription lifecycle tracking, and `admin_settings` for configurable application parameters, with encryption for sensitive data.
 - **Stripe Webhook Integration:** Full webhook handling at `/stripe/webhook` endpoint processes all Stripe events (subscription CRUD, invoices, payments, refunds, payment methods). Credentials should be configured via Replit Secrets: STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET.
 - **Modularity:** Organized project structure with dedicated directories for controllers, models, services, and views.
-- **Performance:** Database query optimizations applied to enhance performance and address N+1 issues.
+- **Performance:** Database query optimizations applied to enhance performance and address N+1 issues. Comprehensive database indexing with 63 performance indexes across 8 billing/payment tables (subscriptions, transactions, payment_methods, subscription_events, billing_activity_logs, billing_notifications, subscription_plans, webhook_events) covering all common query patterns including composite indexes for user+status filtering.
 - **Security:** Admin audit logs track all admin actions, IP addresses, and user agents. Admin session management allows tracking and revocation of sessions. Sensitive data (API keys, passwords) is stored encrypted.
 
 ## External Dependencies

@@ -23,20 +23,19 @@ class SubscriptionController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('customer', function ($q) use ($search) {
-                $q->where('firstName', 'like', "%{$search}%")
-                    ->orWhere('lastName', 'like', "%{$search}%")
+                $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
             })->orWhere('stripe_subscription_id', 'like', "%{$search}%");
         }
 
-        $sortColumn = $request->get('sort', 'createdAt');
+        $sortColumn = $request->get('sort', 'created_at');
         $sortDirection = $request->get('direction', 'desc');
         
-        $allowedSorts = ['status', 'createdAt', 'current_period_start', 'current_period_end'];
+        $allowedSorts = ['status', 'created_at', 'current_period_start', 'current_period_end'];
         if (in_array($sortColumn, $allowedSorts)) {
             $query->orderBy($sortColumn, $sortDirection === 'asc' ? 'asc' : 'desc');
         } else {
-            $query->orderBy('createdAt', 'desc');
+            $query->orderBy('created_at', 'desc');
         }
 
         $perPage = $request->get('per_page', 15);
@@ -52,11 +51,10 @@ class SubscriptionController extends Controller
                     'status' => $sub->status,
                     'current_period_start' => $sub->current_period_start?->toIso8601String(),
                     'current_period_end' => $sub->current_period_end?->toIso8601String(),
-                    'createdAt' => $sub->createdAt?->toIso8601String(),
+                    'created_at' => $sub->created_at?->toIso8601String(),
                     'customer' => $sub->customer ? [
-                        'id' => $sub->customer->id,
-                        'firstName' => $sub->customer->firstName,
-                        'lastName' => $sub->customer->lastName,
+                        'id' => $sub->customer->uuid,
+                        'name' => $sub->customer->name,
                         'email' => $sub->customer->email,
                     ] : null,
                 ];
@@ -115,8 +113,7 @@ class SubscriptionController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('customer', function ($q) use ($search) {
-                $q->where('firstName', 'like', "%{$search}%")
-                    ->orWhere('lastName', 'like', "%{$search}%")
+                $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
             });
         }
@@ -253,12 +250,12 @@ class SubscriptionController extends Controller
                 fputcsv($file, [
                     $subscription->id,
                     $subscription->stripe_subscription_id,
-                    ($subscription->customer->firstName ?? '') . ' ' . ($subscription->customer->lastName ?? ''),
+                    $subscription->customer->name ?? 'Unknown',
                     $subscription->customer->email ?? '',
                     $subscription->status,
                     $subscription->current_period_start?->format('Y-m-d H:i:s'),
                     $subscription->current_period_end?->format('Y-m-d H:i:s'),
-                    $subscription->createdAt?->format('Y-m-d H:i:s'),
+                    $subscription->created_at?->format('Y-m-d H:i:s'),
                 ]);
             }
 

@@ -209,11 +209,11 @@
             <x-card-section title="Customer Information">
                 <div class="text-center mb-6">
                     <div class="w-16 h-16 mx-auto bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-3">
-                        <span class="text-xl text-white font-bold">{{ strtoupper(substr($transaction->customer_first_name ?? '?', 0, 1)) }}</span>
+                        <span class="text-xl text-white font-bold">{{ strtoupper(substr($transaction->customer_name ?? '?', 0, 1)) }}</span>
                     </div>
                     @if($transaction->customer_uuid)
                         <a href="{{ route('admin.customers.show', ['customer' => $transaction->customer_uuid]) }}" class="text-lg font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300">
-                            {{ trim(($transaction->customer_first_name ?? '') . ' ' . ($transaction->customer_last_name ?? '')) ?: 'Unknown' }}
+                            {{ $transaction->customer_name ?? 'Unknown' }}
                         </a>
                     @else
                         <p class="text-lg font-semibold text-gray-900 dark:text-white">Unknown Customer</p>

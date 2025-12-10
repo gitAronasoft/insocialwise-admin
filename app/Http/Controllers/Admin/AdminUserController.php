@@ -97,7 +97,7 @@ class AdminUserController extends Controller
 
         $validated = $request->validate($rules);
 
-        $superAdminRole = Role::where('is_super_admin', true)->first();
+        $superAdminRole = Role::where('name', 'super_admin')->first();
         if ($isSelf && $superAdminRole && $adminUser->hasRole($superAdminRole->name)) {
             if (!in_array($superAdminRole->id, $validated['roles'])) {
                 return redirect()->back()
@@ -132,7 +132,7 @@ class AdminUserController extends Controller
                 ->with('error', 'You cannot delete your own account.');
         }
 
-        $superAdminRole = Role::where('is_super_admin', true)->first();
+        $superAdminRole = Role::where('name', 'super_admin')->first();
         if ($superAdminRole && $adminUser->hasRole($superAdminRole->name)) {
             $superAdminCount = AdminUser::whereHas('roles', function ($q) use ($superAdminRole) {
                 $q->where('roles.id', $superAdminRole->id);
@@ -160,9 +160,9 @@ class AdminUserController extends Controller
                 ->with('error', 'You cannot deactivate your own account.');
         }
 
-        $adminUser->update(['is_active' => !$adminUser->is_active]);
+        $adminUser->update(['status' => $adminUser->status === 'active' ? 'inactive' : 'active']);
 
-        $status = $adminUser->is_active ? 'activated' : 'deactivated';
+        $status = $adminUser->status === 'active' ? 'deactivated' : 'activated';
 
         return redirect()->back()
             ->with('success', "Admin user {$status} successfully.");

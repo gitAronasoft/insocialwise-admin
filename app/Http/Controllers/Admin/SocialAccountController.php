@@ -22,16 +22,16 @@ class SocialAccountController extends Controller
                 case 'active':
                     $query->where('status', 'active')
                         ->where(function ($q) {
-                            $q->whereNull('access_token_expiry')
-                                ->orWhere('access_token_expiry', '>', now());
+                            $q->whereNull('token_expires_at')
+                                ->orWhere('token_expires_at', '>', now());
                         });
                     break;
                 case 'expiring':
-                    $query->where('access_token_expiry', '>', now())
-                        ->where('access_token_expiry', '<', now()->addDays(7));
+                    $query->where('token_expires_at', '>', now())
+                        ->where('token_expires_at', '<', now()->addDays(7));
                     break;
                 case 'expired':
-                    $query->where('access_token_expiry', '<', now());
+                    $query->where('token_expires_at', '<', now());
                     break;
                 case 'disconnected':
                     $query->where('status', 'disconnected');
@@ -47,18 +47,18 @@ class SocialAccountController extends Controller
             });
         }
 
-        $accounts = $query->orderBy('createdAt', 'desc')->paginate(20);
+        $accounts = $query->orderBy('created_at', 'desc')->paginate(20);
 
         $stats = [
             'total' => SocialUser::count(),
             'active' => SocialUser::where('status', 'active')
                 ->where(function ($q) {
-                    $q->whereNull('access_token_expiry')
-                        ->orWhere('access_token_expiry', '>', now());
+                    $q->whereNull('token_expires_at')
+                        ->orWhere('token_expires_at', '>', now());
                 })->count(),
-            'expiring_soon' => SocialUser::where('access_token_expiry', '>', now())
-                ->where('access_token_expiry', '<', now()->addDays(7))->count(),
-            'expired' => SocialUser::where('access_token_expiry', '<', now())->count(),
+            'expiring_soon' => SocialUser::where('token_expires_at', '>', now())
+                ->where('token_expires_at', '<', now()->addDays(7))->count(),
+            'expired' => SocialUser::where('token_expires_at', '<', now())->count(),
         ];
 
         return view('admin.social-accounts.index', compact('accounts', 'stats'));

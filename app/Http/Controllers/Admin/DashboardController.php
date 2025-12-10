@@ -53,8 +53,7 @@ class DashboardController extends Controller
 
         try {
             $recentCustomers = Cache::remember('dashboard_recent_customers', self::CACHE_TTL, function () {
-                return Customer::where('role', 'User')
-                    ->orderBy('createdAt', 'desc')
+                return Customer::orderBy('created_at', 'desc')
                     ->limit(5)
                     ->get();
             });
@@ -77,7 +76,7 @@ class DashboardController extends Controller
         try {
             $recentActivities = Cache::remember('dashboard_recent_activities', self::CACHE_TTL, function () {
                 return Activity::with('customer')
-                    ->orderBy('createdAt', 'desc')
+                    ->orderBy('created_at', 'desc')
                     ->limit(10)
                     ->get();
             });
@@ -101,16 +100,12 @@ class DashboardController extends Controller
         $range = $this->analyticsService->getDateRange($period);
 
         return [
-            'total_customers' => Customer::where('role', 'User')->count(),
+            'total_customers' => Customer::count(),
             'active_subscriptions' => Subscription::where('status', 'active')->count(),
             'total_posts' => UserPost::count(),
             'total_pages' => SocialUserPage::count(),
-            'new_customers_today' => Customer::where('role', 'User')
-                ->whereDate('createdAt', Carbon::today())
-                ->count(),
-            'new_customers_week' => Customer::where('role', 'User')
-                ->where('createdAt', '>=', Carbon::now()->subWeek())
-                ->count(),
+            'new_customers_today' => Customer::whereDate('created_at', Carbon::today())->count(),
+            'new_customers_week' => Customer::where('created_at', '>=', Carbon::now()->subWeek())->count(),
             'pending_subscriptions' => Subscription::where('status', 'trialing')->count(),
             'total_revenue' => Transaction::where('status', 'succeeded')->sum('amount'),
         ];
@@ -187,9 +182,7 @@ class DashboardController extends Controller
                         $date = Carbon::now()->subDays($i);
                         $months[] = $date->format('D');
                         
-                        $dayCount = Customer::where('role', 'User')
-                            ->whereDate('createdAt', $date)
-                            ->count();
+                        $dayCount = Customer::whereDate('created_at', $date)->count();
                         
                         $counts[] = $dayCount;
                     }
@@ -198,9 +191,8 @@ class DashboardController extends Controller
                         $date = Carbon::now()->subMonths($i);
                         $months[] = $date->format('M Y');
                         
-                        $monthCount = Customer::where('role', 'User')
-                            ->whereYear('createdAt', $date->year)
-                            ->whereMonth('createdAt', $date->month)
+                        $monthCount = Customer::whereYear('created_at', $date->year)
+                            ->whereMonth('created_at', $date->month)
                             ->count();
                         
                         $counts[] = $monthCount;
@@ -339,7 +331,7 @@ class DashboardController extends Controller
     {
         try {
             $activities = Activity::with('customer')
-                ->orderBy('createdAt', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->limit(10)
                 ->get()
                 ->map(function ($activity) {

@@ -15,45 +15,44 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Customer::where('role', 'User')
-            ->select('users.*')
+        $query = Customer::select('users.*')
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')
                     ->from('social_users')
-                    ->whereColumn(DB::raw('social_users.user_id COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'));
+                    ->whereColumn('social_users.user_uuid', '=', 'users.uuid');
             }, 'social_users_count')
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')
                     ->from('social_page')
-                    ->whereColumn(DB::raw('social_page.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'));
+                    ->join('social_users', 'social_page.social_user_id', '=', 'social_users.id')
+                    ->whereColumn('social_users.user_uuid', '=', 'users.uuid');
             }, 'social_pages_count')
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')
                     ->from('posts')
-                    ->whereColumn(DB::raw('posts.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'));
+                    ->whereColumn('posts.user_uuid', '=', 'users.uuid');
             }, 'posts_count');
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('firstName', 'like', "%{$search}%")
-                    ->orWhere('lastName', 'like', "%{$search}%")
+                $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status === 'active' ? 1 : 0);
+            $query->where('status', $request->status);
         }
 
-        $sortColumn = $request->get('sort', 'createdAt');
+        $sortColumn = $request->get('sort', 'created_at');
         $sortDirection = $request->get('direction', 'desc');
         
-        $allowedSorts = ['firstName', 'lastName', 'email', 'status', 'createdAt'];
+        $allowedSorts = ['name', 'email', 'status', 'created_at'];
         if (in_array($sortColumn, $allowedSorts)) {
             $query->orderBy($sortColumn, $sortDirection === 'asc' ? 'asc' : 'desc');
         } else {
-            $query->orderBy('createdAt', 'desc');
+            $query->orderBy('created_at', 'desc');
         }
 
         $perPage = $request->get('per_page', 15);
@@ -135,8 +134,7 @@ class CustomerController extends Controller
 
         $ids = $request->input('ids');
         
-        $count = Customer::where('role', 'User')
-            ->whereIn('id', $ids)
+        $count = Customer::whereIn('uuid', $ids)
             ->count();
         
         if ($count === 0) {
@@ -146,9 +144,8 @@ class CustomerController extends Controller
             ], 404);
         }
 
-        Customer::where('role', 'User')
-            ->whereIn('id', $ids)
-            ->update(['status' => 0]);
+        Customer::whereIn('uuid', $ids)
+            ->update(['status' => 'inactive']);
 
         return response()->json([
             'success' => true,
@@ -160,16 +157,15 @@ class CustomerController extends Controller
     {
         $request->validate([
             'ids' => 'required|array|min:1',
-            'ids.*' => 'integer',
+            'ids.*' => 'string',
             'action' => 'required|in:activate,deactivate',
         ]);
 
         $ids = $request->input('ids');
         $action = $request->input('action');
-        $status = $action === 'activate' ? 1 : 0;
+        $status = $action === 'activate' ? 'active' : 'inactive';
         
-        $count = Customer::where('role', 'User')
-            ->whereIn('id', $ids)
+        $count = Customer::whereIn('uuid', $ids)
             ->update(['status' => $status]);
 
         $actionText = $action === 'activate' ? 'activated' : 'deactivated';
