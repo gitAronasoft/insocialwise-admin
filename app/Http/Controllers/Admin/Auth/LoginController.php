@@ -29,8 +29,10 @@ class LoginController extends Controller
             $request->session()->regenerate();
             
             $admin = Auth::guard('admin')->user();
-            AdminAuditService::logLogin($admin, true);
-            AdminAuditService::createSession($admin);
+            if ($admin) {
+                AdminAuditService::logLogin($admin, true);
+                AdminAuditService::createSession($admin);
+            }
             
             return redirect()->intended(route('admin.dashboard'));
         }

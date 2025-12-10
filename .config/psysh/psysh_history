@@ -1,5 +1,51 @@
-$trans = \App\Models\Transaction::select('id', 'amount', 'stripe_payment_method_id', 'user_uuid')->first();
-echo "Transaction: " . json_encode($trans, JSON_PRETTY_PRINT) . "\n";
-$pm = \App\Models\PaymentMethod::select('id', 'stripe_payment_method_id', 'brand', 'last4')->first();
-echo "Payment Method: " . json_encode($pm, JSON_PRETTY_PRINT) . "\n";
-exit;
+use Illuminate\Support\Facades\DB;
+// Fix admin_audit_logs - check actual columns and insert
+$logs = [
+    ['action_type' => 'login', 'admin_user_id' => 1, 'description' => 'Admin admin@insocialwise.com logged in successfully', 'severity' => 'info', 'created_at' => '2025-12-08 18:57:01'],
+    ['action_type' => 'login', 'admin_user_id' => 1, 'description' => 'Admin admin@insocialwise.com logged in successfully', 'severity' => 'info', 'created_at' => '2025-12-08 19:23:36'],
+    ['action_type' => 'login', 'admin_user_id' => 1, 'description' => 'Admin admin@insocialwise.com logged in successfully', 'severity' => 'info', 'created_at' => '2025-12-08 20:20:25'],
+    ['action_type' => 'login', 'admin_user_id' => 1, 'description' => 'Admin admin@insocialwise.com logged in successfully', 'severity' => 'info', 'created_at' => '2025-12-08 20:20:46'],
+    ['action_type' => 'login', 'admin_user_id' => 1, 'description' => 'Admin admin@insocialwise.com logged in successfully', 'severity' => 'info', 'created_at' => '2025-12-08 20:24:30'],
+    ['action_type' => 'login', 'admin_user_id' => 1, 'description' => 'Admin admin@insocialwise.com logged in successfully', 'severity' => 'info', 'created_at' => '2025-12-08 20:54:14'],
+    ['action_type' => 'login', 'admin_user_id' => 1, 'description' => 'Admin admin@insocialwise.com logged in successfully', 'severity' => 'info', 'created_at' => '2025-12-09 06:51:22'],
+    ['action_type' => 'login', 'admin_user_id' => 1, 'description' => 'Admin admin@insocialwise.com logged in successfully', 'severity' => 'info', 'created_at' => '2025-12-09 12:41:56'],
+];
+DB::table('admin_audit_logs')->truncate();
+foreach ($logs as $log) {
+    try {
+        DB::table('admin_audit_logs')->insert(array_merge($log, ['updated_at' => $log['created_at']]));
+    } catch (Exception $e) { echo $e->getMessage() . "\n"; }
+}
+echo "admin_audit_logs: " . DB::table('admin_audit_logs')->count() . " OK\n";
+// Reset admin password
+DB::table('admin_users')->where('email', 'admin@insocialwise.com')->update([
+    'password' => '$2y$12$XnYzvwZ3/a6.wIMyOaxaZuMIpLDo2goUlJwkmg1G3pHwDqhJGaJHe'
+]);
+echo "Admin password reset OK\n";
+// Update user 3 UUID for subscription
+try {
+    DB::table('users')->insert([
+        'uuid' => '51a83ba2-9f05-455d-a97e-f9490c6cdc40',
+        'name' => 'Sudhir Kundal',
+        'email' => 'sudhirkundal007@gmail.com',
+        'password' => '$2y$12$dO/nnSmxMXS8EXHI94E/leZIlFV2JxBPmNUn94a/OL8w9OJYPhq7i',
+        'status' => 'active',
+        'created_at' => now(),
+        'updated_at' => now()
+    ]);
+    echo "User Sudhir inserted\n";
+} catch (Exception $e) {}
+// Import remaining subscriptions
+DB::table('subscriptions')->truncate();
+$subs = [
+    ['user_uuid' => '9e47ed0e-73f7-41d5-9dac-5c37b8df8a4f', 'plan_id' => 3, 'stripe_subscription_id' => 'sub_1Sc8r8HpVJPrOqLkX4hZp1K4', 'status' => 'active', 'amount' => 9900, 'currency' => 'usd'],
+    ['user_uuid' => '6f4362d5-744c-446e-8108-8db805396e51', 'plan_id' => 1, 'stripe_subscription_id' => 'sub_1Sc9R5HpVJPrOqLkPt4sV5R5', 'status' => 'active', 'amount' => 1900, 'currency' => 'usd'],
+    ['user_uuid' => '51a83ba2-9f05-455d-a97e-f9490c6cdc40', 'plan_id' => 2, 'stripe_subscription_id' => 'sub_1ScRVYHpVJPrOqLkj9vJJOTJ', 'status' => 'trialing', 'amount' => 4900, 'currency' => 'usd'],
+];
+foreach ($subs as $s) {
+    try {
+        DB::table('subscriptions')->insert(array_merge($s, ['created_at' => now(), 'updated_at' => now()]));
+    } catch (Exception $e) {}
+}
+echo "subscriptions: " . DB::table('subscriptions')->count() . " OK\n";
+echo "Done!\n";

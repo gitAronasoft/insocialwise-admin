@@ -84,7 +84,7 @@ class AdminAuditService
         $token = $sessionToken ?? session()->getId();
         
         AdminSession::where('session_token', $token)
-            ->where('is_active', true)
+            ->whereRaw('"is_active" = true')
             ->update([
                 'is_active' => false,
             ]);
@@ -95,7 +95,7 @@ class AdminAuditService
         $sessionToken = session()->getId();
         
         AdminSession::where('session_token', $sessionToken)
-            ->where('is_active', true)
+            ->whereRaw('"is_active" = true')
             ->update([
                 'last_activity' => now(),
                 'ip_address' => self::getClientIp(request()),
@@ -131,7 +131,7 @@ class AdminAuditService
         
         $count = AdminSession::where('admin_user_id', $adminId)
             ->where('session_token', '!=', $currentToken)
-            ->where('is_active', true)
+            ->whereRaw('"is_active" = true')
             ->update([
                 'is_active' => false,
             ]);
@@ -155,14 +155,14 @@ class AdminAuditService
     public static function getActiveSessions(int $adminId): \Illuminate\Database\Eloquent\Collection
     {
         return AdminSession::where('admin_user_id', $adminId)
-            ->where('is_active', true)
+            ->whereRaw('"is_active" = true')
             ->orderBy('last_activity', 'desc')
             ->get();
     }
 
     public static function cleanupExpiredSessions(int $daysOld = 30): int
     {
-        return AdminSession::where('is_active', true)
+        return AdminSession::whereRaw('"is_active" = true')
             ->where('last_activity', '<', now()->subDays($daysOld))
             ->update([
                 'is_active' => false,

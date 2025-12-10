@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('user_uuid');
             $table->string('platform');
+            $table->string('account_social_userid');            
             $table->string('account_id');
             $table->string('name');
             $table->string('currency', 3)->default('USD');
