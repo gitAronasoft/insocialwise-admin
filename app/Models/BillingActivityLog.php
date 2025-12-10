@@ -48,8 +48,8 @@ class BillingActivityLog extends Model
         'new_value' => 'array',
         'metadata' => 'array',
         'amount' => 'integer',
-        'createdAt' => 'datetime',
-        'updatedAt' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function customer(): BelongsTo

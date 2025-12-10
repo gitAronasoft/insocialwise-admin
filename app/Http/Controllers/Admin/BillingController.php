@@ -32,25 +32,25 @@ class BillingController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('description', 'like', "%{$search}%")
-                    ->orWhere('actor_email', 'like', "%{$search}%")
-                    ->orWhere('stripe_event_id', 'like', "%{$search}%")
+                $q->where('description', 'ilike', "%{$search}%")
+                    ->orWhere('actor_email', 'ilike', "%{$search}%")
+                    ->orWhere('stripe_event_id', 'ilike', "%{$search}%")
                     ->orWhereHas('customer', function ($q) use ($search) {
-                        $q->where('email', 'like', "%{$search}%")
-                            ->orWhere('name', 'like', "%{$search}%");
+                        $q->where('email', 'ilike', "%{$search}%")
+                            ->orWhere('name', 'ilike', "%{$search}%");
                     });
             });
         }
 
         if ($request->filled('date_from')) {
-            $query->whereDate('createdAt', '>=', $request->date_from);
+            $query->whereDate('created_at', '>=', $request->date_from);
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('createdAt', '<=', $request->date_to);
+            $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $logs = $query->orderBy('createdAt', 'desc')->paginate(25);
+        $logs = $query->orderBy('created_at', 'desc')->paginate(25);
 
         $stats = $this->getActivityStats();
         $actionTypes = $this->getActionTypes();
@@ -77,7 +77,7 @@ class BillingController extends Controller
         }
 
         if ($request->filled('card_brand')) {
-            $query->where('card_brand', $request->card_brand);
+            $query->where('brand', $request->card_brand);
         }
 
         if ($request->filled('is_default')) {
@@ -87,23 +87,21 @@ class BillingController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('card_last4', 'like', "%{$search}%")
-                    ->orWhere('billing_email', 'like', "%{$search}%")
-                    ->orWhere('billing_name', 'like', "%{$search}%")
+                $q->where('last4', 'ilike', "%{$search}%")
                     ->orWhereHas('customer', function ($q) use ($search) {
-                        $q->where('email', 'like', "%{$search}%")
-                            ->orWhere('name', 'like', "%{$search}%");
+                        $q->where('email', 'ilike', "%{$search}%")
+                            ->orWhere('name', 'ilike', "%{$search}%");
                     });
             });
         }
 
-        $paymentMethods = $query->orderBy('createdAt', 'desc')->paginate(20);
+        $paymentMethods = $query->orderBy('created_at', 'desc')->paginate(20);
 
         $twoMonthsFromNow = now()->addMonths(2)->format('Y-m-d');
         $stats = PaymentMethod::selectRaw("
             COUNT(*) as total,
             SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
-            SUM(CASE WHEN status = 'active' AND STR_TO_DATE(CONCAT(exp_year, '-', exp_month, '-01'), '%Y-%m-%d') <= ? THEN 1 ELSE 0 END) as expiring_soon,
+            SUM(CASE WHEN status = 'active' AND (exp_year || '-' || LPAD(exp_month::text, 2, '0') || '-01')::date <= ?::date THEN 1 ELSE 0 END) as expiring_soon,
             SUM(CASE WHEN status = 'expired' THEN 1 ELSE 0 END) as expired
         ", [$twoMonthsFromNow])->first();
 
@@ -148,7 +146,7 @@ class BillingController extends Controller
         ];
 
         $recentLogs = BillingActivityLog::with('customer')
-            ->orderBy('createdAt', 'desc')
+            ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
 
@@ -169,8 +167,8 @@ class BillingController extends Controller
 
         $stats = BillingActivityLog::selectRaw("
             COUNT(*) as total,
-            SUM(CASE WHEN DATE(createdAt) = ? THEN 1 ELSE 0 END) as today,
-            SUM(CASE WHEN createdAt >= ? THEN 1 ELSE 0 END) as this_week,
+            SUM(CASE WHEN DATE(created_at) = ? THEN 1 ELSE 0 END) as today,
+            SUM(CASE WHEN created_at >= ? THEN 1 ELSE 0 END) as this_week,
             SUM(CASE WHEN action_status = 'success' THEN 1 ELSE 0 END) as success,
             SUM(CASE WHEN action_status = 'failed' THEN 1 ELSE 0 END) as failed
         ", [$today, $thisWeek])->first();
@@ -252,9 +250,9 @@ class BillingController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->whereHas('customer', function ($inner) use ($search) {
-                    $inner->where('firstName', 'like', "%{$search}%")
-                        ->orWhere('lastName', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
+                    $inner->where('firstName', 'ilike', "%{$search}%")
+                        ->orWhere('lastName', 'ilike', "%{$search}%")
+                        ->orWhere('email', 'ilike', "%{$search}%");
                 });
             });
         }
@@ -262,7 +260,7 @@ class BillingController extends Controller
         $sortColumn = $request->get('sort', 'payment_retry_count');
         $sortDirection = $request->get('direction', 'desc');
 
-        $allowedSorts = ['payment_retry_count', 'next_payment_retry_at', 'past_due_since', 'createdAt'];
+        $allowedSorts = ['payment_retry_count', 'next_payment_retry_at', 'past_due_since', 'created_at'];
         if (in_array($sortColumn, $allowedSorts)) {
             $query->orderBy($sortColumn, $sortDirection === 'asc' ? 'asc' : 'desc');
         } else {
@@ -300,10 +298,10 @@ class BillingController extends Controller
 
         $query = Transaction::query()
             ->with(['customer'])
-            ->leftJoin('users', DB::raw('transactions.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'))
+            ->leftJoin('users', 'transactions.user_uuid', '=', 'users.uuid')
             ->leftJoin('payment_methods', function($join) {
-                $join->on(DB::raw('transactions.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('payment_methods.user_uuid COLLATE utf8mb4_unicode_ci'))
-                     ->on(DB::raw('transactions.stripe_customer_id COLLATE utf8mb4_unicode_ci'), '=', DB::raw('payment_methods.stripe_customer_id COLLATE utf8mb4_unicode_ci'));
+                $join->on('transactions.user_uuid', '=', 'payment_methods.user_uuid')
+                     ->on('transactions.stripe_customer_id', '=', 'payment_methods.stripe_customer_id');
             })
             ->leftJoin('subscriptions', 'transactions.subscription_id', '=', 'subscriptions.id')
             ->leftJoin('subscription_plans', 'subscriptions.plan_id', '=', 'subscription_plans.id')
@@ -333,12 +331,12 @@ class BillingController extends Controller
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('transactions.stripe_invoice_id', 'like', "%{$search}%")
-                  ->orWhere('transactions.invoice_number', 'like', "%{$search}%")
-                  ->orWhere('users.firstName', 'like', "%{$search}%")
-                  ->orWhere('users.lastName', 'like', "%{$search}%")
-                  ->orWhere('users.email', 'like', "%{$search}%")
-                  ->orWhere('payment_methods.last4', 'like', "%{$search}%");
+                $q->where('transactions.stripe_invoice_id', 'ilike', "%{$search}%")
+                  ->orWhere('transactions.invoice_number', 'ilike', "%{$search}%")
+                  ->orWhere('users.firstName', 'ilike', "%{$search}%")
+                  ->orWhere('users.lastName', 'ilike', "%{$search}%")
+                  ->orWhere('users.email', 'ilike', "%{$search}%")
+                  ->orWhere('payment_methods.last4', 'ilike', "%{$search}%");
             });
         }
 
@@ -397,10 +395,10 @@ class BillingController extends Controller
     public function transactionDetail($id)
     {
         $transaction = Transaction::query()
-            ->leftJoin('users', DB::raw('transactions.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'))
+            ->leftJoin('users', 'transactions.user_uuid', '=', 'users.uuid')
             ->leftJoin('payment_methods', function ($join) {
-                $join->on(DB::raw('transactions.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('payment_methods.user_uuid COLLATE utf8mb4_unicode_ci'))
-                     ->on(DB::raw('transactions.stripe_customer_id COLLATE utf8mb4_unicode_ci'), '=', DB::raw('payment_methods.stripe_customer_id COLLATE utf8mb4_unicode_ci'));
+                $join->on('transactions.user_uuid', '=', 'payment_methods.user_uuid')
+                     ->on('transactions.stripe_customer_id', '=', 'payment_methods.stripe_customer_id');
             })
             ->leftJoin('subscriptions', 'transactions.subscription_id', '=', 'subscriptions.id')
             ->leftJoin('subscription_plans', 'subscriptions.plan_id', '=', 'subscription_plans.id')
@@ -477,10 +475,10 @@ class BillingController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('billing_notifications.recipient_email', 'like', "%{$search}%")
-                  ->orWhere('users.firstName', 'like', "%{$search}%")
-                  ->orWhere('users.lastName', 'like', "%{$search}%")
-                  ->orWhere('users.email', 'like', "%{$search}%");
+                $q->where('billing_notifications.recipient_email', 'ilike', "%{$search}%")
+                  ->orWhere('users.firstName', 'ilike', "%{$search}%")
+                  ->orWhere('users.lastName', 'ilike', "%{$search}%")
+                  ->orWhere('users.email', 'ilike', "%{$search}%");
             });
         }
 
@@ -501,7 +499,7 @@ class BillingController extends Controller
                 SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as sent,
                 SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered,
                 SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed,
-                SUM(CASE WHEN DATE(sent_at) = CURDATE() THEN 1 ELSE 0 END) as today
+                SUM(CASE WHEN DATE(sent_at) = CURRENT_DATE THEN 1 ELSE 0 END) as today
             FROM billing_notifications
         ");
 

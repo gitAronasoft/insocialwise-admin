@@ -45,12 +45,9 @@ class PaymentMethod extends Model
         'is_default' => 'boolean',
         'exp_month' => 'integer',
         'exp_year' => 'integer',
-        'createdAt' => 'datetime',
-        'updatedAt' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
-
-    const CREATED_AT = 'createdAt';
-    const UPDATED_AT = 'updatedAt';
 
     public function customer(): BelongsTo
     {

@@ -84,8 +84,8 @@ class Subscription extends Model
         'trial_reminder_sent_at' => 'datetime',
         'renewal_reminder_sent_at' => 'datetime',
         'synced_at' => 'datetime',
-        'createdAt' => 'datetime',
-        'updatedAt' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
         'cancel_at_period_end' => 'boolean',
         'trial_reminder_sent' => 'boolean',
         'renewal_reminder_sent' => 'boolean',
@@ -97,8 +97,8 @@ class Subscription extends Model
         'metadata' => 'array',
     ];
 
-    const CREATED_AT = 'createdAt';
-    const UPDATED_AT = 'updatedAt';
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     public function customer(): BelongsTo
     {
@@ -245,10 +245,10 @@ class Subscription extends Model
     {
         $events = [];
         
-        if ($this->createdAt) {
+        if ($this->created_at) {
             $events[] = [
                 'type' => 'created',
-                'date' => $this->createdAt,
+                'date' => $this->created_at,
                 'label' => 'Subscription Created',
                 'icon' => 'heroicon-o-plus-circle',
                 'color' => 'blue',
