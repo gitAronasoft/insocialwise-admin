@@ -24,10 +24,9 @@ class PostController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('content', 'like', "%{$search}%")
+                $q->where('content', 'ilike', "%{$search}%")
                     ->orWhereHas('customer', function ($q) use ($search) {
-                        $q->where('firstName', 'like', "%{$search}%")
-                            ->orWhere('lastName', 'like', "%{$search}%");
+                        $q->whereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$search}%"]);
                     });
             });
         }

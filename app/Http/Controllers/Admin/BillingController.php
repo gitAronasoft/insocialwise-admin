@@ -321,7 +321,8 @@ class BillingController extends Controller
                 'subscriptions.stripe_subscription_id',
                 'subscriptions.plan_id',
                 'subscription_plans.name as plan_name',
-                'subscription_plans.billing_interval'
+                'subscription_plans.billing_cycle',
+                'subscriptions.billing_interval'
             );
 
         if ($statusFilter) {
@@ -406,8 +407,9 @@ class BillingController extends Controller
                 DB::raw("CONCAT(users.firstname, ' ', users.lastname) as customer_name"),
                 'users.email as customer_email',
                 'users.uuid as customer_uuid',
-                'users.country as customer_country',
-                'users.phone as customer_phone',
+                'users.billing_phone as customer_phone',
+                'users.billing_country as customer_country',
+                'users.userlocation as customer_location',
                 'payment_methods.brand as pm_brand',
                 'payment_methods.last4 as pm_last4',
                 'payment_methods.exp_month as pm_exp_month',
@@ -417,6 +419,7 @@ class BillingController extends Controller
                 'subscriptions.stripe_subscription_id',
                 'subscriptions.billing_interval',
                 'subscription_plans.name as plan_name',
+                'subscription_plans.billing_cycle',
                 'subscription_plans.price as plan_price'
             )
             ->firstOrFail();

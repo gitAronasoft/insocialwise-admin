@@ -33,6 +33,12 @@ The InSocialWise Admin Panel is built on a Laravel 12 (PHP 8.2) backend, utilizi
 
 **System Design Choices:**
 - **Database Schema:** PostgreSQL database with comprehensive billing tables including `billing_notifications` for scheduled communications, `billing_activity_logs` for audit trails, `payment_methods` for customer payment details, `webhook_events` for Stripe webhook tracking, `subscription_events` for subscription lifecycle tracking, and `admin_settings` for configurable application parameters, with encryption for sensitive data.
+- **PostgreSQL Schema Alignment (Dec 2024):** Complete codebase audit ensured all models, controllers, and services use exact PostgreSQL column names. Key conventions:
+  - Users table columns are lowercase: `firstname`, `lastname`, `userlocation`, `profileimage`, `jobtitle`, `timezone` (NOT camelCase)
+  - Timestamps use snake_case: `created_at`, `updated_at` (NOT createdAt, updatedAt)
+  - Case-insensitive search uses PostgreSQL `ILIKE` operator
+  - Date functions use PostgreSQL syntax: `EXTRACT()` instead of MySQL `YEAR()/MONTH()`, date arithmetic instead of `DATEDIFF()`
+  - Subscriptions use `billing_interval`, subscription_plans use `billing_cycle`
 - **Stripe Webhook Integration:** Full webhook handling at `/stripe/webhook` endpoint processes all Stripe events (subscription CRUD, invoices, payments, refunds, payment methods). Credentials should be configured via Replit Secrets: STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET.
 - **Modularity:** Organized project structure with dedicated directories for controllers, models, services, and views.
 - **Performance:** Database query optimizations applied to enhance performance and address N+1 issues. Comprehensive database indexing with 63 performance indexes across 8 billing/payment tables (subscriptions, transactions, payment_methods, subscription_events, billing_activity_logs, billing_notifications, subscription_plans, webhook_events) covering all common query patterns including composite indexes for user+status filtering.

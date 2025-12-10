@@ -23,10 +23,9 @@ class CampaignController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('campaign_name', 'like', "%{$search}%")
+                $q->where('campaign_name', 'ilike', "%{$search}%")
                     ->orWhereHas('customer', function ($q) use ($search) {
-                        $q->where('firstName', 'like', "%{$search}%")
-                            ->orWhere('lastName', 'like', "%{$search}%");
+                        $q->whereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$search}%"]);
                     });
             });
         }
@@ -57,11 +56,10 @@ class CampaignController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('account_id', 'like', "%{$search}%")
+                $q->where('account_name', 'ilike', "%{$search}%")
+                    ->orWhere('account_id', 'ilike', "%{$search}%")
                     ->orWhereHas('customer', function ($q) use ($search) {
-                        $q->where('firstName', 'like', "%{$search}%")
-                            ->orWhere('lastName', 'like', "%{$search}%");
+                        $q->whereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$search}%"]);
                     });
             });
         }

@@ -157,14 +157,14 @@ class SubscriptionController extends Controller
             ->whereNotNull('paid_at')
             ->where('paid_at', '>=', Carbon::now()->subWeeks(12))
             ->select(
-                DB::raw('YEAR(paid_at) as year'),
-                DB::raw('WEEK(paid_at) as week'),
+                DB::raw('EXTRACT(YEAR FROM paid_at)::int as year'),
+                DB::raw('EXTRACT(WEEK FROM paid_at)::int as week'),
                 DB::raw('SUM(amount) / 100 as total'),
                 DB::raw('COUNT(*) as count')
             )
-            ->groupBy('year', 'week')
-            ->orderBy('year', 'asc')
-            ->orderBy('week', 'asc')
+            ->groupBy(DB::raw('EXTRACT(YEAR FROM paid_at)'), DB::raw('EXTRACT(WEEK FROM paid_at)'))
+            ->orderBy(DB::raw('EXTRACT(YEAR FROM paid_at)'), 'asc')
+            ->orderBy(DB::raw('EXTRACT(WEEK FROM paid_at)'), 'asc')
             ->get()
             ->map(function ($item) {
                 $date = Carbon::now()->setISODate($item->year, $item->week)->startOfWeek();
@@ -179,14 +179,14 @@ class SubscriptionController extends Controller
             ->whereNotNull('paid_at')
             ->where('paid_at', '>=', Carbon::now()->subMonths(12))
             ->select(
-                DB::raw('YEAR(paid_at) as year'),
-                DB::raw('MONTH(paid_at) as month'),
+                DB::raw('EXTRACT(YEAR FROM paid_at)::int as year'),
+                DB::raw('EXTRACT(MONTH FROM paid_at)::int as month'),
                 DB::raw('SUM(amount) / 100 as total'),
                 DB::raw('COUNT(*) as count')
             )
-            ->groupBy('year', 'month')
-            ->orderBy('year', 'asc')
-            ->orderBy('month', 'asc')
+            ->groupBy(DB::raw('EXTRACT(YEAR FROM paid_at)'), DB::raw('EXTRACT(MONTH FROM paid_at)'))
+            ->orderBy(DB::raw('EXTRACT(YEAR FROM paid_at)'), 'asc')
+            ->orderBy(DB::raw('EXTRACT(MONTH FROM paid_at)'), 'asc')
             ->get()
             ->map(function ($item) {
                 $date = Carbon::createFromDate($item->year, $item->month, 1);

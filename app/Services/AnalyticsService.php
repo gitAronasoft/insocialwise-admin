@@ -199,7 +199,7 @@ class AnalyticsService
                 $previousRevenue = $previousRevenueCents / 100;
 
                 $previousActiveUsers = Subscription::where('status', 'active')
-                    ->where('createdAt', '<=', $range['previous_end'])
+                    ->where('created_at', '<=', $range['previous_end'])
                     ->count();
                 $previousARPU = $previousActiveUsers > 0 ? $previousRevenue / $previousActiveUsers : 0;
 
@@ -366,11 +366,11 @@ class AnalyticsService
                 $current = Subscription::where('status', 'active')->count();
 
                 $previous = Subscription::where('status', 'active')
-                    ->where('createdAt', '<=', $range['previous_end'])
+                    ->where('created_at', '<=', $range['previous_end'])
                     ->count();
 
                 $newThisPeriod = Subscription::where('status', 'active')
-                    ->whereBetween('createdAt', [$range['start'], $range['end']])
+                    ->whereBetween('created_at', [$range['start'], $range['end']])
                     ->count();
 
                 $growth = $this->calculateGrowth((float)$current, (float)$previous);
@@ -405,11 +405,11 @@ class AnalyticsService
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($range) {
             try {
                 $current = Subscription::whereIn('status', ['past_due', 'unpaid', 'incomplete', 'incomplete_expired'])
-                    ->whereBetween('updatedAt', [$range['start'], $range['end']])
+                    ->whereBetween('updated_at', [$range['start'], $range['end']])
                     ->count();
 
                 $previous = Subscription::whereIn('status', ['past_due', 'unpaid', 'incomplete', 'incomplete_expired'])
-                    ->whereBetween('updatedAt', [$range['previous_start'], $range['previous_end']])
+                    ->whereBetween('updated_at', [$range['previous_start'], $range['previous_end']])
                     ->count();
 
                 $failedPayments = Transaction::where('status', 'failed')
@@ -449,7 +449,7 @@ class AnalyticsService
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($range) {
             try {
                 $startingSubscriptions = Subscription::where('status', 'active')
-                    ->where('createdAt', '<', $range['start'])
+                    ->where('created_at', '<', $range['start'])
                     ->count();
 
                 $churned = Subscription::where('status', 'canceled')
@@ -461,7 +461,7 @@ class AnalyticsService
                     : 0;
 
                 $previousStartingSubs = Subscription::where('status', 'active')
-                    ->where('createdAt', '<', $range['previous_start'])
+                    ->where('created_at', '<', $range['previous_start'])
                     ->count();
 
                 $previousChurned = Subscription::where('status', 'canceled')
@@ -509,14 +509,14 @@ class AnalyticsService
                 $totalTrials = Subscription::where('status', 'trialing')
                     ->orWhere(function ($query) use ($range) {
                         $query->whereNotNull('trial_end')
-                            ->whereBetween('createdAt', [$range['start'], $range['end']]);
+                            ->whereBetween('created_at', [$range['start'], $range['end']]);
                     })
                     ->count();
 
                 $convertedTrials = Subscription::where('status', 'active')
                     ->whereNotNull('trial_end')
                     ->where('trial_end', '<', Carbon::now())
-                    ->whereBetween('createdAt', [$range['start'], $range['end']])
+                    ->whereBetween('created_at', [$range['start'], $range['end']])
                     ->count();
 
                 $conversionRate = $totalTrials > 0 
@@ -528,12 +528,12 @@ class AnalyticsService
                 $avgTrialDays = Subscription::where('status', 'active')
                     ->whereNotNull('trial_end')
                     ->where('trial_end', '<', Carbon::now())
-                    ->selectRaw('AVG(DATEDIFF(trial_end, createdAt)) as avg_days')
+                    ->selectRaw('AVG(trial_end::date - created_at::date) as avg_days')
                     ->first();
 
                 $abandonedTrials = Subscription::whereIn('status', ['canceled', 'incomplete_expired'])
                     ->whereNotNull('trial_end')
-                    ->whereBetween('createdAt', [$range['start'], $range['end']])
+                    ->whereBetween('created_at', [$range['start'], $range['end']])
                     ->count();
 
                 $abandonmentRate = $totalTrials > 0 
@@ -586,7 +586,7 @@ class AnalyticsService
                 foreach ($dataPoints as $point) {
                     $labels[] = $point['label'];
                     
-                    $new = Subscription::whereBetween('createdAt', [$point['start'], $point['end']])
+                    $new = Subscription::whereBetween('created_at', [$point['start'], $point['end']])
                         ->count();
                     $newSubscriptions[] = $new;
 
@@ -597,7 +597,7 @@ class AnalyticsService
 
                     $renewed = Subscription::where('status', 'active')
                         ->whereBetween('current_period_start', [$point['start'], $point['end']])
-                        ->where('createdAt', '<', $point['start'])
+                        ->where('created_at', '<', $point['start'])
                         ->count();
                     $renewedSubscriptions[] = $renewed;
                 }
@@ -829,11 +829,11 @@ class AnalyticsService
                     ->map(function ($sub) {
                         return [
                             'customer_name' => $sub->customer 
-                                ? ($sub->customer->firstName . ' ' . $sub->customer->lastName) 
+                                ? ($sub->customer->firstname . ' ' . $sub->customer->lastname) 
                                 : 'Unknown',
                             'canceled_at' => $sub->canceled_at?->format('M d, Y'),
-                            'was_active_for' => $sub->createdAt 
-                                ? $sub->createdAt->diffInDays($sub->canceled_at) . ' days'
+                            'was_active_for' => $sub->created_at 
+                                ? $sub->created_at->diffInDays($sub->canceled_at) . ' days'
                                 : 'N/A',
                         ];
                     });
@@ -854,7 +854,7 @@ class AnalyticsService
                         $query->where('price_id', $plan->stripe_price_id)
                             ->orWhere('price_id', $plan->stripe_yearly_price_id);
                     })
-                    ->where('createdAt', '<', $range['start'])
+                    ->where('created_at', '<', $range['start'])
                     ->count();
 
                     $churnRate = $total > 0 ? round(($churned / $total) * 100, 1) : 0;
@@ -921,7 +921,7 @@ class AnalyticsService
                             $query->where('price_id', $plan->stripe_price_id)
                                 ->orWhere('price_id', $plan->stripe_yearly_price_id);
                         })
-                        ->whereBetween('createdAt', [$range['start'], $range['end']])
+                        ->whereBetween('created_at', [$range['start'], $range['end']])
                         ->count();
 
                     $converted = Subscription::where('status', 'active')
@@ -931,7 +931,7 @@ class AnalyticsService
                             $query->where('price_id', $plan->stripe_price_id)
                                 ->orWhere('price_id', $plan->stripe_yearly_price_id);
                         })
-                        ->whereBetween('createdAt', [$range['start'], $range['end']])
+                        ->whereBetween('created_at', [$range['start'], $range['end']])
                         ->count();
 
                     $conversionRate = $trials > 0 ? round(($converted / $trials) * 100, 1) : 0;
@@ -948,7 +948,7 @@ class AnalyticsService
                         $query->where('price_id', $plan->stripe_price_id)
                             ->orWhere('price_id', $plan->stripe_yearly_price_id);
                     })
-                    ->where('createdAt', '<', $range['start'])
+                    ->where('created_at', '<', $range['start'])
                     ->count();
 
                     $churnRate = $startingSubs > 0 ? round(($churned / $startingSubs) * 100, 1) : 0;
@@ -1003,7 +1003,7 @@ class AnalyticsService
                 $avgLTV = $totalCustomers > 0 ? round($totalRevenue / $totalCustomers, 2) : 0;
 
                 $avgSubscriptionLength = Subscription::where('status', 'active')
-                    ->selectRaw('AVG(DATEDIFF(NOW(), createdAt)) as avg_days')
+                    ->selectRaw('AVG(NOW()::date - created_at::date) as avg_days')
                     ->first();
 
                 return [

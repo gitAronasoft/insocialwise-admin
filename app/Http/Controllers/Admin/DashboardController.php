@@ -337,7 +337,7 @@ class DashboardController extends Controller
                 ->map(function ($activity) {
                     return [
                         'id' => $activity->id,
-                        'user_name' => ($activity->customer->firstName ?? 'Unknown') . ' ' . ($activity->customer->lastName ?? ''),
+                        'user_name' => ($activity->customer->firstname ?? 'Unknown') . ' ' . ($activity->customer->lastname ?? ''),
                         'activity_type' => $activity->activity_type,
                         'action' => $activity->action,
                         'time' => $activity->created_at->diffForHumans(),

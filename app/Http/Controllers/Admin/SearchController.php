@@ -47,10 +47,9 @@ class SearchController extends Controller
 
         $results['customers'] = Customer::where('role', 'User')
             ->where(function ($q) use ($query) {
-                $q->where('firstName', 'like', "%{$query}%")
-                    ->orWhere('lastName', 'like', "%{$query}%")
-                    ->orWhere('email', 'like', "%{$query}%")
-                    ->orWhere('uuid', 'like', "%{$query}%");
+                $q->whereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$query}%"])
+                    ->orWhere('email', 'ilike', "%{$query}%")
+                    ->orWhere('uuid', 'ilike', "%{$query}%");
             })
             ->limit(5)
             ->get()
@@ -58,7 +57,7 @@ class SearchController extends Controller
                 return [
                     'id' => $customer->id,
                     'uuid' => $customer->uuid,
-                    'name' => ($customer->firstName ?? '') . ' ' . ($customer->lastName ?? ''),
+                    'name' => ($customer->firstname ?? '') . ' ' . ($customer->lastname ?? ''),
                     'email' => $customer->email,
                     'type' => 'customer',
                     'url' => route('admin.customers.show', $customer->uuid),

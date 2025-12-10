@@ -655,7 +655,7 @@ class StripeWebhookService
                 'subject' => 'Payment Failed - Action Required',
                 'template_name' => 'payment_failed',
                 'template_data' => [
-                    'firstName' => $customer->firstName,
+                    'firstName' => $customer->firstname,
                     'amount' => $invoice->amount_due / 100,
                     'currency' => strtoupper($invoice->currency),
                     'failureReason' => $failureMessage,

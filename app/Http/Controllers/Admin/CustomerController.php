@@ -35,8 +35,8 @@ class CustomerController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $q->whereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$search}%"])
+                    ->orWhere('email', 'ilike', "%{$search}%");
             });
         }
 
@@ -47,7 +47,7 @@ class CustomerController extends Controller
         $sortColumn = $request->get('sort', 'created_at');
         $sortDirection = $request->get('direction', 'desc');
         
-        $allowedSorts = ['name', 'email', 'status', 'created_at'];
+        $allowedSorts = ['firstname', 'lastname', 'email', 'status', 'created_at'];
         if (in_array($sortColumn, $allowedSorts)) {
             $query->orderBy($sortColumn, $sortDirection === 'asc' ? 'asc' : 'desc');
         } else {
@@ -97,10 +97,10 @@ class CustomerController extends Controller
     public function update(Request $request, Customer $customer)
     {
         $validated = $request->validate([
-            'firstName' => 'required|string|max:255',
-            'lastName' => 'required|string|max:255',
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $customer->id,
-            'status' => 'required|boolean',
+            'status' => 'required',
         ]);
 
         $customer->update($validated);
@@ -190,17 +190,17 @@ class CustomerController extends Controller
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')
                     ->from('social_users')
-                    ->whereColumn(DB::raw('social_users.user_id COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'));
+                    ->whereColumn('social_users.user_id', '=', 'users.uuid');
             }, 'social_users_count')
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')
                     ->from('social_page')
-                    ->whereColumn(DB::raw('social_page.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'));
+                    ->whereColumn('social_page.user_uuid', '=', 'users.uuid');
             }, 'social_pages_count')
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')
                     ->from('posts')
-                    ->whereColumn(DB::raw('posts.user_uuid COLLATE utf8mb4_unicode_ci'), '=', DB::raw('users.uuid COLLATE utf8mb4_unicode_ci'));
+                    ->whereColumn('posts.user_uuid', '=', 'users.uuid');
             }, 'posts_count')
             ->get();
 
@@ -232,10 +232,10 @@ class CustomerController extends Controller
                 fputcsv($file, [
                     $customer->id,
                     $customer->uuid,
-                    $customer->firstName,
-                    $customer->lastName,
+                    $customer->firstname,
+                    $customer->lastname,
                     $customer->email,
-                    $customer->status ? 'Active' : 'Inactive',
+                    $customer->status == '1' ? 'Active' : 'Inactive',
                     $customer->social_users_count ?? 0,
                     $customer->social_pages_count ?? 0,
                     $customer->posts_count ?? 0,

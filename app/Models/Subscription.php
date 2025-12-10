@@ -234,10 +234,10 @@ class Subscription extends Model
     {
         $events = [];
         
-        if ($this->createdAt) {
+        if ($this->created_at) {
             $events[] = [
                 'type' => 'created',
-                'date' => $this->createdAt,
+                'date' => $this->created_at,
                 'label' => 'Subscription Created',
                 'icon' => 'heroicon-o-plus-circle',
                 'color' => 'blue',

@@ -33,9 +33,8 @@ class ActivityController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('customer', function ($q) use ($search) {
-                $q->where('firstName', 'like', "%{$search}%")
-                    ->orWhere('lastName', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $q->whereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$search}%"])
+                    ->orWhere('email', 'ilike', "%{$search}%");
             });
         }
 

@@ -17,11 +17,10 @@ class InboxController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('external_username', 'like', "%{$search}%")
-                    ->orWhere('snippet', 'like', "%{$search}%")
+                $q->where('external_username', 'ilike', "%{$search}%")
+                    ->orWhere('snippet', 'ilike', "%{$search}%")
                     ->orWhereHas('customer', function ($q) use ($search) {
-                        $q->where('firstName', 'like', "%{$search}%")
-                            ->orWhere('lastName', 'like', "%{$search}%");
+                        $q->whereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$search}%"]);
                     });
             });
         }

@@ -1,0 +1,1652 @@
+-- Adminer 5.4.1 PostgreSQL 16.11 dump
+
+DROP TABLE IF EXISTS "activity";
+DROP SEQUENCE IF EXISTS activity_id_seq;
+CREATE SEQUENCE activity_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."activity" (
+    "id" bigint DEFAULT nextval('activity_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "account_social_userid" character varying(255),
+    "account_platform" character varying(255),
+    "activity_type" character varying(255),
+    "activity_subtype" character varying(255),
+    "action" character varying(255),
+    "source_type" character varying(255),
+    "post_form_id" character varying(255),
+    "reference_pageid" text,
+    "activity_datetime" timestamp NOT NULL,
+    "nextapi_call_datetime" timestamp,
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp NOT NULL,
+    CONSTRAINT "idx_19904_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "admin_alerts";
+DROP SEQUENCE IF EXISTS admin_alerts_id_seq;
+CREATE SEQUENCE admin_alerts_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."admin_alerts" (
+    "id" bigint DEFAULT nextval('admin_alerts_id_seq') NOT NULL,
+    "type" text DEFAULT 'general' NOT NULL,
+    "severity" text DEFAULT 'info' NOT NULL,
+    "title" character varying(255) NOT NULL,
+    "message" text NOT NULL,
+    "metadata" text,
+    "read" smallint DEFAULT '0' NOT NULL,
+    "read_at" timestamptz,
+    "read_by" numeric,
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_19919_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "admin_audit_logs";
+DROP SEQUENCE IF EXISTS admin_audit_logs_id_seq;
+CREATE SEQUENCE admin_audit_logs_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 13 CACHE 1;
+
+CREATE TABLE "public"."admin_audit_logs" (
+    "id" bigint DEFAULT nextval('admin_audit_logs_id_seq') NOT NULL,
+    "admin_id" numeric,
+    "admin_email" character varying(255),
+    "admin_name" character varying(255),
+    "action_type" text NOT NULL,
+    "entity_type" character varying(255),
+    "entity_id" character varying(255),
+    "description" text NOT NULL,
+    "old_values" text,
+    "new_values" text,
+    "metadata" text,
+    "ip_address" character varying(45),
+    "user_agent" text,
+    "request_method" character varying(10),
+    "request_url" text,
+    "session_id" character varying(255),
+    "severity" text DEFAULT 'info' NOT NULL,
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_19929_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+COMMENT ON COLUMN "public"."admin_audit_logs"."entity_type" IS 'Model or entity affected';
+
+COMMENT ON COLUMN "public"."admin_audit_logs"."entity_id" IS 'ID of the affected entity';
+
+CREATE INDEX idx_19929_admin_audit_logs_admin_id_index ON public.admin_audit_logs USING btree (admin_id);
+
+CREATE INDEX idx_19929_admin_audit_logs_ip_address_index ON public.admin_audit_logs USING btree (ip_address);
+
+CREATE INDEX idx_19929_admin_audit_logs_severity_index ON public.admin_audit_logs USING btree (severity);
+
+CREATE INDEX idx_19929_admin_audit_logs_created_at_index ON public.admin_audit_logs USING btree (created_at);
+
+CREATE INDEX idx_19929_admin_audit_logs_action_type_index ON public.admin_audit_logs USING btree (action_type);
+
+CREATE INDEX idx_19929_admin_audit_logs_session_id_index ON public.admin_audit_logs USING btree (session_id);
+
+CREATE INDEX idx_19929_admin_audit_logs_entity_type_index ON public.admin_audit_logs USING btree (entity_type);
+
+
+DROP TABLE IF EXISTS "admin_feature_flags";
+DROP SEQUENCE IF EXISTS admin_feature_flags_id_seq;
+CREATE SEQUENCE admin_feature_flags_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."admin_feature_flags" (
+    "id" bigint DEFAULT nextval('admin_feature_flags_id_seq') NOT NULL,
+    "feature_key" character varying(255) NOT NULL,
+    "feature_name" character varying(255) NOT NULL,
+    "description" text,
+    "category" text DEFAULT 'core' NOT NULL,
+    "enabled" smallint DEFAULT '0' NOT NULL,
+    "force_enabled" smallint DEFAULT '0' NOT NULL,
+    "updated_by" numeric,
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_19944_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE UNIQUE INDEX idx_19944_admin_feature_flags_feature_key_unique ON public.admin_feature_flags USING btree (feature_key);
+
+
+DROP TABLE IF EXISTS "admin_sessions";
+DROP SEQUENCE IF EXISTS admin_sessions_id_seq;
+CREATE SEQUENCE admin_sessions_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 9 CACHE 1;
+
+CREATE TABLE "public"."admin_sessions" (
+    "id" bigint DEFAULT nextval('admin_sessions_id_seq') NOT NULL,
+    "admin_id" numeric NOT NULL,
+    "session_token" character varying(255) NOT NULL,
+    "ip_address" character varying(45) NOT NULL,
+    "user_agent" text,
+    "device_type" character varying(50),
+    "browser" character varying(100),
+    "os" character varying(100),
+    "location" character varying(255),
+    "is_current" smallint DEFAULT '0' NOT NULL,
+    "last_activity_at" timestamptz,
+    "logged_in_at" timestamptz NOT NULL,
+    "logged_out_at" timestamptz,
+    "status" text DEFAULT 'active' NOT NULL,
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_19954_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE INDEX idx_19954_admin_sessions_ip_address_index ON public.admin_sessions USING btree (ip_address);
+
+CREATE UNIQUE INDEX idx_19954_admin_sessions_session_token_unique ON public.admin_sessions USING btree (session_token);
+
+CREATE INDEX idx_19954_admin_sessions_admin_id_index ON public.admin_sessions USING btree (admin_id);
+
+CREATE INDEX idx_19954_admin_sessions_last_activity_at_index ON public.admin_sessions USING btree (last_activity_at);
+
+CREATE INDEX idx_19954_admin_sessions_status_index ON public.admin_sessions USING btree (status);
+
+CREATE INDEX idx_19954_admin_sessions_session_token_index ON public.admin_sessions USING btree (session_token);
+
+
+DROP TABLE IF EXISTS "admin_settings";
+DROP SEQUENCE IF EXISTS admin_settings_id_seq;
+CREATE SEQUENCE admin_settings_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."admin_settings" (
+    "id" bigint DEFAULT nextval('admin_settings_id_seq') NOT NULL,
+    "key" character varying(255) NOT NULL,
+    "value" text,
+    "type" text DEFAULT 'string' NOT NULL,
+    "group" character varying(255) DEFAULT 'general' NOT NULL,
+    "description" text,
+    "section" character varying(255),
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_19967_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE UNIQUE INDEX idx_19967_admin_settings_key_unique ON public.admin_settings USING btree (key);
+
+CREATE INDEX idx_19967_admin_settings_group_section_index ON public.admin_settings USING btree ("group", section);
+
+
+DROP TABLE IF EXISTS "admin_user_role";
+CREATE TABLE "public"."admin_user_role" (
+    "admin_user_id" numeric NOT NULL,
+    "role_id" numeric NOT NULL,
+    CONSTRAINT "idx_19985_primary" PRIMARY KEY ("admin_user_id", "role_id")
+)
+WITH (oids = false);
+
+CREATE INDEX idx_19985_admin_user_role_role_id_foreign ON public.admin_user_role USING btree (role_id);
+
+
+DROP TABLE IF EXISTS "admin_users";
+DROP SEQUENCE IF EXISTS admin_users_id_seq;
+CREATE SEQUENCE admin_users_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."admin_users" (
+    "id" bigint DEFAULT nextval('admin_users_id_seq') NOT NULL,
+    "name" character varying(255) NOT NULL,
+    "email" character varying(255) NOT NULL,
+    "email_verified_at" timestamptz,
+    "password" character varying(255) NOT NULL,
+    "is_active" smallint DEFAULT '1' NOT NULL,
+    "remember_token" character varying(100),
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_19977_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE UNIQUE INDEX idx_19977_admin_users_email_unique ON public.admin_users USING btree (email);
+
+
+DROP TABLE IF EXISTS "ads_accounts";
+DROP SEQUENCE IF EXISTS ads_accounts_id_seq;
+CREATE SEQUENCE ads_accounts_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."ads_accounts" (
+    "id" bigint DEFAULT nextval('ads_accounts_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "account_platform" character varying(255),
+    "account_social_userid" character varying(255),
+    "account_id" character varying(255),
+    "account_name" character varying(255),
+    "account_status" character varying(255),
+    "isconnected" text DEFAULT 'notConnected' NOT NULL,
+    "currency" character varying(250),
+    "timezone_name" character varying(250),
+    "timezone_offset_hours_utc" character varying(250),
+    "amount_spent" bigint DEFAULT '0',
+    "balance" bigint DEFAULT '0',
+    "business_page_detail" text,
+    "min_campaign_group_spend_cap" bigint DEFAULT '0',
+    "spend_cap" bigint DEFAULT '0',
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20039_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "ads_creative";
+DROP SEQUENCE IF EXISTS ads_creative_id_seq;
+CREATE SEQUENCE ads_creative_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."ads_creative" (
+    "id" bigint DEFAULT nextval('ads_creative_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "account_platform" character varying(255),
+    "social_page_id" character varying(250),
+    "account_social_userid" character varying(255),
+    "campaign_id" character varying(255),
+    "adset_id" character varying(255),
+    "ad_id" character varying(255),
+    "creative_id" character varying(255),
+    "creative_type" character varying(255),
+    "image_urls" text,
+    "video_thumbnails" text,
+    "headline" character varying(255),
+    "body" text,
+    "call_to_action" text,
+    "call_to_action_link" character varying(255),
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp NOT NULL,
+    CONSTRAINT "idx_20062_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "adsets";
+DROP SEQUENCE IF EXISTS adsets_id_seq;
+CREATE SEQUENCE adsets_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."adsets" (
+    "id" bigint DEFAULT nextval('adsets_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "account_platform" character varying(255),
+    "account_social_userid" character varying(255),
+    "adsets_campaign_id" bigint,
+    "adsets_id" bigint,
+    "adsets_name" character varying(255),
+    "adsets_countries" text,
+    "adsets_regions" text,
+    "adsets_cities" text,
+    "adsets_age_min" bigint,
+    "adsets_age_max" bigint,
+    "adsets_genders" text,
+    "adsets_publisher_platforms" text,
+    "adsets_facebook_positions" text,
+    "adsets_instagram_positions" text,
+    "adsets_device_platforms" text,
+    "adsets_start_time" timestamp,
+    "adsets_end_time" timestamp,
+    "adsets_status" character varying(255),
+    "adsets_insights_impressions" character varying(255),
+    "adsets_insights_clicks" character varying(255),
+    "adsets_insights_cpc" character varying(255),
+    "adsets_insights_cpm" character varying(255),
+    "adsets_insights_ctr" character varying(255),
+    "adsets_insights_spend" character varying(255),
+    "adsets_daily_budget" character varying(255),
+    "adsets_lifetime_budget" character varying(255),
+    "adsets_insights_date_start" date,
+    "adsets_insights_date_stop" date,
+    "adsets_insights_reach" character varying(255),
+    "adsets_insights_results" bigint,
+    "adsets_result_type" character varying(255),
+    "adsets_insights_cost_per_result" double precision,
+    "adsets_insights_actions" text,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_19991_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "adsets_ads";
+DROP SEQUENCE IF EXISTS adsets_ads_id_seq;
+CREATE SEQUENCE adsets_ads_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."adsets_ads" (
+    "id" bigint DEFAULT nextval('adsets_ads_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "account_platform" character varying(255),
+    "account_social_userid" character varying(255),
+    "campaign_id" bigint,
+    "adsets_id" bigint,
+    "ads_id" bigint,
+    "ads_name" character varying(255),
+    "ads_status" character varying(255),
+    "ads_effective_status" character varying(255),
+    "ads_insights_impressions" character varying(255),
+    "ads_insights_clicks" character varying(255),
+    "ads_insights_cpc" character varying(255),
+    "ads_insights_cpm" character varying(255),
+    "ads_insights_ctr" character varying(255),
+    "ads_insights_spend" character varying(255),
+    "ads_insights_reach" character varying(255),
+    "ads_insights_date_start" date,
+    "ads_insights_date_stop" date,
+    "ads_insights_cost_per_result" character varying(255),
+    "ads_result_type" character varying(255),
+    "ads_insights_actions" text,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20015_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "alert_thresholds";
+DROP SEQUENCE IF EXISTS alert_thresholds_id_seq;
+CREATE SEQUENCE alert_thresholds_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."alert_thresholds" (
+    "id" bigint DEFAULT nextval('alert_thresholds_id_seq') NOT NULL,
+    "user_uuid" character varying(255) NOT NULL,
+    "alert_name" character varying(255) NOT NULL,
+    "metric_type" text NOT NULL,
+    "condition" text DEFAULT 'below' NOT NULL,
+    "threshold_value" double precision NOT NULL,
+    "comparison_period" text DEFAULT 'day' NOT NULL,
+    "is_enabled" smallint DEFAULT '1' NOT NULL,
+    "notify_email" smallint DEFAULT '1' NOT NULL,
+    "notify_in_app" smallint DEFAULT '1' NOT NULL,
+    "email_recipients" text,
+    "last_triggered_at" timestamp,
+    "last_value" double precision,
+    "trigger_count" bigint DEFAULT '0' NOT NULL,
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp NOT NULL,
+    CONSTRAINT "idx_20080_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "analytics";
+DROP SEQUENCE IF EXISTS analytics_id_seq;
+CREATE SEQUENCE analytics_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."analytics" (
+    "id" bigint DEFAULT nextval('analytics_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "platform_page_id" character varying(255),
+    "platform" character varying(255),
+    "analytic_type" character varying(255),
+    "total_page_followers" bigint,
+    "total_page_impressions" bigint,
+    "total_page_impressions_unique" bigint,
+    "total_page_views" bigint,
+    "page_post_engagements" bigint,
+    "page_actions_post_reactions_like_total" bigint,
+    "week_date" character varying(255),
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20093_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "billing_activity_logs";
+DROP SEQUENCE IF EXISTS billing_activity_logs_id_seq1;
+CREATE SEQUENCE billing_activity_logs_id_seq1 INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 3 CACHE 1;
+
+CREATE TABLE "public"."billing_activity_logs" (
+    "id" bigint DEFAULT nextval('billing_activity_logs_id_seq1') NOT NULL,
+    "user_uuid" character varying(255),
+    "subscription_id" bigint,
+    "transaction_id" bigint,
+    "action_type" character varying(255) NOT NULL,
+    "action_status" character varying(255) DEFAULT 'success' NOT NULL,
+    "description" text,
+    "actor_type" character varying(255),
+    "actor_id" character varying(255),
+    "actor_email" character varying(255),
+    "old_value" json,
+    "new_value" json,
+    "metadata" json,
+    "ip_address" character varying(45),
+    "user_agent" text,
+    "stripe_event_id" character varying(255),
+    "stripe_object_id" character varying(255),
+    "error_code" character varying(255),
+    "error_message" text,
+    "notes" text,
+    "request_id" character varying(255),
+    "amount" bigint,
+    "currency" character varying(3),
+    "created_at" timestamp(0),
+    "updated_at" timestamp(0),
+    CONSTRAINT "billing_activity_logs_pkey" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE INDEX billing_activity_logs_user_uuid_index ON public.billing_activity_logs USING btree (user_uuid);
+
+CREATE INDEX billing_activity_logs_subscription_id_index ON public.billing_activity_logs USING btree (subscription_id);
+
+CREATE INDEX billing_activity_logs_action_type_index ON public.billing_activity_logs USING btree (action_type);
+
+CREATE INDEX billing_activity_logs_created_at_index ON public.billing_activity_logs USING btree (created_at);
+
+
+DROP TABLE IF EXISTS "billing_notifications";
+DROP SEQUENCE IF EXISTS billing_notifications_id_seq1;
+CREATE SEQUENCE billing_notifications_id_seq1 INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."billing_notifications" (
+    "id" bigint DEFAULT nextval('billing_notifications_id_seq1') NOT NULL,
+    "user_uuid" character varying(255) NOT NULL,
+    "subscription_id" bigint,
+    "type" character varying(255) NOT NULL,
+    "notification_type" character varying(255),
+    "channel" character varying(255) DEFAULT 'email' NOT NULL,
+    "priority" character varying(255) DEFAULT 'normal' NOT NULL,
+    "status" character varying(255) DEFAULT 'pending' NOT NULL,
+    "title" character varying(255),
+    "message" text,
+    "recipient_email" character varying(255),
+    "subject" character varying(255),
+    "template_name" character varying(255),
+    "template_data" json,
+    "metadata" json,
+    "scheduled_at" timestamp(0),
+    "sent_at" timestamp(0),
+    "read_at" timestamp(0),
+    "created_at" timestamp(0),
+    "updated_at" timestamp(0),
+    CONSTRAINT "billing_notifications_pkey" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE INDEX billing_notifications_user_uuid_index ON public.billing_notifications USING btree (user_uuid);
+
+CREATE INDEX billing_notifications_type_index ON public.billing_notifications USING btree (type);
+
+CREATE INDEX billing_notifications_status_index ON public.billing_notifications USING btree (status);
+
+
+DROP TABLE IF EXISTS "campaigns";
+DROP SEQUENCE IF EXISTS campaigns_id_seq;
+CREATE SEQUENCE campaigns_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."campaigns" (
+    "id" bigint DEFAULT nextval('campaigns_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "account_platform" character varying(255),
+    "account_social_userid" bigint,
+    "ad_account_id" bigint,
+    "campaign_id" character varying(255),
+    "campaign_name" character varying(255),
+    "campaign_category" character varying(255),
+    "campaign_bid_strategy" character varying(255),
+    "campaign_buying_type" character varying(255),
+    "campaign_objective" character varying(255),
+    "campaign_budget_remaining" character varying(255),
+    "campaign_daily_budget" character varying(255),
+    "campaign_lifetime_budget" character varying(255),
+    "campaign_effective_status" character varying(255),
+    "campaign_start_time" timestamp,
+    "campaign_end_time" timestamp,
+    "campaign_status" character varying(255),
+    "campaign_insights_clicks" bigint,
+    "campaign_insights_cpc" character varying(255),
+    "campaign_insights_cpm" character varying(255),
+    "campaign_insights_cpp" character varying(255),
+    "campaign_insights_ctr" character varying(255),
+    "campaign_insights_date_start" date,
+    "campaign_insights_date_stop" date,
+    "campaign_insights_impressions" character varying(255),
+    "campaign_insights_spend" character varying(255),
+    "campaign_insights_reach" bigint,
+    "campaign_insights_results" double precision,
+    "campaign_result_type" character varying(255),
+    "campaign_insights_cost_per_result" double precision,
+    "campaign_insights_actions" text,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20142_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "compliance_policies";
+DROP SEQUENCE IF EXISTS compliance_policies_id_seq;
+CREATE SEQUENCE compliance_policies_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."compliance_policies" (
+    "id" bigint DEFAULT nextval('compliance_policies_id_seq') NOT NULL,
+    "policy_type" text NOT NULL,
+    "content" text NOT NULL,
+    "version" character varying(255) DEFAULT '1.0' NOT NULL,
+    "effective_date" date NOT NULL,
+    "active" smallint DEFAULT '1' NOT NULL,
+    "updated_by" numeric,
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_20171_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE UNIQUE INDEX idx_20171_compliance_policies_policy_type_unique ON public.compliance_policies USING btree (policy_type);
+
+
+DROP TABLE IF EXISTS "data_requests";
+DROP SEQUENCE IF EXISTS data_requests_id_seq;
+CREATE SEQUENCE data_requests_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."data_requests" (
+    "id" bigint DEFAULT nextval('data_requests_id_seq') NOT NULL,
+    "user_uuid" character varying(255) NOT NULL,
+    "user_email" character varying(255) NOT NULL,
+    "request_type" text DEFAULT 'export' NOT NULL,
+    "status" text DEFAULT 'pending' NOT NULL,
+    "notes" text,
+    "completed_at" timestamptz,
+    "processed_by" numeric,
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_20180_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "data_retention_rules";
+DROP SEQUENCE IF EXISTS data_retention_rules_id_seq;
+CREATE SEQUENCE data_retention_rules_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."data_retention_rules" (
+    "id" bigint DEFAULT nextval('data_retention_rules_id_seq') NOT NULL,
+    "data_type" character varying(255) NOT NULL,
+    "retention_days" bigint NOT NULL,
+    "auto_delete" smallint DEFAULT '0' NOT NULL,
+    "last_cleanup_at" timestamptz,
+    "active" smallint DEFAULT '1' NOT NULL,
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_20189_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "demographics";
+DROP SEQUENCE IF EXISTS demographics_id_seq;
+CREATE SEQUENCE demographics_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."demographics" (
+    "id" bigint DEFAULT nextval('demographics_id_seq') NOT NULL,
+    "user_uuid" character varying(255) NOT NULL,
+    "platform_page_id" character varying(255) NOT NULL,
+    "page_name" character varying(255) NOT NULL,
+    "social_userid" character varying(255) NOT NULL,
+    "platform" text DEFAULT 'NA' NOT NULL,
+    "metric_type" character varying(200),
+    "metric_key" character varying(250),
+    "metric_value" bigint DEFAULT '0' NOT NULL,
+    "source" text DEFAULT 'NA' NOT NULL,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20196_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "inbox_conversations";
+DROP SEQUENCE IF EXISTS inbox_conversations_id_seq;
+CREATE SEQUENCE inbox_conversations_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."inbox_conversations" (
+    "id" bigint DEFAULT nextval('inbox_conversations_id_seq') NOT NULL,
+    "user_uuid" character varying(250) NOT NULL,
+    "social_userid" character varying(200) NOT NULL,
+    "social_pageid" character varying(250) NOT NULL,
+    "social_platform" text DEFAULT 'NA' NOT NULL,
+    "conversation_id" character varying(200) NOT NULL,
+    "external_userid" character varying(200) NOT NULL,
+    "external_username" character varying(200),
+    "external_userimg" character varying(250),
+    "snippet" character varying(250) NOT NULL,
+    "status" text DEFAULT 'InActive' NOT NULL,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20210_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "inbox_messages";
+DROP SEQUENCE IF EXISTS inbox_messages_id_seq;
+CREATE SEQUENCE inbox_messages_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."inbox_messages" (
+    "id" bigint DEFAULT nextval('inbox_messages_id_seq') NOT NULL,
+    "conversation_id" character varying(200) NOT NULL,
+    "platform_message_id" character varying(200) NOT NULL,
+    "sender_type" text DEFAULT 'page' NOT NULL,
+    "message_text" text NOT NULL,
+    "message_type" character varying(250) NOT NULL,
+    "is_read" text DEFAULT 'yes',
+    "timestamp" character varying(200),
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20223_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+COMMENT ON COLUMN "public"."inbox_messages"."sender_type" IS '"page"||"visitor"';
+
+
+DROP TABLE IF EXISTS "knowledge_base";
+DROP SEQUENCE IF EXISTS knowledge_base_id_seq;
+CREATE SEQUENCE knowledge_base_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."knowledge_base" (
+    "id" bigint DEFAULT nextval('knowledge_base_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "knowledgebase_title" character varying(255),
+    "knowledgebase_content" text,
+    "social_platform" text,
+    "socialdatadetail" text,
+    "status" text DEFAULT 'notConnected' NOT NULL,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20244_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "knowledgebase_meta";
+DROP SEQUENCE IF EXISTS knowledgebase_meta_id_seq;
+CREATE SEQUENCE knowledgebase_meta_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."knowledgebase_meta" (
+    "id" bigint DEFAULT nextval('knowledgebase_meta_id_seq') NOT NULL,
+    "user_uuid" character varying(255) NOT NULL,
+    "knowledgebase_id" character varying(255),
+    "pages_id" text,
+    "social_account_id" text,
+    "social_platform" text,
+    "namespace_id" character varying(255),
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp NOT NULL,
+    CONSTRAINT "idx_20235_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "migrations";
+DROP SEQUENCE IF EXISTS migrations_id_seq;
+CREATE SEQUENCE migrations_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 38 CACHE 1;
+
+CREATE TABLE "public"."migrations" (
+    "id" bigint DEFAULT nextval('migrations_id_seq') NOT NULL,
+    "migration" character varying(255) NOT NULL,
+    "batch" bigint NOT NULL,
+    CONSTRAINT "idx_20256_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "model_has_permissions";
+CREATE TABLE "public"."model_has_permissions" (
+    "permission_id" numeric NOT NULL,
+    "model_type" character varying(255) NOT NULL,
+    "model_id" numeric NOT NULL,
+    CONSTRAINT "idx_20260_primary" PRIMARY KEY ("permission_id", "model_id", "model_type")
+)
+WITH (oids = false);
+
+CREATE INDEX idx_20260_model_has_permissions_model_id_model_type_index ON public.model_has_permissions USING btree (model_id, model_type);
+
+
+DROP TABLE IF EXISTS "model_has_roles";
+CREATE TABLE "public"."model_has_roles" (
+    "role_id" numeric NOT NULL,
+    "model_type" character varying(255) NOT NULL,
+    "model_id" numeric NOT NULL,
+    CONSTRAINT "idx_20265_primary" PRIMARY KEY ("role_id", "model_id", "model_type")
+)
+WITH (oids = false);
+
+CREATE INDEX idx_20265_model_has_roles_model_id_model_type_index ON public.model_has_roles USING btree (model_id, model_type);
+
+
+DROP TABLE IF EXISTS "notification";
+DROP SEQUENCE IF EXISTS notification_id_seq;
+CREATE SEQUENCE notification_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."notification" (
+    "id" bigint DEFAULT nextval('notification_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "social_userid" character varying(255),
+    "accountplatform" character varying(255),
+    "notificationtype" character varying(255),
+    "notificationtype_id" character varying(255),
+    "page_or_post_id" character varying(255),
+    "is_read" text DEFAULT 'no',
+    "notification_datetime" timestamp NOT NULL,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20271_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "notification_settings";
+DROP SEQUENCE IF EXISTS notification_settings_id_seq;
+CREATE SEQUENCE notification_settings_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."notification_settings" (
+    "id" bigint DEFAULT nextval('notification_settings_id_seq') NOT NULL,
+    "notification_type" character varying(100) NOT NULL,
+    "category" text DEFAULT 'system' NOT NULL,
+    "name" character varying(255) NOT NULL,
+    "description" text,
+    "enabled" smallint DEFAULT '1' NOT NULL,
+    "frequency" text DEFAULT 'immediate' NOT NULL,
+    "channels" text NOT NULL,
+    "template_name" character varying(100),
+    "subject_template" character varying(500),
+    "conditions" text,
+    "priority" bigint DEFAULT '3' NOT NULL,
+    "retry_enabled" smallint DEFAULT '1' NOT NULL,
+    "max_retries" bigint DEFAULT '3' NOT NULL,
+    "cooldown_hours" bigint DEFAULT '24',
+    "user_configurable" smallint DEFAULT '1' NOT NULL,
+    "metadata" text,
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp NOT NULL,
+    CONSTRAINT "idx_20287_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+COMMENT ON COLUMN "public"."notification_settings"."notification_type" IS 'Unique identifier for notification type (e.g., trial_ending_24h, usage_limit_80)';
+
+COMMENT ON COLUMN "public"."notification_settings"."category" IS 'Category of notification for grouping';
+
+COMMENT ON COLUMN "public"."notification_settings"."name" IS 'Human-readable name for admin display';
+
+COMMENT ON COLUMN "public"."notification_settings"."description" IS 'Description of what this notification does';
+
+COMMENT ON COLUMN "public"."notification_settings"."enabled" IS 'Whether this notification is active';
+
+COMMENT ON COLUMN "public"."notification_settings"."frequency" IS 'How often to check/send this notification type';
+
+COMMENT ON COLUMN "public"."notification_settings"."channels" IS 'Channels to send notification through (email, in_app, push, sms)';
+
+COMMENT ON COLUMN "public"."notification_settings"."template_name" IS 'Email template name to use';
+
+COMMENT ON COLUMN "public"."notification_settings"."subject_template" IS 'Email subject template with placeholders';
+
+COMMENT ON COLUMN "public"."notification_settings"."conditions" IS 'Trigger conditions (e.g., { days_before: 3, percentage: 80 })';
+
+COMMENT ON COLUMN "public"."notification_settings"."priority" IS 'Priority level 1-5 (5 = highest)';
+
+COMMENT ON COLUMN "public"."notification_settings"."retry_enabled" IS 'Whether to retry failed notifications';
+
+COMMENT ON COLUMN "public"."notification_settings"."max_retries" IS 'Maximum retry attempts';
+
+COMMENT ON COLUMN "public"."notification_settings"."cooldown_hours" IS 'Hours to wait before sending same notification type to same user';
+
+COMMENT ON COLUMN "public"."notification_settings"."user_configurable" IS 'Whether users can opt out of this notification';
+
+COMMENT ON COLUMN "public"."notification_settings"."metadata" IS 'Additional configuration data';
+
+CREATE UNIQUE INDEX idx_20287_notification_type ON public.notification_settings USING btree (notification_type);
+
+
+DROP TABLE IF EXISTS "payment_methods";
+DROP SEQUENCE IF EXISTS payment_methods_id_seq1;
+CREATE SEQUENCE payment_methods_id_seq1 INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."payment_methods" (
+    "id" bigint DEFAULT nextval('payment_methods_id_seq1') NOT NULL,
+    "user_uuid" character varying(255) NOT NULL,
+    "stripe_payment_method_id" character varying(255) NOT NULL,
+    "stripe_customer_id" character varying(255) NOT NULL,
+    "type" character varying(255) DEFAULT 'card' NOT NULL,
+    "brand" character varying(255),
+    "card_brand" character varying(255),
+    "last4" character varying(4),
+    "card_last4" character varying(4),
+    "exp_month" integer,
+    "exp_year" integer,
+    "card_holder_name" character varying(255),
+    "funding" character varying(255),
+    "country" character varying(255),
+    "billing_details" json,
+    "fingerprint" character varying(255),
+    "wallet" character varying(255),
+    "is_default" boolean DEFAULT false NOT NULL,
+    "status" character varying(255) DEFAULT 'active' NOT NULL,
+    "billing_email" character varying(255),
+    "billing_name" character varying(255),
+    "billing_phone" character varying(255),
+    "billing_address" json,
+    "metadata" json,
+    "created_at" timestamp(0),
+    "updated_at" timestamp(0),
+    CONSTRAINT "payment_methods_pkey" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE INDEX payment_methods_user_uuid_index ON public.payment_methods USING btree (user_uuid);
+
+CREATE INDEX payment_methods_stripe_customer_id_index ON public.payment_methods USING btree (stripe_customer_id);
+
+CREATE UNIQUE INDEX payment_methods_stripe_payment_method_id_unique ON public.payment_methods USING btree (stripe_payment_method_id);
+
+
+DROP TABLE IF EXISTS "permissions";
+DROP SEQUENCE IF EXISTS permissions_id_seq;
+CREATE SEQUENCE permissions_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."permissions" (
+    "id" bigint DEFAULT nextval('permissions_id_seq') NOT NULL,
+    "name" character varying(255) NOT NULL,
+    "display_name" character varying(255) DEFAULT '' NOT NULL,
+    "description" character varying(255),
+    "group" character varying(255) DEFAULT '' NOT NULL,
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_20320_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE UNIQUE INDEX idx_20320_permissions_name_unique ON public.permissions USING btree (name);
+
+
+DROP TABLE IF EXISTS "post_comments";
+DROP SEQUENCE IF EXISTS post_comments_id_seq;
+CREATE SEQUENCE post_comments_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."post_comments" (
+    "id" bigint DEFAULT nextval('post_comments_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "social_userid" character varying(255),
+    "platform_page_id" character varying(255),
+    "platform" character varying(255),
+    "post_id" character varying(255),
+    "activity_id" character varying(255),
+    "comment_id" character varying(255),
+    "parent_comment_id" character varying(255),
+    "from_id" character varying(255),
+    "from_name" character varying(255),
+    "comment" character varying(255),
+    "comment_created_time" character varying(255),
+    "comment_type" character varying(255),
+    "comment_behavior" character varying(255),
+    "reaction_like" bigint DEFAULT '0' NOT NULL,
+    "reaction_love" bigint DEFAULT '0' NOT NULL,
+    "reaction_haha" bigint DEFAULT '0' NOT NULL,
+    "reaction_wow" bigint DEFAULT '0' NOT NULL,
+    "reaction_sad" bigint DEFAULT '0' NOT NULL,
+    "reaction_angry" bigint DEFAULT '0' NOT NULL,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20352_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "posts";
+DROP SEQUENCE IF EXISTS posts_id_seq;
+CREATE SEQUENCE posts_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."posts" (
+    "id" bigint DEFAULT nextval('posts_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "social_user_id" character varying(200) NOT NULL,
+    "page_id" character varying(150) NOT NULL,
+    "content" text NOT NULL,
+    "schedule_time" character varying(250),
+    "post_media" text,
+    "platform_post_id" character varying(255),
+    "post_platform" character varying(255),
+    "source" text DEFAULT 'Platform' NOT NULL,
+    "form_id" character varying(250) NOT NULL,
+    "likes" bigint DEFAULT '0',
+    "comments" bigint DEFAULT '0',
+    "shares" bigint DEFAULT '0',
+    "engagements" double precision DEFAULT '0',
+    "impressions" character varying(255) DEFAULT '0',
+    "unique_impressions" character varying(255) DEFAULT '0',
+    "week_date" character varying(255),
+    "status" text DEFAULT '0' NOT NULL,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20330_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+COMMENT ON COLUMN "public"."posts"."status" IS '0="Draft",1="Published",2="Scheduled"';
+
+CREATE INDEX idx_20330_page_id ON public.posts USING btree (page_id);
+
+CREATE INDEX idx_20330_social_user_id ON public.posts USING btree (social_user_id);
+
+
+DROP TABLE IF EXISTS "role_has_permissions";
+CREATE TABLE "public"."role_has_permissions" (
+    "permission_id" numeric NOT NULL,
+    "role_id" numeric NOT NULL,
+    CONSTRAINT "idx_20390_primary" PRIMARY KEY ("permission_id", "role_id")
+)
+WITH (oids = false);
+
+CREATE INDEX idx_20390_role_has_permissions_role_id_foreign ON public.role_has_permissions USING btree (role_id);
+
+
+DROP TABLE IF EXISTS "role_permission";
+CREATE TABLE "public"."role_permission" (
+    "role_id" numeric NOT NULL,
+    "permission_id" numeric NOT NULL,
+    CONSTRAINT "idx_20395_primary" PRIMARY KEY ("role_id", "permission_id")
+)
+WITH (oids = false);
+
+CREATE INDEX idx_20395_role_permission_permission_id_foreign ON public.role_permission USING btree (permission_id);
+
+
+DROP TABLE IF EXISTS "roles";
+DROP SEQUENCE IF EXISTS roles_id_seq;
+CREATE SEQUENCE roles_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."roles" (
+    "id" bigint DEFAULT nextval('roles_id_seq') NOT NULL,
+    "name" character varying(255) NOT NULL,
+    "display_name" character varying(255) DEFAULT '' NOT NULL,
+    "description" character varying(255),
+    "is_super_admin" smallint DEFAULT '0',
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_20381_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE UNIQUE INDEX idx_20381_roles_name_unique ON public.roles USING btree (name);
+
+
+DROP TABLE IF EXISTS "saved_reports";
+DROP SEQUENCE IF EXISTS saved_reports_id_seq;
+CREATE SEQUENCE saved_reports_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."saved_reports" (
+    "id" bigint DEFAULT nextval('saved_reports_id_seq') NOT NULL,
+    "user_uuid" character varying(255) NOT NULL,
+    "report_name" character varying(255) NOT NULL,
+    "report_type" character varying(255) NOT NULL,
+    "selected_metrics" text,
+    "date_range" text,
+    "export_format" character varying(255) DEFAULT 'excel',
+    "report_data" text,
+    "file_path" character varying(255),
+    "status" text DEFAULT 'Ready',
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp NOT NULL,
+    CONSTRAINT "idx_20401_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "sessions";
+CREATE TABLE "public"."sessions" (
+    "id" character varying(255) NOT NULL,
+    "user_id" numeric,
+    "ip_address" character varying(45),
+    "user_agent" text,
+    "payload" text NOT NULL,
+    "last_activity" bigint NOT NULL,
+    CONSTRAINT "idx_20410_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE INDEX idx_20410_sessions_user_id_index ON public.sessions USING btree (user_id);
+
+CREATE INDEX idx_20410_sessions_last_activity_index ON public.sessions USING btree (last_activity);
+
+
+DROP TABLE IF EXISTS "settings";
+DROP SEQUENCE IF EXISTS settings_id_seq;
+CREATE SEQUENCE settings_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."settings" (
+    "id" bigint DEFAULT nextval('settings_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "module_name" text DEFAULT 'Comment' NOT NULL,
+    "module_status" smallint DEFAULT '0' NOT NULL,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20417_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+COMMENT ON COLUMN "public"."settings"."module_status" IS '0="InActive",1="Active"';
+
+
+DROP TABLE IF EXISTS "social_media_page_score";
+DROP SEQUENCE IF EXISTS social_media_page_score_id_seq;
+CREATE SEQUENCE social_media_page_score_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."social_media_page_score" (
+    "id" bigint DEFAULT nextval('social_media_page_score_id_seq') NOT NULL,
+    "social_score_id" bigint NOT NULL,
+    "user_uuid" character varying(255) NOT NULL,
+    "platform_name" character varying(100) NOT NULL,
+    "page_id" character varying(255) NOT NULL,
+    "page_name" character varying(255),
+    "score_date" date NOT NULL,
+    "score" numeric(5,2) DEFAULT '0.00',
+    "engagement" bigint DEFAULT '0',
+    "reach" bigint DEFAULT '0',
+    "shares" bigint DEFAULT '0',
+    "follower_growth_percent" numeric(5,2) DEFAULT '0.00',
+    "recommendations" text NOT NULL,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz,
+    "overall_score" numeric(5,2) DEFAULT '0.00',
+    "content_score" numeric(5,2) DEFAULT '0.00',
+    "engagement_score" numeric(5,2) DEFAULT '0.00',
+    "growth_score" numeric(5,2) DEFAULT '0.00',
+    "consistency_score" numeric(5,2) DEFAULT '0.00',
+    "calculated_at" timestamptz,
+    CONSTRAINT "idx_20429_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE INDEX idx_20429_social_media_page_score_ibfk_1 ON public.social_media_page_score USING btree (social_score_id);
+
+
+DELIMITER ;;
+
+CREATE TRIGGER "on_update_current_timestamp" BEFORE UPDATE ON "public"."social_media_page_score" FOR EACH ROW EXECUTE FUNCTION insocial_mysql.on_update_current_timestamp_social_media_page_score();;
+
+DELIMITER ;
+
+DROP TABLE IF EXISTS "social_media_score";
+DROP SEQUENCE IF EXISTS social_media_score_id_seq;
+CREATE SEQUENCE social_media_score_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."social_media_score" (
+    "id" bigint DEFAULT nextval('social_media_score_id_seq') NOT NULL,
+    "user_uuid" character(36) NOT NULL,
+    "score_date" date NOT NULL,
+    "total_score" numeric(5,2) DEFAULT '0.00',
+    "total_engagement" bigint DEFAULT '0',
+    "total_reach" bigint DEFAULT '0',
+    "total_shares" bigint DEFAULT '0',
+    "follower_growth_percent" numeric(5,2) DEFAULT '0.00',
+    "total_pages" bigint DEFAULT '0',
+    "recommendations" text NOT NULL,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz,
+    "overall_score" numeric(5,2) DEFAULT '0.00',
+    "content_score" numeric(5,2) DEFAULT '0.00',
+    "engagement_score" numeric(5,2) DEFAULT '0.00',
+    "growth_score" numeric(5,2) DEFAULT '0.00',
+    "consistency_score" numeric(5,2) DEFAULT '0.00',
+    "calculated_at" timestamptz,
+    CONSTRAINT "idx_20448_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DELIMITER ;;
+
+CREATE TRIGGER "on_update_current_timestamp" BEFORE UPDATE ON "public"."social_media_score" FOR EACH ROW EXECUTE FUNCTION insocial_mysql.on_update_current_timestamp_social_media_score();;
+
+DELIMITER ;
+
+DROP TABLE IF EXISTS "social_page";
+DROP SEQUENCE IF EXISTS social_page_id_seq;
+CREATE SEQUENCE social_page_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."social_page" (
+    "id" bigint DEFAULT nextval('social_page_id_seq') NOT NULL,
+    "user_uuid" character varying(255),
+    "social_userid" character varying(250) NOT NULL,
+    "pagename" character varying(150) NOT NULL,
+    "page_picture" text,
+    "page_cover" text,
+    "pageid" character varying(150) NOT NULL,
+    "token" text NOT NULL,
+    "category" character varying(100),
+    "total_followers" bigint DEFAULT '0' NOT NULL,
+    "page_platform" character varying(255),
+    "status" text DEFAULT 'notConnected',
+    "platform" character varying(255),
+    "modify_to" text,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20467_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE INDEX idx_20467_pageid ON public.social_page USING btree (pageid);
+
+CREATE INDEX idx_20467_social_userid ON public.social_page USING btree (social_userid);
+
+
+DROP TABLE IF EXISTS "social_users";
+DROP SEQUENCE IF EXISTS social_users_id_seq;
+CREATE SEQUENCE social_users_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."social_users" (
+    "id" bigint DEFAULT nextval('social_users_id_seq') NOT NULL,
+    "user_id" character varying(250) NOT NULL,
+    "name" character varying(100) NOT NULL,
+    "email" character varying(200),
+    "img_url" character varying(250),
+    "social_id" character varying(200) NOT NULL,
+    "social_user_platform" character varying(255),
+    "user_token" text NOT NULL,
+    "status" text DEFAULT 'notConnected',
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "idx_20482_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE UNIQUE INDEX idx_20482_social_id ON public.social_users USING btree (social_id);
+
+CREATE INDEX idx_20482_user_id ON public.social_users USING btree (user_id);
+
+
+DROP TABLE IF EXISTS "subscription_events";
+DROP SEQUENCE IF EXISTS subscription_events_id_seq1;
+CREATE SEQUENCE subscription_events_id_seq1 INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 3 CACHE 1;
+
+CREATE TABLE "public"."subscription_events" (
+    "id" bigint DEFAULT nextval('subscription_events_id_seq1') NOT NULL,
+    "subscription_id" bigint,
+    "user_uuid" character varying(255),
+    "stripe_subscription_id" character varying(255),
+    "stripe_event_id" character varying(255),
+    "event_type" character varying(255) NOT NULL,
+    "old_status" character varying(255),
+    "new_status" character varying(255),
+    "old_plan_id" bigint,
+    "new_plan_id" bigint,
+    "old_quantity" integer,
+    "new_quantity" integer,
+    "amount" bigint,
+    "currency" character varying(3),
+    "failure_code" character varying(255),
+    "failure_message" text,
+    "actor" character varying(255),
+    "actor_id" character varying(255),
+    "ip_address" character varying(45),
+    "user_agent" text,
+    "description" text,
+    "metadata" json,
+    "event_payload" json,
+    "occurred_at" timestamp(0),
+    "processed_at" timestamp(0),
+    "created_at" timestamp(0),
+    "updated_at" timestamp(0),
+    CONSTRAINT "subscription_events_pkey" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE INDEX subscription_events_subscription_id_index ON public.subscription_events USING btree (subscription_id);
+
+CREATE INDEX subscription_events_event_type_index ON public.subscription_events USING btree (event_type);
+
+CREATE INDEX subscription_events_user_uuid_index ON public.subscription_events USING btree (user_uuid);
+
+CREATE UNIQUE INDEX subscription_events_stripe_event_id_unique ON public.subscription_events USING btree (stripe_event_id);
+
+
+DROP TABLE IF EXISTS "subscription_plans";
+DROP SEQUENCE IF EXISTS subscription_plans_id_seq;
+CREATE SEQUENCE subscription_plans_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."subscription_plans" (
+    "id" bigint DEFAULT nextval('subscription_plans_id_seq') NOT NULL,
+    "name" character varying(255) NOT NULL,
+    "slug" character varying(255),
+    "stripe_price_id" character varying(255),
+    "stripe_yearly_price_id" character varying(255),
+    "stripe_product_id" character varying(255),
+    "price" numeric(10,2) NOT NULL,
+    "monthly_price_usd" numeric(10,2) DEFAULT '0.00' NOT NULL,
+    "yearly_price_usd" numeric(10,2),
+    "monthly_price_inr" numeric(10,2) DEFAULT '0.00' NOT NULL,
+    "yearly_price_inr" numeric(10,2),
+    "yearly_price" numeric(10,2),
+    "yearly_discount_percent" bigint DEFAULT '0' NOT NULL,
+    "currency" character varying(3) DEFAULT 'USD' NOT NULL,
+    "billing_cycle" text DEFAULT 'monthly' NOT NULL,
+    "features" text,
+    "display_features" text,
+    "description" text,
+    "max_social_accounts" bigint,
+    "max_team_members" bigint,
+    "max_scheduled_posts" bigint,
+    "ai_tokens_per_month" bigint DEFAULT '0' NOT NULL,
+    "ai_auto_comment_reply" smallint DEFAULT '0' NOT NULL,
+    "ai_auto_dm_reply" smallint DEFAULT '0' NOT NULL,
+    "ai_semantic_analysis" smallint DEFAULT '0' NOT NULL,
+    "ai_driven_reporting" smallint DEFAULT '0' NOT NULL,
+    "ai_content_generator" smallint DEFAULT '0' NOT NULL,
+    "calendar_scheduling" smallint DEFAULT '0' NOT NULL,
+    "social_profile_score" smallint DEFAULT '0' NOT NULL,
+    "unified_inbox" smallint DEFAULT '0' NOT NULL,
+    "export_reports" smallint DEFAULT '0' NOT NULL,
+    "white_label" smallint DEFAULT '0' NOT NULL,
+    "fb_ads_analytics" smallint DEFAULT '0' NOT NULL,
+    "fb_ads_creation" smallint DEFAULT '0' NOT NULL,
+    "team_roles_permissions" smallint DEFAULT '0' NOT NULL,
+    "client_workspaces" smallint DEFAULT '0' NOT NULL,
+    "support_level" character varying(255) DEFAULT 'standard' NOT NULL,
+    "platform_limits" text,
+    "active" smallint DEFAULT '1' NOT NULL,
+    "is_featured" smallint DEFAULT '0' NOT NULL,
+    "trial_period_days" bigint,
+    "trial_enabled" smallint DEFAULT '0' NOT NULL,
+    "skip_trial_discount_enabled" smallint DEFAULT '0' NOT NULL,
+    "skip_trial_discount_percent" bigint DEFAULT '0' NOT NULL,
+    "is_contact_only" smallint DEFAULT '0' NOT NULL,
+    "show_on_landing" smallint DEFAULT '1' NOT NULL,
+    "sort_order" bigint DEFAULT '0' NOT NULL,
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_20538_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE UNIQUE INDEX idx_20538_subscription_plans_slug_unique ON public.subscription_plans USING btree (slug);
+
+
+DROP TABLE IF EXISTS "subscriptions";
+DROP SEQUENCE IF EXISTS subscriptions_id_seq1;
+CREATE SEQUENCE subscriptions_id_seq1 INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 2 CACHE 1;
+
+CREATE TABLE "public"."subscriptions" (
+    "id" bigint DEFAULT nextval('subscriptions_id_seq1') NOT NULL,
+    "user_uuid" character varying(255) NOT NULL,
+    "stripe_customer_id" character varying(255) NOT NULL,
+    "stripe_subscription_id" character varying(255) NOT NULL,
+    "price_id" character varying(255) NOT NULL,
+    "plan_id" bigint,
+    "status" character varying(50) NOT NULL,
+    "stripe_price_id" character varying(255),
+    "trial_start" timestamp(0),
+    "trial_end" timestamp(0),
+    "trial_days" integer,
+    "current_period_start" timestamp(0),
+    "current_period_end" timestamp(0),
+    "billing_cycle_anchor" timestamp(0),
+    "next_invoice_date" timestamp(0),
+    "cancel_at_period_end" boolean DEFAULT false NOT NULL,
+    "cancel_at" timestamp(0),
+    "canceled_at" timestamp(0),
+    "ended_at" timestamp(0),
+    "cancellation_reason" character varying(255),
+    "cancellation_feedback" text,
+    "pause_collection" character varying(255),
+    "resume_at" timestamp(0),
+    "collection_method" character varying(255) DEFAULT 'charge_automatically' NOT NULL,
+    "default_payment_method_id" character varying(255),
+    "latest_invoice_id" character varying(255),
+    "quantity" integer DEFAULT '1' NOT NULL,
+    "amount" numeric(10,2),
+    "currency" character varying(3) DEFAULT 'USD' NOT NULL,
+    "billing_interval" character varying(255) DEFAULT 'month' NOT NULL,
+    "discount_percent" numeric(5,2),
+    "coupon_code" character varying(100),
+    "stripe_coupon_id" character varying(255),
+    "past_due_since" timestamp(0),
+    "last_payment_attempt_at" timestamp(0),
+    "last_payment_error" text,
+    "payment_retry_count" integer DEFAULT '0' NOT NULL,
+    "next_payment_retry_at" timestamp(0),
+    "dunning_status" character varying(255) DEFAULT 'none' NOT NULL,
+    "status_reason" text,
+    "metadata" json,
+    "trial_reminder_sent" boolean DEFAULT false NOT NULL,
+    "trial_reminder_sent_at" timestamp(0),
+    "renewal_reminder_sent" boolean DEFAULT false NOT NULL,
+    "renewal_reminder_sent_at" timestamp(0),
+    "synced_at" timestamp(0),
+    "created_at" timestamp(0),
+    "updated_at" timestamp(0),
+    CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE INDEX subscriptions_user_uuid_index ON public.subscriptions USING btree (user_uuid);
+
+CREATE INDEX subscriptions_status_index ON public.subscriptions USING btree (status);
+
+CREATE UNIQUE INDEX subscriptions_stripe_subscription_id_unique ON public.subscriptions USING btree (stripe_subscription_id);
+
+INSERT INTO "subscriptions" ("id", "user_uuid", "stripe_customer_id", "stripe_subscription_id", "price_id", "plan_id", "status", "stripe_price_id", "trial_start", "trial_end", "trial_days", "current_period_start", "current_period_end", "billing_cycle_anchor", "next_invoice_date", "cancel_at_period_end", "cancel_at", "canceled_at", "ended_at", "cancellation_reason", "cancellation_feedback", "pause_collection", "resume_at", "collection_method", "default_payment_method_id", "latest_invoice_id", "quantity", "amount", "currency", "billing_interval", "discount_percent", "coupon_code", "stripe_coupon_id", "past_due_since", "last_payment_attempt_at", "last_payment_error", "payment_retry_count", "next_payment_retry_at", "dunning_status", "status_reason", "metadata", "trial_reminder_sent", "trial_reminder_sent_at", "renewal_reminder_sent", "renewal_reminder_sent_at", "synced_at", "created_at", "updated_at") VALUES
+(1,	'5fc9e667-dea1-41a8-918b-9c5e539eb46e',	'cus_Ta2l8SF0h6FaJM',	'sub_1ScsgaHpVJPrOqLkNWI53KWL',	'price_1SactGHpVJPrOqLkrdqk0HUK',	NULL,	'active',	'price_1SactGHpVJPrOqLkrdqk0HUK',	NULL,	NULL,	NULL,	NULL,	NULL,	'2025-12-10 19:04:28',	NULL,	'f',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	'charge_automatically',	NULL,	NULL,	1,	9900.00,	'USD',	'month',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	0,	NULL,	'none',	NULL,	NULL,	'f',	NULL,	'f',	NULL,	'2025-12-10 19:04:38',	'2025-12-10 19:04:31',	'2025-12-10 19:04:38');
+
+DROP TABLE IF EXISTS "transactions";
+DROP SEQUENCE IF EXISTS transactions_id_seq1;
+CREATE SEQUENCE transactions_id_seq1 INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 2 CACHE 1;
+
+CREATE TABLE "public"."transactions" (
+    "id" bigint DEFAULT nextval('transactions_id_seq1') NOT NULL,
+    "subscription_id" bigint NOT NULL,
+    "user_uuid" character varying(36),
+    "plan_id" bigint,
+    "stripe_invoice_id" character varying(255),
+    "stripe_payment_intent_id" character varying(255),
+    "stripe_charge_id" character varying(255),
+    "stripe_subscription_id" character varying(255),
+    "stripe_customer_id" character varying(255),
+    "stripe_payment_method_id" character varying(255),
+    "invoice_number" character varying(100),
+    "invoice_pdf_url" character varying(500),
+    "invoice_hosted_url" character varying(500),
+    "billing_reason" character varying(255),
+    "amount_subtotal" bigint,
+    "amount_tax" bigint DEFAULT '0' NOT NULL,
+    "amount_total" bigint,
+    "amount" bigint NOT NULL,
+    "amount_paid" bigint,
+    "amount_due" bigint,
+    "amount_remaining" bigint DEFAULT '0' NOT NULL,
+    "discount_amount" bigint DEFAULT '0' NOT NULL,
+    "coupon_code" character varying(100),
+    "tax_rates" json,
+    "currency" character varying(10) NOT NULL,
+    "status" character varying(50) NOT NULL,
+    "payment_status" character varying(255),
+    "failure_code" character varying(100),
+    "failure_message" text,
+    "failure_reason" character varying(255),
+    "attempt_count" integer DEFAULT '0' NOT NULL,
+    "next_payment_attempt" timestamp(0),
+    "due_date" timestamp(0),
+    "paid_at" timestamp(0),
+    "period_start" timestamp(0),
+    "period_end" timestamp(0),
+    "refund_amount" bigint DEFAULT '0' NOT NULL,
+    "refunded_at" timestamp(0),
+    "refund_reason" character varying(255),
+    "stripe_refund_id" character varying(255),
+    "description" text,
+    "receipt_url" character varying(500),
+    "card_brand" character varying(50),
+    "card_last4" character varying(4),
+    "metadata" json,
+    "disputed" boolean DEFAULT false NOT NULL,
+    "created_at" timestamp(0),
+    "updated_at" timestamp(0),
+    CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE INDEX transactions_subscription_id_index ON public.transactions USING btree (subscription_id);
+
+CREATE INDEX transactions_user_uuid_index ON public.transactions USING btree (user_uuid);
+
+CREATE INDEX transactions_stripe_invoice_id_index ON public.transactions USING btree (stripe_invoice_id);
+
+
+DROP TABLE IF EXISTS "user_notifications";
+DROP SEQUENCE IF EXISTS user_notifications_id_seq;
+CREATE SEQUENCE user_notifications_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."user_notifications" (
+    "id" bigint DEFAULT nextval('user_notifications_id_seq') NOT NULL,
+    "user_uuid" character varying(255) NOT NULL,
+    "type" text DEFAULT 'info' NOT NULL,
+    "title" character varying(255) NOT NULL,
+    "message" text NOT NULL,
+    "icon" character varying(255) DEFAULT 'bell',
+    "severity" text DEFAULT 'medium' NOT NULL,
+    "link" character varying(255),
+    "is_read" smallint DEFAULT '0' NOT NULL,
+    "metadata" text,
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp NOT NULL,
+    CONSTRAINT "idx_20649_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "user_reports";
+DROP SEQUENCE IF EXISTS user_reports_id_seq;
+CREATE SEQUENCE user_reports_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."user_reports" (
+    "id" bigint DEFAULT nextval('user_reports_id_seq') NOT NULL,
+    "user_uuid" character varying(255) NOT NULL,
+    "report_name" character varying(255) NOT NULL,
+    "report_type" text DEFAULT 'weekly' NOT NULL,
+    "template_id" character varying(255),
+    "metrics" text,
+    "date_range" character varying(255) DEFAULT '7',
+    "file_path" character varying(255),
+    "file_size" bigint DEFAULT '0',
+    "status" text DEFAULT 'pending' NOT NULL,
+    "is_favorite" smallint DEFAULT '0' NOT NULL,
+    "schedule_frequency" text DEFAULT 'none' NOT NULL,
+    "schedule_enabled" smallint DEFAULT '0' NOT NULL,
+    "schedule_day" bigint,
+    "schedule_time" character varying(255),
+    "last_generated_at" timestamp,
+    "notes" text,
+    "report_data" text,
+    "insights" text,
+    "comparison_data" text,
+    "user_logo_path" character varying(255),
+    "email_delivery_enabled" smallint DEFAULT '0' NOT NULL,
+    "email_recipients" text,
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp NOT NULL,
+    CONSTRAINT "idx_20661_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "users";
+DROP SEQUENCE IF EXISTS users_id_seq;
+CREATE SEQUENCE users_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 107 CACHE 1;
+
+CREATE TABLE "public"."users" (
+    "id" bigint DEFAULT nextval('users_id_seq') NOT NULL,
+    "uuid" character(36),
+    "firstname" character varying(200) NOT NULL,
+    "lastname" character varying(200) NOT NULL,
+    "email" character varying(250) NOT NULL,
+    "bio" character varying(255),
+    "company" character varying(255),
+    "jobtitle" character varying(255),
+    "userlocation" character varying(255),
+    "userwebsite" character varying(255),
+    "password" character varying(250) NOT NULL,
+    "role" text DEFAULT 'User',
+    "profileimage" character varying(255),
+    "timezone" character varying(255),
+    "otp" character varying(100),
+    "otpgeneratedat" timestamptz,
+    "resetpasswordtoken" character varying(255),
+    "resetpasswordrequesttime" character varying(255),
+    "onboardgoal" text DEFAULT '{}',
+    "onboardrole" text DEFAULT '{}',
+    "status" text DEFAULT '0' NOT NULL,
+    "onboard_status" text DEFAULT '0' NOT NULL,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "stripe_customer_id" character varying(255),
+    "billing_name" character varying(255),
+    "billing_email" character varying(255),
+    "billing_phone" character varying(50),
+    "billing_address_line1" character varying(255),
+    "billing_address_line2" character varying(255),
+    "billing_city" character varying(100),
+    "billing_state" character varying(100),
+    "billing_postal_code" character varying(20),
+    "billing_country" character varying(2),
+    "tax_id" character varying(50),
+    "tax_id_type" character varying(20),
+    "default_payment_method_id" character varying(255),
+    CONSTRAINT "idx_20611_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+COMMENT ON COLUMN "public"."users"."status" IS '0 = Unverified, 1 = Verified, 2 = Deleted account';
+
+COMMENT ON COLUMN "public"."users"."onboard_status" IS '0=''Incomplete'',1=''completed''';
+
+COMMENT ON COLUMN "public"."users"."stripe_customer_id" IS 'Stripe customer ID for billing';
+
+COMMENT ON COLUMN "public"."users"."billing_name" IS 'Billing name (can differ from user name)';
+
+COMMENT ON COLUMN "public"."users"."billing_email" IS 'Billing email for invoices';
+
+COMMENT ON COLUMN "public"."users"."billing_phone" IS 'Billing phone number';
+
+COMMENT ON COLUMN "public"."users"."billing_address_line1" IS 'Billing address line 1';
+
+COMMENT ON COLUMN "public"."users"."billing_address_line2" IS 'Billing address line 2';
+
+COMMENT ON COLUMN "public"."users"."billing_city" IS 'Billing city';
+
+COMMENT ON COLUMN "public"."users"."billing_state" IS 'Billing state/province';
+
+COMMENT ON COLUMN "public"."users"."billing_postal_code" IS 'Billing postal/zip code';
+
+COMMENT ON COLUMN "public"."users"."billing_country" IS 'Billing country code';
+
+COMMENT ON COLUMN "public"."users"."tax_id" IS 'Tax ID (VAT, etc.)';
+
+COMMENT ON COLUMN "public"."users"."tax_id_type" IS 'Tax ID type';
+
+COMMENT ON COLUMN "public"."users"."default_payment_method_id" IS 'Default Stripe payment method ID';
+
+CREATE UNIQUE INDEX idx_20611_email ON public.users USING btree (email);
+
+CREATE UNIQUE INDEX idx_20611_uuid ON public.users USING btree (uuid);
+
+
+DROP TABLE IF EXISTS "webhook_events";
+DROP SEQUENCE IF EXISTS webhook_events_id_seq1;
+CREATE SEQUENCE webhook_events_id_seq1 INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 8 CACHE 1;
+
+CREATE TABLE "public"."webhook_events" (
+    "id" bigint DEFAULT nextval('webhook_events_id_seq1') NOT NULL,
+    "webhook_id" bigint DEFAULT '0' NOT NULL,
+    "stripe_event_id" character varying(255) NOT NULL,
+    "event_type" character varying(255) NOT NULL,
+    "api_version" character varying(255),
+    "livemode" smallint DEFAULT '0' NOT NULL,
+    "object_type" character varying(255),
+    "object_id" character varying(255),
+    "customer_id" character varying(255),
+    "subscription_id" character varying(255),
+    "invoice_id" character varying(255),
+    "payment_intent_id" character varying(255),
+    "payload" json,
+    "payload_hash" character varying(255),
+    "response_code" integer,
+    "response_body" text,
+    "status" character varying(255) DEFAULT 'pending' NOT NULL,
+    "error_message" text,
+    "retry_count" integer DEFAULT '0' NOT NULL,
+    "received_at" timestamp(0),
+    "processed_at" timestamp(0),
+    "processing_time_ms" integer,
+    "executed_at" timestamp(0),
+    "ip_address" character varying(45),
+    "signature_verified" smallint DEFAULT '0' NOT NULL,
+    "actions_taken" json,
+    "affected_records" json,
+    "request_headers" json,
+    "response_data" json,
+    "created_at" timestamp(0),
+    "updated_at" timestamp(0),
+    CONSTRAINT "webhook_events_pkey" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE INDEX webhook_events_event_type_index ON public.webhook_events USING btree (event_type);
+
+CREATE INDEX webhook_events_status_index ON public.webhook_events USING btree (status);
+
+CREATE INDEX webhook_events_customer_id_index ON public.webhook_events USING btree (customer_id);
+
+CREATE INDEX webhook_events_created_at_index ON public.webhook_events USING btree (created_at);
+
+CREATE UNIQUE INDEX webhook_events_stripe_event_id_unique ON public.webhook_events USING btree (stripe_event_id);
+
+
+DROP TABLE IF EXISTS "webhook_logs";
+DROP SEQUENCE IF EXISTS webhook_logs_id_seq1;
+CREATE SEQUENCE webhook_logs_id_seq1 INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."webhook_logs" (
+    "id" bigint DEFAULT nextval('webhook_logs_id_seq1') NOT NULL,
+    "webhook_id" bigint,
+    "webhook_event_id" bigint,
+    "log_level" character varying(255) DEFAULT 'info' NOT NULL,
+    "event_type" character varying(255) NOT NULL,
+    "stripe_event_id" character varying(255),
+    "message" text,
+    "context" json,
+    "request_data" json,
+    "response_data" json,
+    "payload" json,
+    "response_code" integer,
+    "response_body" text,
+    "status" character varying(255) DEFAULT 'success' NOT NULL,
+    "error_message" text,
+    "retry_count" integer DEFAULT '0' NOT NULL,
+    "ip_address" character varying(45),
+    "processing_time_ms" integer,
+    "executed_at" timestamp(0),
+    "created_at" timestamp(0),
+    "updated_at" timestamp(0),
+    CONSTRAINT "webhook_logs_pkey" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+CREATE INDEX webhook_logs_webhook_event_id_index ON public.webhook_logs USING btree (webhook_event_id);
+
+CREATE INDEX webhook_logs_log_level_index ON public.webhook_logs USING btree (log_level);
+
+CREATE INDEX webhook_logs_event_type_index ON public.webhook_logs USING btree (event_type);
+
+CREATE INDEX webhook_logs_created_at_index ON public.webhook_logs USING btree (created_at);
+
+
+DROP TABLE IF EXISTS "webhooks";
+DROP SEQUENCE IF EXISTS webhooks_id_seq;
+CREATE SEQUENCE webhooks_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+CREATE TABLE "public"."webhooks" (
+    "id" bigint DEFAULT nextval('webhooks_id_seq') NOT NULL,
+    "name" character varying(255) NOT NULL,
+    "provider" text DEFAULT 'custom' NOT NULL,
+    "event_type" character varying(255) NOT NULL,
+    "endpoint_url" character varying(255) NOT NULL,
+    "secret" text,
+    "active" smallint DEFAULT '1' NOT NULL,
+    "last_triggered_at" timestamptz,
+    "last_status" text,
+    "last_response" text,
+    "success_count" bigint DEFAULT '0' NOT NULL,
+    "failure_count" bigint DEFAULT '0' NOT NULL,
+    "created_at" timestamptz,
+    "updated_at" timestamptz,
+    CONSTRAINT "idx_20680_primary" PRIMARY KEY ("id")
+)
+WITH (oids = false);
+
+
+ALTER TABLE ONLY "public"."social_media_page_score" ADD CONSTRAINT "social_media_page_score_ibfk_1" FOREIGN KEY (social_score_id) REFERENCES social_media_score(id) ON UPDATE RESTRICT ON DELETE CASCADE NOT DEFERRABLE;
+
+-- 2025-12-10 20:32:07 UTC
