@@ -8,15 +8,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AdminAuditLog extends Model
 {
     protected $fillable = [
-        'admin_user_id',
-        'action',
-        'model_type',
-        'model_id',
+        'admin_id',
+        'admin_email',
+        'admin_name',
+        'action_type',
+        'entity_type',
+        'entity_id',
         'description',
         'old_values',
         'new_values',
+        'metadata',
         'ip_address',
         'user_agent',
+        'request_method',
+        'request_url',
+        'session_id',
+        'severity',
     ];
 
     protected function casts(): array
@@ -24,12 +31,13 @@ class AdminAuditLog extends Model
         return [
             'old_values' => 'array',
             'new_values' => 'array',
+            'metadata' => 'array',
         ];
     }
 
     public function admin(): BelongsTo
     {
-        return $this->belongsTo(AdminUser::class, 'admin_user_id');
+        return $this->belongsTo(AdminUser::class, 'admin_id');
     }
 
     public function getActionLabelAttribute(): string
@@ -76,7 +84,7 @@ class AdminAuditLog extends Model
             'other' => 'Other Action',
         ];
 
-        return $labels[$this->action] ?? ucfirst(str_replace('_', ' ', $this->action));
+        return $labels[$this->action_type] ?? ucfirst(str_replace('_', ' ', $this->action_type));
     }
 
     public function getActionIconAttribute(): string
@@ -114,17 +122,31 @@ class AdminAuditLog extends Model
             'other' => 'activity',
         ];
 
-        return $icons[$this->action] ?? 'activity';
+        return $icons[$this->action_type] ?? 'activity';
+    }
+
+    public function getSeverityColorAttribute(): string
+    {
+        return match ($this->severity) {
+            'critical' => 'red',
+            'warning' => 'yellow',
+            default => 'gray',
+        };
     }
 
     public function scopeByAdmin($query, int $adminId)
     {
-        return $query->where('admin_user_id', $adminId);
+        return $query->where('admin_id', $adminId);
     }
 
     public function scopeByActionType($query, string $type)
     {
-        return $query->where('action', $type);
+        return $query->where('action_type', $type);
+    }
+
+    public function scopeBySeverity($query, string $severity)
+    {
+        return $query->where('severity', $severity);
     }
 
     public function scopeRecent($query, int $days = 30)

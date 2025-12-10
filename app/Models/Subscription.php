@@ -2,20 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * @method static Builder|Subscription query()
- * @method static Builder|Subscription where($column, $operator = null, $value = null)
- * @method static Builder|Subscription whereNotNull($column)
- * @method static Builder|Subscription selectRaw($expression, array $bindings = [])
- * @method static int count($columns = '*')
- * @method static float|int sum($column)
- * @mixin Builder
- */
 class Subscription extends Model
 {
     protected $table = 'subscriptions';
@@ -84,8 +74,8 @@ class Subscription extends Model
         'trial_reminder_sent_at' => 'datetime',
         'renewal_reminder_sent_at' => 'datetime',
         'synced_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'createdAt' => 'datetime',
+        'updatedAt' => 'datetime',
         'cancel_at_period_end' => 'boolean',
         'trial_reminder_sent' => 'boolean',
         'renewal_reminder_sent' => 'boolean',
@@ -97,8 +87,8 @@ class Subscription extends Model
         'metadata' => 'array',
     ];
 
-    const CREATED_AT = 'created_at';
-    const UPDATED_AT = 'updated_at';
+    const CREATED_AT = 'createdAt';
+    const UPDATED_AT = 'updatedAt';
 
     public function customer(): BelongsTo
     {
@@ -216,9 +206,8 @@ class Subscription extends Model
             return null;
         }
         $currency = strtoupper($this->currency ?? 'USD');
-        // Amount is stored in cents, convert to dollars
-        $amountInDollars = $this->amount / 100;
-        return $currency . ' ' . number_format($amountInDollars, 2);
+        // Amount is stored in dollars, not cents
+        return $currency . ' ' . number_format($this->amount, 2);
     }
 
     public function needsTrialReminder(): bool
@@ -245,10 +234,10 @@ class Subscription extends Model
     {
         $events = [];
         
-        if ($this->created_at) {
+        if ($this->createdAt) {
             $events[] = [
                 'type' => 'created',
-                'date' => $this->created_at,
+                'date' => $this->createdAt,
                 'label' => 'Subscription Created',
                 'icon' => 'heroicon-o-plus-circle',
                 'color' => 'blue',

@@ -20,10 +20,7 @@ class AdminUser extends Authenticatable
         'password',
         'role',
         'email_verified_at',
-        'status',
-        'avatar',
-        'last_login_at',
-        'last_login_ip',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -36,7 +33,7 @@ class AdminUser extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'last_login_at' => 'datetime',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -89,7 +86,7 @@ class AdminUser extends Authenticatable
 
     public function isSuperAdmin(): bool
     {
-        return $this->roles()->where('name', 'super_admin')->exists();
+        return $this->roles()->where('is_super_admin', true)->exists();
     }
 
     public function assignRole(Role|string $role): void

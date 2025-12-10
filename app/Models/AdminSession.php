@@ -8,63 +8,81 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AdminSession extends Model
 {
     protected $fillable = [
-        'admin_user_id',
+        'admin_id',
         'session_token',
         'ip_address',
         'user_agent',
-        'last_activity',
-        'expires_at',
-        'is_active',
+        'device_type',
+        'browser',
+        'os',
+        'location',
+        'is_current',
+        'last_activity_at',
+        'logged_in_at',
+        'logged_out_at',
+        'status',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
-            'last_activity' => 'datetime',
-            'expires_at' => 'datetime',
+            'is_current' => 'boolean',
+            'last_activity_at' => 'datetime',
+            'logged_in_at' => 'datetime',
+            'logged_out_at' => 'datetime',
         ];
     }
 
     public function admin(): BelongsTo
     {
-        return $this->belongsTo(AdminUser::class, 'admin_user_id');
+        return $this->belongsTo(AdminUser::class, 'admin_id');
     }
 
     public function getStatusBadgeAttribute(): array
     {
-        return match ($this->is_active) {
-            true => ['label' => 'Active', 'color' => 'green'],
-            false => ['label' => 'Inactive', 'color' => 'gray'],
-            default => ['label' => 'Unknown', 'color' => 'gray'],
+        return match ($this->status) {
+            'active' => ['label' => 'Active', 'color' => 'green'],
+            'expired' => ['label' => 'Expired', 'color' => 'gray'],
+            'revoked' => ['label' => 'Revoked', 'color' => 'red'],
+            default => ['label' => ucfirst($this->status), 'color' => 'gray'],
         };
+    }
+
+    public function getDeviceInfoAttribute(): string
+    {
+        $parts = [];
+        if ($this->browser) $parts[] = $this->browser;
+        if ($this->os) $parts[] = $this->os;
+        return implode(' on ', $parts) ?: 'Unknown Device';
     }
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('status', 'active');
     }
 
     public function scopeForAdmin($query, int $adminId)
     {
-        return $query->where('admin_user_id', $adminId);
+        return $query->where('admin_id', $adminId);
     }
 
     public function revoke(): void
     {
         $this->update([
-            'is_active' => false,
+            'status' => 'revoked',
+            'logged_out_at' => now(),
         ]);
     }
 
     public function markAsExpired(): void
     {
         $this->update([
-            'is_active' => false,
+            'status' => 'expired',
+            'logged_out_at' => now(),
         ]);
     }
 
-    public function touch($attribute = null)
+    public function touch($attribute = null): bool
     {
         $this->last_activity_at = now();
         return parent::touch($attribute);

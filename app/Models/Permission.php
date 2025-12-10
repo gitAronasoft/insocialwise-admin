@@ -20,7 +20,7 @@ class Permission extends Model
 
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class, 'role_has_permissions');
+        return $this->belongsToMany(Role::class, 'role_permission');
     }
 
     public function scopeGroup(Builder $query, string $group): Builder

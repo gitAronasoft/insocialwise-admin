@@ -2,18 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * @method static Builder|Customer query()
- * @method static Builder|Customer where($column, $operator = null, $value = null)
- * @method static Builder|Customer whereIn($column, $values)
- * @method static Builder|Customer whereBetween($column, array $values)
- * @method static Builder|Customer withCount($relations)
- * @mixin Builder
- */
 class Customer extends Model
 {
     protected $table = 'users';

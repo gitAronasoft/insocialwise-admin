@@ -2,20 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @method static Builder|PaymentMethod query()
- * @method static Builder|PaymentMethod where($column, $operator = null, $value = null)
- * @method static Builder|PaymentMethod whereIn($column, $values)
- * @method static Builder|PaymentMethod select($columns = ['*'])
- * @method static Builder|PaymentMethod selectRaw($expression, array $bindings = [])
- * @method static int count($columns = '*')
- * @method static Builder|PaymentMethod distinct()
- * @mixin Builder
- */
 class PaymentMethod extends Model
 {
     protected $table = 'payment_methods';
@@ -45,9 +34,12 @@ class PaymentMethod extends Model
         'is_default' => 'boolean',
         'exp_month' => 'integer',
         'exp_year' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'createdAt' => 'datetime',
+        'updatedAt' => 'datetime',
     ];
+
+    const CREATED_AT = 'createdAt';
+    const UPDATED_AT = 'updatedAt';
 
     public function customer(): BelongsTo
     {

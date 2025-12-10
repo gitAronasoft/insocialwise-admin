@@ -2,21 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * @method static Builder|Transaction query()
- * @method static Builder|Transaction where($column, $operator = null, $value = null)
- * @method static Builder|Transaction whereIn($column, $values)
- * @method static Builder|Transaction whereDate($column, $operator, $value = null)
- * @method static Builder|Transaction selectRaw($expression, array $bindings = [])
- * @method static int count($columns = '*')
- * @method static float|int sum($column)
- * @mixin Builder
- */
 class Transaction extends Model
 {
     protected $table = 'transactions';
@@ -44,43 +33,15 @@ class Transaction extends Model
         'refunded_at',
         'disputed',
         'metadata',
-        'invoice_hosted_url',
-        'receipt_url',
-        'amount_subtotal',
-        'amount_tax',
-        'amount_total',
-        'amount_due',
-        'amount_paid',
-        'amount_remaining',
-        'payment_status',
-        'failure_reason',
-        'attempt_count',
-        'next_payment_attempt',
-        'due_date',
-        'period_start',
-        'period_end',
-        'refund_amount',
     ];
+
+    public $timestamps = false;
 
     protected $casts = [
         'amount' => 'integer',
-        'amount_subtotal' => 'integer',
-        'amount_tax' => 'integer',
-        'amount_total' => 'integer',
-        'amount_due' => 'integer',
-        'amount_paid' => 'integer',
-        'amount_remaining' => 'integer',
-        'refund_amount' => 'integer',
-        'attempt_count' => 'integer',
         'disputed' => 'boolean',
         'paid_at' => 'datetime',
         'refunded_at' => 'datetime',
-        'next_payment_attempt' => 'datetime',
-        'due_date' => 'datetime',
-        'period_start' => 'datetime',
-        'period_end' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
         'metadata' => 'array',
     ];
 
@@ -102,11 +63,6 @@ class Transaction extends Model
     public function activityLogs(): HasMany
     {
         return $this->hasMany(BillingActivityLog::class, 'transaction_id');
-    }
-
-    public function paymentMethod(): BelongsTo
-    {
-        return $this->belongsTo(PaymentMethod::class, 'stripe_payment_method_id', 'stripe_payment_method_id');
     }
 
     public function getFormattedAmountAttribute(): string

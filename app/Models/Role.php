@@ -12,13 +12,18 @@ class Role extends Model
 
     protected $fillable = [
         'name',
-        'guard_name',
+        'display_name',
         'description',
+        'is_super_admin',
+    ];
+
+    protected $casts = [
+        'is_super_admin' => 'boolean',
     ];
 
     public function permissions(): BelongsToMany
     {
-        return $this->belongsToMany(Permission::class, 'role_has_permissions');
+        return $this->belongsToMany(Permission::class, 'role_permission');
     }
 
     public function adminUsers(): BelongsToMany
@@ -28,7 +33,7 @@ class Role extends Model
 
     public function hasPermission(string $permission): bool
     {
-        if ($this->name === 'super_admin') {
+        if ($this->is_super_admin) {
             return true;
         }
 
