@@ -19,13 +19,12 @@ class CustomerController extends Controller
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')
                     ->from('social_users')
-                    ->whereColumn('social_users.user_uuid', '=', 'users.uuid');
+                    ->whereColumn('social_users.user_id', '=', 'users.uuid');
             }, 'social_users_count')
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')
                     ->from('social_page')
-                    ->join('social_users', 'social_page.social_user_id', '=', 'social_users.id')
-                    ->whereColumn('social_users.user_uuid', '=', 'users.uuid');
+                    ->whereColumn('social_page.user_uuid', '=', 'users.uuid');
             }, 'social_pages_count')
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')
@@ -79,11 +78,11 @@ class CustomerController extends Controller
             'socialUsers.pages',
             'socialPages',
             'posts' => function ($query) {
-                $query->orderBy('createdAt', 'desc')->limit(10);
+                $query->orderBy('created_at', 'desc')->limit(10);
             },
             'subscriptions',
             'activities' => function ($query) {
-                $query->orderBy('createdAt', 'desc')->limit(20);
+                $query->orderBy('created_at', 'desc')->limit(20);
             }
         ]);
 
@@ -240,7 +239,7 @@ class CustomerController extends Controller
                     $customer->social_users_count ?? 0,
                     $customer->social_pages_count ?? 0,
                     $customer->posts_count ?? 0,
-                    $customer->createdAt?->format('Y-m-d H:i:s'),
+                    $customer->created_at?->format('Y-m-d H:i:s'),
                 ]);
             }
 

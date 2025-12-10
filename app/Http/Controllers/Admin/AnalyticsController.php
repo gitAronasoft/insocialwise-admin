@@ -128,7 +128,7 @@ class AnalyticsController extends Controller
 
     public function demographics()
     {
-        $demographics = Demographics::orderBy('createdAt', 'desc')->limit(100)->get();
+        $demographics = Demographics::orderBy('created_at', 'desc')->limit(100)->get();
 
         return view('admin.analytics.demographics', compact('demographics'));
     }

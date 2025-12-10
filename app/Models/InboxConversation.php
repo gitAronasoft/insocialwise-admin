@@ -25,12 +25,12 @@ class InboxConversation extends Model
 
     protected $casts = [
         'can_reply' => 'boolean',
-        'createdAt' => 'datetime',
-        'updatedAt' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    const CREATED_AT = 'createdAt';
-    const UPDATED_AT = 'updatedAt';
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     public function customer(): BelongsTo
     {

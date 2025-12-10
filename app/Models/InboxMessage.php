@@ -21,12 +21,12 @@ class InboxMessage extends Model
 
     protected $casts = [
         'timestamp' => 'datetime',
-        'createdAt' => 'datetime',
-        'updatedAt' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    const CREATED_AT = 'createdAt';
-    const UPDATED_AT = 'updatedAt';
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     public function conversation(): BelongsTo
     {

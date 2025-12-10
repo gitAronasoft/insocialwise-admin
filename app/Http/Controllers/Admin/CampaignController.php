@@ -31,7 +31,7 @@ class CampaignController extends Controller
             });
         }
 
-        $campaigns = $query->orderBy('createdAt', 'desc')->paginate(15);
+        $campaigns = $query->orderBy('created_at', 'desc')->paginate(15);
 
         $stats = [
             'total' => Campaign::count(),
@@ -66,7 +66,7 @@ class CampaignController extends Controller
             });
         }
 
-        $adsAccounts = $query->orderBy('createdAt', 'desc')->paginate(15);
+        $adsAccounts = $query->orderBy('created_at', 'desc')->paginate(15);
 
         $stats = [
             'total' => AdsAccount::count(),
@@ -85,7 +85,7 @@ class CampaignController extends Controller
             $query->where('status', $request->status);
         }
 
-        $adsets = $query->orderBy('createdAt', 'desc')->paginate(15);
+        $adsets = $query->orderBy('created_at', 'desc')->paginate(15);
 
         return view('admin.campaigns.adsets', compact('adsets'));
     }
@@ -98,7 +98,7 @@ class CampaignController extends Controller
             $query->where('status', $request->status);
         }
 
-        $ads = $query->orderBy('createdAt', 'desc')->paginate(15);
+        $ads = $query->orderBy('created_at', 'desc')->paginate(15);
 
         return view('admin.campaigns.ads', compact('ads'));
     }

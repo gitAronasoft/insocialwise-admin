@@ -54,7 +54,7 @@
                             <td class="px-6 py-4 text-sm text-gray-900">${{ number_format($ad->ads_insights_spend ?? 0, 2) }}</td>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ number_format($ad->ads_insights_impressions ?? 0) }}</td>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ number_format($ad->ads_insights_clicks ?? 0) }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ $ad->createdAt ? $ad->createdAt->format('M d, Y') : 'N/A' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">{{ $ad->created_at ? $ad->created_at->format('M d, Y') : 'N/A' }}</td>
                         </tr>
                     @empty
                         <tr>

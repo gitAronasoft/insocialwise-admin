@@ -24,7 +24,7 @@ class PageController extends Controller
             });
         }
 
-        $pages = $query->orderBy('createdAt', 'desc')->paginate(20);
+        $pages = $query->orderBy('created_at', 'desc')->paginate(20);
 
         $stats = [
             'total' => SocialUserPage::count(),

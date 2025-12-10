@@ -77,7 +77,7 @@
                                 {{ $comment->external_author_name ?? 'Anonymous' }}
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-500">
-                                {{ $comment->createdAt ? $comment->createdAt->format('M d, Y') : 'N/A' }}
+                                {{ $comment->created_at ? $comment->created_at->format('M d, Y') : 'N/A' }}
                             </td>
                         </tr>
                     @empty

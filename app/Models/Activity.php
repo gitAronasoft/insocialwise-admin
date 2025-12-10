@@ -25,12 +25,10 @@ class Activity extends Model
     protected $casts = [
         'reference_pageID' => 'array',
         'nextAPI_call_dateTime' => 'datetime',
-        'createdAt' => 'datetime',
-        'updatedAt' => 'datetime',
     ];
 
-    const CREATED_AT = 'createdAt';
-    const UPDATED_AT = 'updatedAt';
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     public function customer(): BelongsTo
     {

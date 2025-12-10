@@ -31,11 +31,11 @@
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Created</p>
-                <p class="text-sm text-gray-900">{{ $knowledgeBase->createdAt->format('M d, Y') }}</p>
+                <p class="text-sm text-gray-900">{{ $knowledgeBase->created_at->format('M d, Y') }}</p>
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Updated</p>
-                <p class="text-sm text-gray-900">{{ $knowledgeBase->updatedAt->format('M d, Y') }}</p>
+                <p class="text-sm text-gray-900">{{ $knowledgeBase->updated_at->format('M d, Y') }}</p>
             </div>
         </div>
     </div>

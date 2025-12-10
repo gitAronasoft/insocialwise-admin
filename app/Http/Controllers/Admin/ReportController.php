@@ -133,8 +133,8 @@ class ReportController extends Controller
         switch ($metric) {
             case 'customers':
                 $results = Customer::where('role', 'User')
-                    ->whereBetween('createdAt', [$dateFrom, $dateTo])
-                    ->select(DB::raw($this->getGroupByExpression($groupBy, 'createdAt') . ' as period'), DB::raw('COUNT(*) as count'))
+                    ->whereBetween('created_at', [$dateFrom, $dateTo])
+                    ->select(DB::raw($this->getGroupByExpression($groupBy, 'created_at') . ' as period'), DB::raw('COUNT(*) as count'))
                     ->groupBy('period')
                     ->get();
                 break;

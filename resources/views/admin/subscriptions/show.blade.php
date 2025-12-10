@@ -39,10 +39,10 @@
                 @php
                     $stages = [];
                     
-                    if ($subscription->createdAt) {
+                    if ($subscription->created_at) {
                         $stages[] = [
                             'label' => 'Created',
-                            'date' => $subscription->createdAt,
+                            'date' => $subscription->created_at,
                             'active' => true,
                             'icon' => '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>'
                         ];
@@ -85,7 +85,7 @@
                     if ($subscription->status === 'active' && !$subscription->canceled_at) {
                         $stages[] = [
                             'label' => 'Active',
-                            'date' => $subscription->current_period_start ?? $subscription->trial_end ?? $subscription->createdAt,
+                            'date' => $subscription->current_period_start ?? $subscription->trial_end ?? $subscription->created_at,
                             'active' => true,
                             'current' => true,
                             'icon' => '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
@@ -333,10 +333,10 @@
                             <span class="text-gray-900 dark:text-white">{{ $paymentMethod->country }}</span>
                         </div>
                     @endif
-                    @if($paymentMethod->createdAt)
+                    @if($paymentMethod->created_at)
                         <div class="flex justify-between">
                             <span class="text-gray-500 dark:text-gray-400">Added</span>
-                            <span class="text-gray-900 dark:text-white">{{ $paymentMethod->createdAt->format('M d, Y') }}</span>
+                            <span class="text-gray-900 dark:text-white">{{ $paymentMethod->created_at->format('M d, Y') }}</span>
                         </div>
                     @endif
                 </div>
@@ -603,7 +603,7 @@
                                     </div>
                                     <div class="text-right">
                                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                                            {{ $event->occurred_at ? \Carbon\Carbon::parse($event->occurred_at)->format('M d, Y H:i') : ($event->createdAt ? \Carbon\Carbon::parse($event->createdAt)->format('M d, Y H:i') : 'N/A') }}
+                                            {{ $event->occurred_at ? \Carbon\Carbon::parse($event->occurred_at)->format('M d, Y H:i') : ($event->created_at ? \Carbon\Carbon::parse($event->created_at)->format('M d, Y H:i') : 'N/A') }}
                                         </p>
                                         @if($event->actor)
                                             <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">

@@ -27,7 +27,7 @@
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Last Updated</p>
-                <p class="text-sm text-gray-900">{{ $conversation->updatedAt->diffForHumans() }}</p>
+                <p class="text-sm text-gray-900">{{ $conversation->updated_at->diffForHumans() }}</p>
             </div>
         </div>
 
@@ -39,7 +39,7 @@
                         <p class="font-medium text-gray-900">
                             {{ $message->sender_type === 'customer' ? 'Customer' : 'Page' }}
                         </p>
-                        <p class="text-xs text-gray-500">{{ $message->createdAt ? $message->createdAt->format('M d, Y H:i') : '' }}</p>
+                        <p class="text-xs text-gray-500">{{ $message->created_at ? $message->created_at->format('M d, Y H:i') : '' }}</p>
                     </div>
                     <p class="text-gray-700">{{ $message->message_text }}</p>
                     @if($message->attachments)

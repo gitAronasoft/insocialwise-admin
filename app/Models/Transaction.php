@@ -35,7 +35,8 @@ class Transaction extends Model
         'metadata',
     ];
 
-    public $timestamps = false;
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     protected $casts = [
         'amount' => 'integer',

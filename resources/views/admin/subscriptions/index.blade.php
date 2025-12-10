@@ -54,14 +54,14 @@
             ['key' => 'stripe_subscription_id', 'label' => 'Subscription ID', 'sortable' => false],
             ['key' => 'status', 'label' => 'Status', 'sortable' => true],
             ['key' => 'period', 'label' => 'Current Period', 'sortable' => false],
-            ['key' => 'createdAt', 'label' => 'Created', 'sortable' => true],
+            ['key' => 'created_at', 'label' => 'Created', 'sortable' => true],
             ['key' => 'actions', 'label' => 'Actions', 'sortable' => false],
         ]"
         :bulk-actions="[
             ['action' => 'export', 'label' => 'Export Selected', 'url' => route('admin.subscriptions.export'), 'type' => 'export'],
         ]"
         search-placeholder="Search by customer name or subscription ID..."
-        default-sort="createdAt"
+        default-sort="created_at"
         default-sort-direction="desc"
         :per-page="15"
         :filters="['status' => '']"
@@ -131,7 +131,7 @@
                 <span x-text="(item.current_period_start ? new Date(item.current_period_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A') + ' - ' + (item.current_period_end ? new Date(item.current_period_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A')"></span>
             </td>
             <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
-                <span x-text="item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'"></span>
+                <span x-text="item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'"></span>
             </td>
             <td class="px-4 py-4">
                 <a :href="'/admin/subscriptions/' + item.id" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors">

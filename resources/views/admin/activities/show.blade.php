@@ -21,7 +21,7 @@
             </div>
             <div>
                 <h4 class="text-sm font-medium text-gray-500 mb-2">Timestamp</h4>
-                <p class="text-gray-900">{{ $activity->createdAt ? $activity->createdAt->format('M d, Y H:i:s') : 'N/A' }}</p>
+                <p class="text-gray-900">{{ $activity->created_at ? $activity->created_at->format('M d, Y H:i:s') : 'N/A' }}</p>
             </div>
             <div>
                 <h4 class="text-sm font-medium text-gray-500 mb-2">Activity Type</h4>

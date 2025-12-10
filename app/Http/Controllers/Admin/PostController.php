@@ -32,7 +32,7 @@ class PostController extends Controller
             });
         }
 
-        $posts = $query->orderBy('createdAt', 'desc')->paginate(15);
+        $posts = $query->orderBy('created_at', 'desc')->paginate(15);
 
         $stats = [
             'total' => UserPost::count(),
@@ -63,7 +63,7 @@ class PostController extends Controller
             $query->where('comment', 'like', "%{$request->search}%");
         }
 
-        $comments = $query->orderBy('createdAt', 'desc')->paginate(20);
+        $comments = $query->orderBy('created_at', 'desc')->paginate(20);
 
         $stats = [
             'total' => PostComment::count(),

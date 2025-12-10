@@ -72,7 +72,7 @@
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500 dark:text-gray-400">Joined</span>
-                    <span class="text-gray-900 dark:text-white">{{ $customer->createdAt->format('M d, Y') }}</span>
+                    <span class="text-gray-900 dark:text-white">{{ $customer->created_at?->format('M d, Y') ?? 'N/A' }}</span>
                 </div>
             </div>
         </div>
@@ -174,7 +174,7 @@
                                             ">{{ ucfirst($post->status) }}</span>
                                         </div>
                                     </div>
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap ml-4">{{ $post->createdAt->diffForHumans() }}</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap ml-4">{{ $post->created_at->diffForHumans() }}</span>
                                 </div>
                             </div>
                         @empty
@@ -202,7 +202,7 @@
                     <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
                     
                     <div class="space-y-6">
-                        @foreach($customer->activities->sortByDesc('createdAt')->take(20) as $activity)
+                        @foreach($customer->activities->sortByDesc('created_at')->take(20) as $activity)
                             @php
                                 $activityConfig = match(strtolower($activity->activity_type ?? '')) {
                                     'login', 'auth' => [
@@ -292,8 +292,8 @@
                                             @endif
                                         </div>
                                         <div class="text-right">
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $activity->createdAt->diffForHumans() }}</p>
-                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ $activity->createdAt->format('M d, Y H:i') }}</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $activity->created_at->diffForHumans() }}</p>
+                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ $activity->created_at->format('M d, Y H:i') }}</p>
                                         </div>
                                     </div>
                                 </div>

@@ -41,15 +41,15 @@ class SubscriptionEvent extends Model
         'event_payload' => 'array',
         'occurred_at' => 'datetime',
         'processed_at' => 'datetime',
-        'createdAt' => 'datetime',
-        'updatedAt' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
         'amount' => 'integer',
         'old_quantity' => 'integer',
         'new_quantity' => 'integer',
     ];
 
-    const CREATED_AT = 'createdAt';
-    const UPDATED_AT = 'updatedAt';
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     public function subscription(): BelongsTo
     {

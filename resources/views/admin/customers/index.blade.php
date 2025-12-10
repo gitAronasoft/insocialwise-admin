@@ -26,7 +26,7 @@
             ['key' => 'pages', 'label' => 'Pages', 'sortable' => false],
             ['key' => 'posts', 'label' => 'Posts', 'sortable' => false],
             ['key' => 'status', 'label' => 'Status', 'sortable' => true],
-            ['key' => 'createdAt', 'label' => 'Joined', 'sortable' => true],
+            ['key' => 'created_at', 'label' => 'Joined', 'sortable' => true],
             ['key' => 'actions', 'label' => 'Actions', 'sortable' => false],
         ]"
         :bulk-actions="[
@@ -36,7 +36,7 @@
             ['action' => 'export', 'label' => 'Export Selected', 'url' => route('admin.customers.export'), 'type' => 'export'],
         ]"
         search-placeholder="Search by name or email..."
-        default-sort="createdAt"
+        default-sort="created_at"
         default-sort-direction="desc"
         :per-page="15"
         :filters="['status' => '']"
@@ -98,7 +98,7 @@
                 </template>
             </td>
             <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
-                <span x-text="item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'"></span>
+                <span x-text="item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'"></span>
             </td>
             <td class="px-4 py-4">
                 <div class="flex items-center gap-2">

@@ -25,15 +25,22 @@ class AdminAuditService
         $request = request();
 
         return AdminAuditLog::create([
-            'admin_user_id' => $admin?->id,
-            'action' => $actionType,
-            'model_type' => $entityType,
-            'model_id' => $entityId,
+            'admin_id' => $admin?->id,
+            'admin_email' => $admin?->email,
+            'admin_name' => $admin?->name,
+            'action_type' => $actionType,
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
             'description' => $description,
             'old_values' => $oldValues,
             'new_values' => $newValues,
             'ip_address' => self::getClientIp($request),
             'user_agent' => $request->userAgent(),
+            'request_method' => $request->method(),
+            'request_url' => $request->url(),
+            'session_id' => session()->getId(),
+            'severity' => $severity,
+            'metadata' => $metadata,
         ]);
     }
 
@@ -42,13 +49,19 @@ class AdminAuditService
         $request = request();
         
         return AdminAuditLog::create([
-            'admin_user_id' => $admin->id,
-            'action' => $success ? 'login' : 'login_failed',
+            'admin_id' => $admin->id,
+            'admin_email' => $admin->email,
+            'admin_name' => $admin->name,
+            'action_type' => $success ? 'login' : 'login_failed',
             'description' => $success 
                 ? "Admin {$admin->email} logged in successfully"
                 : "Failed login attempt for {$admin->email}",
             'ip_address' => self::getClientIp($request),
             'user_agent' => $request->userAgent(),
+            'request_method' => $request->method(),
+            'request_url' => $request->url(),
+            'session_id' => session()->getId(),
+            'severity' => 'info',
         ]);
     }
 
@@ -57,25 +70,37 @@ class AdminAuditService
         $request = request();
 
         return AdminAuditLog::create([
-            'admin_user_id' => $admin->id,
-            'action' => 'logout',
+            'admin_id' => $admin->id,
+            'admin_email' => $admin->email,
+            'admin_name' => $admin->name,
+            'action_type' => 'logout',
             'description' => "Admin {$admin->email} logged out",
             'ip_address' => self::getClientIp($request),
             'user_agent' => $request->userAgent(),
+            'request_method' => $request->method(),
+            'request_url' => $request->url(),
+            'session_id' => session()->getId(),
+            'severity' => 'info',
         ]);
     }
 
     public static function createSession(AdminUser $admin): AdminSession
     {
         $request = request();
+        $userAgentInfo = AdminSession::parseUserAgent($request->userAgent());
 
         return AdminSession::create([
-            'admin_user_id' => $admin->id,
+            'admin_id' => $admin->id,
             'session_token' => session()->getId(),
             'ip_address' => self::getClientIp($request),
             'user_agent' => $request->userAgent(),
-            'last_activity' => now(),
-            'is_active' => true,
+            'device_type' => $userAgentInfo['device_type'],
+            'browser' => $userAgentInfo['browser'],
+            'os' => $userAgentInfo['os'],
+            'is_current' => true,
+            'last_activity_at' => now(),
+            'logged_in_at' => now(),
+            'status' => 'active',
         ]);
     }
 
@@ -84,9 +109,10 @@ class AdminAuditService
         $token = $sessionToken ?? session()->getId();
         
         AdminSession::where('session_token', $token)
-            ->whereRaw('"is_active" = true')
+            ->where('status', 'active')
             ->update([
-                'is_active' => false,
+                'status' => 'expired',
+                'logged_out_at' => now(),
             ]);
     }
 
@@ -95,9 +121,9 @@ class AdminAuditService
         $sessionToken = session()->getId();
         
         AdminSession::where('session_token', $sessionToken)
-            ->whereRaw('"is_active" = true')
+            ->where('status', 'active')
             ->update([
-                'last_activity' => now(),
+                'last_activity_at' => now(),
                 'ip_address' => self::getClientIp(request()),
             ]);
     }
@@ -129,16 +155,17 @@ class AdminAuditService
     {
         $currentToken = session()->getId();
         
-        $count = AdminSession::where('admin_user_id', $adminId)
+        $count = AdminSession::where('admin_id', $adminId)
             ->where('session_token', '!=', $currentToken)
-            ->whereRaw('"is_active" = true')
+            ->where('status', 'active')
             ->update([
-                'is_active' => false,
+                'status' => 'revoked',
+                'logged_out_at' => now(),
             ]);
 
         if ($count > 0) {
             self::log(
-                'other',
+                'session_revoked',
                 "Revoked {$count} other active sessions",
                 'AdminSession',
                 null,
@@ -154,18 +181,19 @@ class AdminAuditService
 
     public static function getActiveSessions(int $adminId): \Illuminate\Database\Eloquent\Collection
     {
-        return AdminSession::where('admin_user_id', $adminId)
-            ->whereRaw('"is_active" = true')
-            ->orderBy('last_activity', 'desc')
+        return AdminSession::where('admin_id', $adminId)
+            ->where('status', 'active')
+            ->orderBy('last_activity_at', 'desc')
             ->get();
     }
 
     public static function cleanupExpiredSessions(int $daysOld = 30): int
     {
-        return AdminSession::whereRaw('"is_active" = true')
-            ->where('last_activity', '<', now()->subDays($daysOld))
+        return AdminSession::where('status', 'active')
+            ->where('last_activity_at', '<', now()->subDays($daysOld))
             ->update([
-                'is_active' => false,
+                'status' => 'expired',
+                'logged_out_at' => now(),
             ]);
     }
 
@@ -219,13 +247,13 @@ class AdminAuditService
 
     public static function getLoginAttempts(int $days = 7): array
     {
-        $logs = AdminAuditLog::whereIn('action', ['login', 'login_failed'])
+        $logs = AdminAuditLog::whereIn('action_type', ['login', 'login_failed'])
             ->where('created_at', '>=', now()->subDays($days))
             ->get();
 
         return [
-            'successful' => $logs->where('action', 'login')->count(),
-            'failed' => $logs->where('action', 'login_failed')->count(),
+            'successful' => $logs->where('action_type', 'login')->count(),
+            'failed' => $logs->where('action_type', 'login_failed')->count(),
             'unique_ips' => $logs->pluck('ip_address')->unique()->count(),
         ];
     }

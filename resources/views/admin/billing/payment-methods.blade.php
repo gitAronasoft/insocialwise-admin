@@ -168,7 +168,7 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {{ $method->createdAt?->format('M d, Y') }}
+                                {{ $method->created_at?->format('M d, Y') }}
                             </td>
                         </tr>
                     @empty

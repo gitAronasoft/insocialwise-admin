@@ -26,13 +26,13 @@ class InboxController extends Controller
             });
         }
 
-        $conversations = $query->orderBy('updatedAt', 'desc')->paginate(20);
+        $conversations = $query->orderBy('updated_at', 'desc')->paginate(20);
 
         $stats = [
             'total' => InboxConversation::count(),
             'with_unread' => InboxConversation::where('status', 'Active')->count(),
             'total_messages' => InboxMessage::count(),
-            'messages_today' => InboxMessage::whereDate('createdAt', today())->count(),
+            'messages_today' => InboxMessage::whereDate('created_at', today())->count(),
         ];
 
         return view('admin.inbox.index', compact('conversations', 'stats'));

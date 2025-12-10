@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WebhookEvent extends Model
 {
@@ -36,12 +37,16 @@ class WebhookEvent extends Model
         'signature_verified',
         'actions_taken',
         'affected_records',
+        'request_headers',
+        'response_data',
     ];
 
     protected $casts = [
         'payload' => 'array',
         'actions_taken' => 'array',
         'affected_records' => 'array',
+        'request_headers' => 'array',
+        'response_data' => 'array',
         'livemode' => 'boolean',
         'signature_verified' => 'boolean',
         'retry_count' => 'integer',
@@ -54,9 +59,17 @@ class WebhookEvent extends Model
         'updated_at' => 'datetime',
     ];
 
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
+
     public function webhook(): BelongsTo
     {
         return $this->belongsTo(Webhook::class, 'webhook_id');
+    }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(WebhookLog::class, 'webhook_event_id');
     }
 
     public function getStatusColorAttribute(): string
@@ -66,6 +79,32 @@ class WebhookEvent extends Model
             'pending', 'processing' => 'yellow',
             'failed' => 'red',
             'skipped' => 'gray',
+            'already_processed' => 'blue',
+            default => 'gray',
+        };
+    }
+
+    public function getEventTypeIconAttribute(): string
+    {
+        return match (true) {
+            str_contains($this->event_type, 'subscription') => 'heroicon-o-arrow-path',
+            str_contains($this->event_type, 'invoice') => 'heroicon-o-document-text',
+            str_contains($this->event_type, 'payment') => 'heroicon-o-credit-card',
+            str_contains($this->event_type, 'charge') => 'heroicon-o-banknotes',
+            str_contains($this->event_type, 'customer') => 'heroicon-o-user',
+            default => 'heroicon-o-bell',
+        };
+    }
+
+    public function getEventTypeColorAttribute(): string
+    {
+        return match (true) {
+            str_contains($this->event_type, 'created') => 'green',
+            str_contains($this->event_type, 'updated') => 'blue',
+            str_contains($this->event_type, 'deleted') => 'red',
+            str_contains($this->event_type, 'succeeded') => 'green',
+            str_contains($this->event_type, 'failed') => 'red',
+            str_contains($this->event_type, 'refunded') => 'orange',
             default => 'gray',
         };
     }
@@ -83,5 +122,44 @@ class WebhookEvent extends Model
     public function isPending(): bool
     {
         return $this->status === 'pending' || $this->status === 'processing';
+    }
+
+    public function toJsonLog(): array
+    {
+        return [
+            'id' => $this->id,
+            'stripe_event_id' => $this->stripe_event_id,
+            'event_type' => $this->event_type,
+            'api_version' => $this->api_version,
+            'livemode' => $this->livemode,
+            'status' => $this->status,
+            'object' => [
+                'type' => $this->object_type,
+                'id' => $this->object_id,
+            ],
+            'related' => [
+                'customer_id' => $this->customer_id,
+                'subscription_id' => $this->subscription_id,
+                'invoice_id' => $this->invoice_id,
+                'payment_intent_id' => $this->payment_intent_id,
+            ],
+            'processing' => [
+                'received_at' => $this->received_at?->toIso8601String(),
+                'processed_at' => $this->processed_at?->toIso8601String(),
+                'processing_time_ms' => $this->processing_time_ms,
+                'actions_taken' => $this->actions_taken,
+                'affected_records' => $this->affected_records,
+            ],
+            'signature_verified' => $this->signature_verified,
+            'ip_address' => $this->ip_address,
+            'error_message' => $this->error_message,
+            'payload' => $this->payload,
+            'created_at' => $this->created_at?->toIso8601String(),
+        ];
+    }
+
+    public function getFormattedPayloadAttribute(): string
+    {
+        return json_encode($this->payload ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 }

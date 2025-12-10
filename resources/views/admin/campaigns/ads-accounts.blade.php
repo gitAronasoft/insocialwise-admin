@@ -75,7 +75,7 @@
                                 {{ $account->campaigns_count ?? 0 }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $account->createdAt ? $account->createdAt->format('M d, Y') : 'N/A' }}
+                                {{ $account->created_at ? $account->created_at->format('M d, Y') : 'N/A' }}
                             </td>
                         </tr>
                     @empty

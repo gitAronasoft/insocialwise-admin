@@ -83,7 +83,7 @@
                                 {{ $activity->account_platform ?? 'N/A' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $activity->createdAt->format('M d, Y H:i') }}
+                                {{ $activity->created_at->format('M d, Y H:i') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <a href="{{ route('admin.activities.show', $activity) }}" class="text-indigo-600 hover:text-indigo-900">View</a>

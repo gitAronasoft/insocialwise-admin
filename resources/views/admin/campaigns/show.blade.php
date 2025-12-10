@@ -32,7 +32,7 @@
         </div>
         <div class="bg-white rounded-xl shadow-sm p-4">
             <p class="text-sm font-medium text-gray-500">Created</p>
-            <p class="text-sm text-gray-900">{{ $campaign->createdAt ? $campaign->createdAt->format('M d, Y') : 'N/A' }}</p>
+            <p class="text-sm text-gray-900">{{ $campaign->created_at ? $campaign->created_at->format('M d, Y') : 'N/A' }}</p>
         </div>
     </div>
 

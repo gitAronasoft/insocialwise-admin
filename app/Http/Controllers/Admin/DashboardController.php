@@ -340,8 +340,8 @@ class DashboardController extends Controller
                         'user_name' => ($activity->customer->firstName ?? 'Unknown') . ' ' . ($activity->customer->lastName ?? ''),
                         'activity_type' => $activity->activity_type,
                         'action' => $activity->action,
-                        'time' => $activity->createdAt->diffForHumans(),
-                        'timestamp' => $activity->createdAt->toIso8601String(),
+                        'time' => $activity->created_at->diffForHumans(),
+                        'timestamp' => $activity->created_at->toIso8601String(),
                     ];
                 });
 

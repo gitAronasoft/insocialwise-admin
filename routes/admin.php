@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\AlertController;
 use App\Http\Controllers\Admin\SubscriptionPlanController;
 use App\Http\Controllers\Admin\WebhookController;
+use App\Http\Controllers\Admin\WebhookLogsController;
 use App\Http\Controllers\Admin\ComplianceController;
 use App\Http\Controllers\Admin\ApiKeyController;
 use App\Http\Controllers\Admin\PageController;
@@ -125,6 +126,14 @@ Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.'
     Route::post('/webhooks/{webhook}/test', [WebhookController::class, 'test'])->name('webhooks.test');
     Route::post('/webhooks/{webhook}/toggle', [WebhookController::class, 'toggleActive'])->name('webhooks.toggle');
     Route::post('/webhooks/{webhook}/regenerate-secret', [WebhookController::class, 'regenerateSecret'])->name('webhooks.regenerate-secret');
+
+    Route::get('/webhook-logs', [WebhookLogsController::class, 'index'])->name('webhook-logs.index');
+    Route::get('/webhook-logs/stats', [WebhookLogsController::class, 'stats'])->name('webhook-logs.stats');
+    Route::get('/webhook-logs/recent', [WebhookLogsController::class, 'recentEvents'])->name('webhook-logs.recent');
+    Route::get('/webhook-logs/{webhookEvent}', [WebhookLogsController::class, 'show'])->name('webhook-logs.show');
+    Route::get('/webhook-logs/{webhookEvent}/json', [WebhookLogsController::class, 'showJson'])->name('webhook-logs.json');
+    Route::get('/webhook-logs/{webhookEvent}/logs', [WebhookLogsController::class, 'logs'])->name('webhook-logs.logs');
+    Route::post('/webhook-logs/{webhookEvent}/retry', [WebhookLogsController::class, 'retry'])->name('webhook-logs.retry');
 
     Route::get('/compliance', [ComplianceController::class, 'index'])->name('compliance.index');
     Route::get('/compliance/policies', [ComplianceController::class, 'policies'])->name('compliance.policies');

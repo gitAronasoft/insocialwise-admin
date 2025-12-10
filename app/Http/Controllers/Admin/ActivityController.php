@@ -23,11 +23,11 @@ class ActivityController extends Controller
         }
 
         if ($request->filled('date_from')) {
-            $query->whereDate('createdAt', '>=', $request->date_from);
+            $query->whereDate('created_at', '>=', $request->date_from);
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('createdAt', '<=', $request->date_to);
+            $query->whereDate('created_at', '<=', $request->date_to);
         }
 
         if ($request->filled('search')) {
@@ -39,7 +39,7 @@ class ActivityController extends Controller
             });
         }
 
-        $activities = $query->orderBy('createdAt', 'desc')->paginate(30);
+        $activities = $query->orderBy('created_at', 'desc')->paginate(30);
 
         $activityTypes = Activity::select('activity_type')
             ->distinct()
@@ -54,9 +54,9 @@ class ActivityController extends Controller
 
     public function stats()
     {
-        $dailyActivities = Activity::where('createdAt', '>=', Carbon::now()->subDays(30))
+        $dailyActivities = Activity::where('created_at', '>=', Carbon::now()->subDays(30))
             ->select(
-                DB::raw('DATE(createdAt) as date'),
+                DB::raw('DATE(created_at) as date'),
                 DB::raw('count(*) as count')
             )
             ->groupBy('date')

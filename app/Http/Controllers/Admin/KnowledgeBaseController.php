@@ -26,7 +26,7 @@ class KnowledgeBaseController extends Controller
             });
         }
 
-        $articles = $query->orderBy('createdAt', 'desc')->paginate(15);
+        $articles = $query->orderBy('created_at', 'desc')->paginate(15);
 
         $categories = [];
 

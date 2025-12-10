@@ -52,7 +52,7 @@
                                 ">{{ $adset->adsets_status ?? 'Unknown' }}</span>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-900">${{ number_format($adset->adsets_daily_budget ?? 0, 2) }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ $adset->createdAt ? $adset->createdAt->format('M d, Y') : 'N/A' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">{{ $adset->created_at ? $adset->created_at->format('M d, Y') : 'N/A' }}</td>
                         </tr>
                     @empty
                         <tr>

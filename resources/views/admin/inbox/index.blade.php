@@ -60,7 +60,7 @@
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-sm text-gray-500">{{ $conversation->updatedAt->diffForHumans() }}</p>
+                        <p class="text-sm text-gray-500">{{ $conversation->updated_at->diffForHumans() }}</p>
                         <a href="{{ route('admin.inbox.show', $conversation) }}" class="text-indigo-600 hover:text-indigo-900 text-sm">View</a>
                     </div>
                 </div>

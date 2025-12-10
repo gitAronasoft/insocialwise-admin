@@ -107,7 +107,7 @@
                     <option value="payment_retry_count" {{ request('sort') === 'payment_retry_count' ? 'selected' : '' }}>Sort by Retry Count</option>
                     <option value="next_payment_retry_at" {{ request('sort') === 'next_payment_retry_at' ? 'selected' : '' }}>Sort by Next Retry</option>
                     <option value="past_due_since" {{ request('sort') === 'past_due_since' ? 'selected' : '' }}>Sort by Past Due Since</option>
-                    <option value="createdAt" {{ request('sort') === 'createdAt' ? 'selected' : '' }}>Sort by Created Date</option>
+                    <option value="created_at" {{ request('sort') === 'created_at' ? 'selected' : '' }}>Sort by Created Date</option>
                 </select>
             </div>
             <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Filter</button>

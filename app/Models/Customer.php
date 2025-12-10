@@ -40,12 +40,12 @@ class Customer extends Model
 
     protected $casts = [
         'status' => 'boolean',
-        'createdAt' => 'datetime',
-        'updatedAt' => 'datetime',
+        'createdat' => 'datetime',
+        'updatedat' => 'datetime',
     ];
 
-    const CREATED_AT = 'createdAt';
-    const UPDATED_AT = 'updatedAt';
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     public function socialUsers(): HasMany
     {

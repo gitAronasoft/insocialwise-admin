@@ -83,7 +83,7 @@
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500 dark:text-gray-400">Connected</span>
-                    <span class="text-gray-900 dark:text-gray-100">{{ $socialAccount->createdAt ? $socialAccount->createdAt->format('M d, Y') : 'N/A' }}</span>
+                    <span class="text-gray-900 dark:text-gray-100">{{ $socialAccount->created_at ? $socialAccount->created_at->format('M d, Y') : 'N/A' }}</span>
                 </div>
             </div>
         </div>

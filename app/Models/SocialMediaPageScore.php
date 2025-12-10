@@ -28,12 +28,12 @@ class SocialMediaPageScore extends Model
         'growth_score' => 'decimal:2',
         'consistency_score' => 'decimal:2',
         'calculated_at' => 'datetime',
-        'createdAt' => 'datetime',
-        'updatedAt' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    const CREATED_AT = 'createdAt';
-    const UPDATED_AT = 'updatedAt';
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     public function customer(): BelongsTo
     {
