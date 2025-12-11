@@ -74,7 +74,19 @@ class WebhookLogsController extends Controller
     {
         $webhookEvent->load('logs');
         
-        return view('admin.webhook-logs.show', compact('webhookEvent'));
+        // Load related customer and subscription if IDs exist
+        $customer = null;
+        $subscription = null;
+        
+        if ($webhookEvent->customer_id) {
+            $customer = \App\Models\Customer::where('stripe_customer_id', $webhookEvent->customer_id)->first();
+        }
+        
+        if ($webhookEvent->subscription_id) {
+            $subscription = \App\Models\Subscription::where('stripe_subscription_id', $webhookEvent->subscription_id)->first();
+        }
+        
+        return view('admin.webhook-logs.show', compact('webhookEvent', 'customer', 'subscription'));
     }
 
     public function showJson(WebhookEvent $webhookEvent): JsonResponse

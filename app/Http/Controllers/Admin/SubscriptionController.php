@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Subscription;
 use App\Models\Transaction;
+use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -81,16 +82,64 @@ class SubscriptionController extends Controller
 
     public function show(Subscription $subscription)
     {
-        $subscription->load(['customer', 'plan', 'defaultPaymentMethod']);
+        $subscription->load(['customer', 'plan', 'defaultPaymentMethod', 'paymentMethods']);
 
         $transactions = Transaction::where('subscription_id', $subscription->id)
             ->orWhere('user_uuid', $subscription->user_uuid)
             ->orderBy('id', 'desc')
             ->get();
 
-        $paymentMethod = $subscription->defaultPaymentMethod 
-            ?? $subscription->paymentMethods()->whereRaw('is_default = true')->first()
-            ?? $subscription->paymentMethods()->where('status', 'active')->first();
+        // Get payment method with intelligent fallback strategy
+        $paymentMethod = null;
+        
+        // First: check if subscription has a specific default payment method ID
+        if ($subscription->defaultPaymentMethod) {
+            $paymentMethod = $subscription->defaultPaymentMethod;
+        }
+        
+        // Second: find from user's payment methods (from relationship)
+        if (!$paymentMethod && $subscription->paymentMethods) {
+            // Prefer default payment method
+            $paymentMethod = $subscription->paymentMethods
+                ->where('is_default', true)
+                ->first();
+            
+            // If no default, prefer active status
+            if (!$paymentMethod) {
+                $paymentMethod = $subscription->paymentMethods
+                    ->where('status', 'active')
+                    ->sortByDesc('created_at')
+                    ->first();
+            }
+            
+            // If still nothing, just take the most recent
+            if (!$paymentMethod) {
+                $paymentMethod = $subscription->paymentMethods
+                    ->sortByDesc('created_at')
+                    ->first();
+            }
+        }
+        
+        // Third: database fallback queries if relationship didn't find anything
+        if (!$paymentMethod && $subscription->user_uuid) {
+            $paymentMethod = PaymentMethod::where('user_uuid', $subscription->user_uuid)
+                ->whereRaw('is_default IS TRUE')
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
+        
+        if (!$paymentMethod && $subscription->user_uuid) {
+            $paymentMethod = PaymentMethod::where('user_uuid', $subscription->user_uuid)
+                ->where('status', 'active')
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
+        
+        if (!$paymentMethod && $subscription->user_uuid) {
+            $paymentMethod = PaymentMethod::where('user_uuid', $subscription->user_uuid)
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
 
         $subscriptionEvents = DB::table('subscription_events')
             ->where('subscription_id', $subscription->id)

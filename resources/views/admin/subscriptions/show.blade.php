@@ -169,7 +169,7 @@
                     <p class="text-base text-gray-900 dark:text-white">
                         @if($subscription->customer)
                             <a href="{{ route('admin.customers.show', $subscription->customer) }}" class="text-indigo-600 hover:text-indigo-800">
-                                {{ $subscription->customer->firstName }} {{ $subscription->customer->lastName }}
+                                {{ $subscription->customer->firstname }} {{ $subscription->customer->lastname }}
                             </a>
                             <br><span class="text-sm text-gray-500">{{ $subscription->customer->email }}</span>
                         @else
@@ -301,7 +301,7 @@
                     <div class="flex justify-between items-end">
                         <div>
                             <p class="text-xs text-gray-400 uppercase">Card Holder</p>
-                            <p class="font-medium">{{ $paymentMethod->card_holder ?? $subscription->customer->firstName ?? 'N/A' }}</p>
+                            <p class="font-medium">{{ $paymentMethod->billing_name ?? $subscription->customer->firstname ?? 'N/A' }}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-xs text-gray-400 uppercase">Expires</p>
@@ -642,5 +642,37 @@
             </div>
         </div>
     @endif
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            @if($subscription->customer)
+            <a href="{{ route('admin.customers.show', $subscription->customer) }}" class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">View Customer</span>
+            </a>
+            @endif
+            <a href="{{ route('admin.billing.payments') }}?search={{ $subscription->stripe_subscription_id }}" class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">View Payments</span>
+            </a>
+            <a href="{{ route('admin.webhook-logs.index') }}?search={{ $subscription->stripe_subscription_id }}" class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">Webhook Events</span>
+            </a>
+            <a href="{{ route('admin.billing.activity-logs') }}?search={{ $subscription->stripe_subscription_id }}" class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">Activity Logs</span>
+            </a>
+        </div>
+    </div>
 </div>
 @endsection

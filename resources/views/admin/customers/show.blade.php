@@ -28,9 +28,9 @@
         <div class="card">
             <div class="card-body text-center">
                 <div class="w-24 h-24 bg-gradient-to-br from-primary-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary-500/30">
-                    <span class="text-4xl text-white font-bold">{{ strtoupper(substr($customer->firstName, 0, 1)) }}</span>
+                    <span class="text-4xl text-white font-bold">{{ strtoupper(substr($customer->firstname, 0, 1)) }}</span>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ $customer->firstName }} {{ $customer->lastName }}</h3>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ $customer->firstname }} {{ $customer->lastname }}</h3>
                 <p class="text-gray-500 dark:text-gray-400">{{ $customer->email }}</p>
                 <div class="mt-3">
                     @if($customer->status)
@@ -60,15 +60,15 @@
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500 dark:text-gray-400">Job Title</span>
-                    <span class="text-gray-900 dark:text-white">{{ $customer->jobTitle ?? 'N/A' }}</span>
+                    <span class="text-gray-900 dark:text-white">{{ $customer->jobtitle ?? 'N/A' }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500 dark:text-gray-400">Location</span>
-                    <span class="text-gray-900 dark:text-white">{{ $customer->userLocation ?? 'N/A' }}</span>
+                    <span class="text-gray-900 dark:text-white">{{ $customer->userlocation ?? 'N/A' }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500 dark:text-gray-400">Timezone</span>
-                    <span class="text-gray-900 dark:text-white">{{ $customer->timeZone ?? 'N/A' }}</span>
+                    <span class="text-gray-900 dark:text-white">{{ $customer->timezone ?? 'N/A' }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500 dark:text-gray-400">Joined</span>

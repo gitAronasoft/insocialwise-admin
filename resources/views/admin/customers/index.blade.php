@@ -57,10 +57,10 @@
             <td class="px-4 py-4">
                 <div class="flex items-center">
                     <div class="w-10 h-10 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-indigo-600 dark:text-indigo-400 font-medium text-sm" x-text="item.firstName ? item.firstName.charAt(0).toUpperCase() : '?'"></span>
+                        <span class="text-indigo-600 dark:text-indigo-400 font-medium text-sm" x-text="item.firstname ? item.firstname.charAt(0).toUpperCase() : '?'"></span>
                     </div>
                     <div class="ml-3 min-w-0">
-                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate" x-text="(item.firstName || '') + ' ' + (item.lastName || '')"></div>
+                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate" x-text="(item.firstname || '') + ' ' + (item.lastname || '')"></div>
                         <div class="text-xs text-gray-500 dark:text-gray-400 font-mono truncate" x-text="item.uuid"></div>
                     </div>
                 </div>

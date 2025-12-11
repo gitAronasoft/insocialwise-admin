@@ -59,13 +59,31 @@
                     @if($webhookEvent->customer_id)
                     <div>
                         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Customer</dt>
-                        <dd class="mt-1 text-sm text-gray-900 dark:text-white font-mono">{{ $webhookEvent->customer_id }}</dd>
+                        <dd class="mt-1">
+                            @if(isset($customer) && $customer)
+                                <a href="{{ route('admin.customers.show', $customer) }}" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">
+                                    {{ $customer->firstname }} {{ $customer->lastname }}
+                                </a>
+                                <p class="text-xs text-gray-500 font-mono mt-1">{{ $webhookEvent->customer_id }}</p>
+                            @else
+                                <span class="text-sm text-gray-900 dark:text-white font-mono">{{ $webhookEvent->customer_id }}</span>
+                            @endif
+                        </dd>
                     </div>
                     @endif
                     @if($webhookEvent->subscription_id)
                     <div>
                         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Subscription</dt>
-                        <dd class="mt-1 text-sm text-gray-900 dark:text-white font-mono">{{ $webhookEvent->subscription_id }}</dd>
+                        <dd class="mt-1">
+                            @if(isset($subscription) && $subscription)
+                                <a href="{{ route('admin.subscriptions.show', $subscription) }}" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">
+                                    View Subscription
+                                </a>
+                                <p class="text-xs text-gray-500 font-mono mt-1">{{ $webhookEvent->subscription_id }}</p>
+                            @else
+                                <span class="text-sm text-gray-900 dark:text-white font-mono">{{ $webhookEvent->subscription_id }}</span>
+                            @endif
+                        </dd>
                     </div>
                     @endif
                 </dl>

@@ -81,8 +81,11 @@ class BillingController extends Controller
         }
 
         if ($request->filled('is_default')) {
-            $isDefault = $request->is_default === 'true' ? 'true' : 'false';
-            $query->whereRaw("is_default = {$isDefault}");
+            if ($request->is_default === 'true') {
+                $query->whereRaw('is_default IS TRUE');
+            } else {
+                $query->whereRaw('is_default IS FALSE OR is_default IS NULL');
+            }
         }
 
         if ($request->filled('search')) {
@@ -395,12 +398,8 @@ class BillingController extends Controller
     {
         $transaction = Transaction::query()
             ->leftJoin('users', 'transactions.user_uuid', '=', 'users.uuid')
-            ->leftJoin('payment_methods', function ($join) {
-                $join->on('transactions.user_uuid', '=', 'payment_methods.user_uuid')
-                     ->on('transactions.stripe_customer_id', '=', 'payment_methods.stripe_customer_id');
-            })
             ->leftJoin('subscriptions', 'transactions.subscription_id', '=', 'subscriptions.id')
-            ->leftJoin('subscription_plans', 'subscriptions.plan_id', '=', 'subscription_plans.id')
+            ->leftJoin('subscription_plans', 'subscriptions.price_id', '=', 'subscription_plans.stripe_price_id')
             ->where('transactions.id', $id)
             ->select(
                 'transactions.*',
@@ -410,12 +409,6 @@ class BillingController extends Controller
                 'users.billing_phone as customer_phone',
                 'users.billing_country as customer_country',
                 'users.userlocation as customer_location',
-                'payment_methods.brand as pm_brand',
-                'payment_methods.last4 as pm_last4',
-                'payment_methods.exp_month as pm_exp_month',
-                'payment_methods.exp_year as pm_exp_year',
-                'payment_methods.funding as pm_funding',
-                'payment_methods.country as pm_country',
                 'subscriptions.stripe_subscription_id',
                 'subscriptions.billing_interval',
                 'subscription_plans.name as plan_name',
@@ -424,18 +417,50 @@ class BillingController extends Controller
             )
             ->firstOrFail();
 
-        if (!$transaction->pm_brand && $transaction->user_uuid) {
+        // Get payment method - try multiple strategies
+        $paymentMethod = null;
+        
+        // First: Check if transaction has card info directly stored
+        if ($transaction->card_brand && $transaction->card_last4) {
+            $transaction->pm_brand = $transaction->card_brand;
+            $transaction->pm_last4 = $transaction->card_last4;
+        }
+        
+        // Second: Try to find payment method by stripe_payment_method_id
+        if (!$transaction->pm_brand && $transaction->stripe_payment_method_id) {
+            $paymentMethod = PaymentMethod::where('stripe_payment_method_id', $transaction->stripe_payment_method_id)->first();
+        }
+        
+        // Third: Find default payment method for user
+        if (!$paymentMethod && !$transaction->pm_brand && $transaction->user_uuid) {
+            $paymentMethod = PaymentMethod::where('user_uuid', $transaction->user_uuid)
+                ->whereRaw('is_default IS TRUE')
+                ->first();
+        }
+        
+        // Fourth: Find any active payment method for user
+        if (!$paymentMethod && !$transaction->pm_brand && $transaction->user_uuid) {
             $paymentMethod = PaymentMethod::where('user_uuid', $transaction->user_uuid)
                 ->where('status', 'active')
+                ->orderBy('created_at', 'desc')
                 ->first();
-            if ($paymentMethod) {
-                $transaction->pm_brand = $paymentMethod->brand;
-                $transaction->pm_last4 = $paymentMethod->last4;
-                $transaction->pm_exp_month = $paymentMethod->exp_month;
-                $transaction->pm_exp_year = $paymentMethod->exp_year;
-                $transaction->pm_funding = $paymentMethod->funding;
-                $transaction->pm_country = $paymentMethod->country;
-            }
+        }
+        
+        // Fifth: Get any payment method for user
+        if (!$paymentMethod && !$transaction->pm_brand && $transaction->user_uuid) {
+            $paymentMethod = PaymentMethod::where('user_uuid', $transaction->user_uuid)
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
+        
+        // Apply payment method data if found
+        if ($paymentMethod) {
+            $transaction->pm_brand = $paymentMethod->brand;
+            $transaction->pm_last4 = $paymentMethod->last4;
+            $transaction->pm_exp_month = $paymentMethod->exp_month;
+            $transaction->pm_exp_year = $paymentMethod->exp_year;
+            $transaction->pm_funding = $paymentMethod->funding;
+            $transaction->pm_country = $paymentMethod->country;
         }
 
         $relatedTransactions = Transaction::where('user_uuid', $transaction->user_uuid)
