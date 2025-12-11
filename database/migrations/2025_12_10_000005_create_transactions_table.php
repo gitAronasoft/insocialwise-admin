@@ -35,8 +35,8 @@ return new class extends Migration
                 $table->string('coupon_code', 100)->nullable();
                 $table->json('tax_rates')->nullable();
                 $table->string('currency', 10);
-                $table->smallInteger('status')->default(0);
-                $table->smallInteger('payment_status')->default(0);
+                $table->string('status', 50)->default('pending');
+                $table->string('payment_status', 50)->default('unpaid');
                 $table->string('failure_code', 100)->nullable();
                 $table->text('failure_message')->nullable();
                 $table->string('failure_reason')->nullable();

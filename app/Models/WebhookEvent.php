@@ -62,14 +62,18 @@ class WebhookEvent extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
-    public function setLivemodeAttribute($value): void
+    protected function livemode(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        $this->attributes['livemode'] = $value ? 1 : 0;
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+            set: fn ($value) => $value ? true : false,
+        );
     }
 
-    public function setSignatureVerifiedAttribute($value): void
+    protected function signatureVerified(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        $this->attributes['signature_verified'] = $value ? 1 : 0;
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+            set: fn ($value) => $value ? true : false,
+        );
     }
 
     public function webhook(): BelongsTo

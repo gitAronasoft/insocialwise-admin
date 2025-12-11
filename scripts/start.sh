@@ -6,7 +6,7 @@ npm run build
 
 # Check if this is the first run (fresh environment)
 if [ ! -f ".first_run" ]; then
-    echo "Fresh start detected - running migrations and seeding database..."
+    echo "Fresh start detected - running migrations and seeding..."
     php artisan migrate:fresh --seed
     touch .first_run
     echo "Database initialized with migrations and seeds!"

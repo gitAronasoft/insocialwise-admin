@@ -28,7 +28,7 @@ return new class extends Migration
                 $table->string('fingerprint')->nullable();
                 $table->string('wallet')->nullable();
                 $table->boolean('is_default')->default(false);
-                $table->smallInteger('status')->default(1);
+                $table->string('status', 50)->default('active');
                 $table->string('billing_email')->nullable();
                 $table->string('billing_name')->nullable();
                 $table->string('billing_phone')->nullable();

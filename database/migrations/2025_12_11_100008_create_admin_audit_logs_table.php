@@ -26,7 +26,7 @@ return new class extends Migration
                 $table->string('request_method', 10)->nullable();
                 $table->text('request_url')->nullable();
                 $table->string('session_id', 255)->nullable();
-                $table->smallInteger('severity')->default(0);
+                $table->string('severity', 50)->default('info');
                 $table->timestamps();
                 
                 $table->index('admin_id');

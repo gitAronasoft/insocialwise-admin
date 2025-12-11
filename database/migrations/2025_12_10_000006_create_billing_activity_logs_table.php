@@ -15,7 +15,7 @@ return new class extends Migration
                 $table->unsignedBigInteger('subscription_id')->nullable();
                 $table->unsignedBigInteger('transaction_id')->nullable();
                 $table->string('action_type');
-                $table->smallInteger('action_status')->default(1);
+                $table->string('action_status', 50)->default('success');
                 $table->text('description')->nullable();
                 $table->string('actor_type')->nullable();
                 $table->string('actor_id')->nullable();

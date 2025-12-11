@@ -23,7 +23,7 @@ return new class extends Migration
                 $table->json('payload')->nullable();
                 $table->integer('response_code')->nullable();
                 $table->text('response_body')->nullable();
-                $table->smallInteger('status')->default(1);
+                $table->string('status', 50)->default('success');
                 $table->text('error_message')->nullable();
                 $table->integer('retry_count')->default(0);
                 $table->string('ip_address', 45)->nullable();

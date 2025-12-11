@@ -16,7 +16,7 @@ return new class extends Migration
                 $table->string('stripe_subscription_id')->unique();
                 $table->string('price_id');
                 $table->unsignedBigInteger('plan_id')->nullable();
-                $table->smallInteger('status')->default(0);
+                $table->string('status', 50)->default('active');
                 $table->string('stripe_price_id')->nullable();
                 $table->timestamp('trial_start')->nullable();
                 $table->timestamp('trial_end')->nullable();

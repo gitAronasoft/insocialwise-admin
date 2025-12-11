@@ -16,8 +16,8 @@ return new class extends Migration
                 $table->string('type');
                 $table->string('notification_type')->nullable();
                 $table->string('channel')->default('email');
-                $table->smallInteger('priority')->default(0);
-                $table->smallInteger('status')->default(0);
+                $table->string('priority', 20)->default('normal');
+                $table->string('status', 50)->default('pending');
                 $table->string('title')->nullable();
                 $table->text('message')->nullable();
                 $table->string('recipient_email')->nullable();

@@ -19,11 +19,11 @@ return new class extends Migration
                 $table->string('browser', 100)->nullable();
                 $table->string('os', 100)->nullable();
                 $table->string('location', 255)->nullable();
-                $table->smallInteger('is_current')->default(0);
+                $table->boolean('is_current')->default(false);
                 $table->timestamp('last_activity_at')->nullable();
                 $table->timestamp('logged_in_at')->nullable();
                 $table->timestamp('logged_out_at')->nullable();
-                $table->smallInteger('status')->default(1);
+                $table->string('status', 50)->default('active');
                 $table->timestamps();
                 
                 $table->index('admin_id');
