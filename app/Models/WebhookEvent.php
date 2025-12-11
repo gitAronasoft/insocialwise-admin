@@ -47,8 +47,6 @@ class WebhookEvent extends Model
         'affected_records' => 'array',
         'request_headers' => 'array',
         'response_data' => 'array',
-        'livemode' => 'boolean',
-        'signature_verified' => 'boolean',
         'retry_count' => 'integer',
         'response_code' => 'integer',
         'processing_time_ms' => 'integer',
@@ -62,18 +60,24 @@ class WebhookEvent extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
-    protected function livemode(): \Illuminate\Database\Eloquent\Casts\Attribute
+    public function setLivemodeAttribute($value)
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
-            set: fn ($value) => $value ? true : false,
-        );
+        $this->attributes['livemode'] = $value === true || $value === 1 || $value === '1' ? 'true' : 'false';
     }
 
-    protected function signatureVerified(): \Illuminate\Database\Eloquent\Casts\Attribute
+    public function getLivemodeAttribute($value)
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
-            set: fn ($value) => $value ? true : false,
-        );
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public function setSignatureVerifiedAttribute($value)
+    {
+        $this->attributes['signature_verified'] = $value === true || $value === 1 || $value === '1' ? 'true' : 'false';
+    }
+
+    public function getSignatureVerifiedAttribute($value)
+    {
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 
     public function webhook(): BelongsTo

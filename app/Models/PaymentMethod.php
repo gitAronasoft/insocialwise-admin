@@ -49,6 +49,11 @@ class PaymentMethod extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
+    public function setIsDefaultAttribute($value)
+    {
+        $this->attributes['is_default'] = $value ? 'true' : 'false';
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class, 'user_uuid', 'uuid');

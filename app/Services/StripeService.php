@@ -55,11 +55,16 @@ class StripeService
         }
 
         try {
-            return $this->client->products->create([
+            $params = [
                 'name' => $name,
-                'description' => $description,
                 'metadata' => $metadata,
-            ]);
+            ];
+            
+            if (!empty($description)) {
+                $params['description'] = $description;
+            }
+            
+            return $this->client->products->create($params);
         } catch (\Exception $e) {
             Log::error('Stripe create product failed: ' . $e->getMessage());
             throw $e;
@@ -270,14 +275,17 @@ class StripeService
             ];
 
             if ($plan->stripe_product_id) {
-                $product = $this->updateProduct($plan->stripe_product_id, [
+                $updateParams = [
                     'name' => $plan->name,
-                    'description' => $plan->description,
                     'active' => $plan->active,
                     'metadata' => $metadata,
-                ]);
+                ];
+                if (!empty($plan->description)) {
+                    $updateParams['description'] = $plan->description;
+                }
+                $product = $this->updateProduct($plan->stripe_product_id, $updateParams);
             } else {
-                $product = $this->createProduct($plan->name, $plan->description, $metadata);
+                $product = $this->createProduct($plan->name, !empty($plan->description) ? $plan->description : null, $metadata);
                 $plan->stripe_product_id = $product->id;
             }
 
@@ -286,16 +294,20 @@ class StripeService
 
             if ($plan->stripe_price_id) {
                 $existingPrice = $this->getPrice($plan->stripe_price_id);
-                if ($existingPrice && 
-                    $existingPrice->unit_amount === $monthlyPriceAmountCents &&
-                    strtolower($existingPrice->currency) === strtolower($plan->currency)) {
-                    $needsNewMonthlyPrice = false;
-                    $this->updatePrice($plan->stripe_price_id, [
-                        'active' => $plan->active,
-                        'metadata' => array_merge($metadata, ['billing_cycle' => 'monthly']),
-                    ]);
+                if ($existingPrice) {
+                    if ($existingPrice->unit_amount === $monthlyPriceAmountCents &&
+                        strtolower($existingPrice->currency) === strtolower($plan->currency)) {
+                        $needsNewMonthlyPrice = false;
+                        $this->updatePrice($plan->stripe_price_id, [
+                            'active' => $plan->active,
+                            'metadata' => array_merge($metadata, ['billing_cycle' => 'monthly']),
+                        ]);
+                    } else {
+                        $this->archivePrice($plan->stripe_price_id);
+                    }
                 } else {
-                    $this->archivePrice($plan->stripe_price_id);
+                    // Price doesn't exist in Stripe, clear the stored ID
+                    $plan->stripe_price_id = null;
                 }
             }
 
@@ -316,16 +328,20 @@ class StripeService
 
                 if ($plan->stripe_yearly_price_id) {
                     $existingYearlyPrice = $this->getPrice($plan->stripe_yearly_price_id);
-                    if ($existingYearlyPrice && 
-                        $existingYearlyPrice->unit_amount === $yearlyPriceAmountCents &&
-                        strtolower($existingYearlyPrice->currency) === strtolower($plan->currency)) {
-                        $needsNewYearlyPrice = false;
-                        $this->updatePrice($plan->stripe_yearly_price_id, [
-                            'active' => $plan->active,
-                            'metadata' => array_merge($metadata, ['billing_cycle' => 'yearly']),
-                        ]);
+                    if ($existingYearlyPrice) {
+                        if ($existingYearlyPrice->unit_amount === $yearlyPriceAmountCents &&
+                            strtolower($existingYearlyPrice->currency) === strtolower($plan->currency)) {
+                            $needsNewYearlyPrice = false;
+                            $this->updatePrice($plan->stripe_yearly_price_id, [
+                                'active' => $plan->active,
+                                'metadata' => array_merge($metadata, ['billing_cycle' => 'yearly']),
+                            ]);
+                        } else {
+                            $this->archivePrice($plan->stripe_yearly_price_id);
+                        }
                     } else {
-                        $this->archivePrice($plan->stripe_yearly_price_id);
+                        // Price doesn't exist in Stripe, clear the stored ID
+                        $plan->stripe_yearly_price_id = null;
                     }
                 }
 

@@ -26,11 +26,20 @@ class AdminSession extends Model
     protected function casts(): array
     {
         return [
-            'is_current' => 'boolean',
             'last_activity_at' => 'datetime',
             'logged_in_at' => 'datetime',
             'logged_out_at' => 'datetime',
         ];
+    }
+
+    public function setIsCurrentAttribute($value)
+    {
+        $this->attributes['is_current'] = $value === true || $value === 1 || $value === '1' ? 'true' : 'false';
+    }
+
+    public function getIsCurrentAttribute($value)
+    {
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 
     public function admin(): BelongsTo

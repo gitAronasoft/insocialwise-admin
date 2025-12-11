@@ -174,9 +174,9 @@ class SubscriptionController extends Controller
 
     public function revenue()
     {
-        $totalRevenueRaw = Transaction::where('status', 'succeeded')->sum('amount');
+        $totalRevenueRaw = Transaction::whereIn('status', ['paid', 'succeeded'])->sum('amount');
         $totalRevenue = $totalRevenueRaw / 100;
-        $transactionCount = Transaction::where('status', 'succeeded')->count();
+        $transactionCount = Transaction::whereIn('status', ['paid', 'succeeded'])->count();
         
         $mrrRaw = Subscription::where('status', 'active')
             ->whereNotNull('amount')
@@ -185,12 +185,12 @@ class SubscriptionController extends Controller
         $mrr = $mrrRaw / 100;
         
         $recentTransactions = Transaction::with('customer')
-            ->where('status', 'succeeded')
+            ->whereIn('status', ['paid', 'succeeded'])
             ->orderBy('id', 'desc')
             ->limit(10)
             ->get();
 
-        $dailyRevenue = Transaction::where('status', 'succeeded')
+        $dailyRevenue = Transaction::whereIn('status', ['paid', 'succeeded'])
             ->whereNotNull('paid_at')
             ->where('paid_at', '>=', Carbon::now()->subDays(30))
             ->select(
@@ -202,7 +202,7 @@ class SubscriptionController extends Controller
             ->orderBy('date', 'asc')
             ->get();
 
-        $weeklyRevenue = Transaction::where('status', 'succeeded')
+        $weeklyRevenue = Transaction::whereIn('status', ['paid', 'succeeded'])
             ->whereNotNull('paid_at')
             ->where('paid_at', '>=', Carbon::now()->subWeeks(12))
             ->select(
@@ -224,7 +224,7 @@ class SubscriptionController extends Controller
                 ];
             });
 
-        $monthlyRevenue = Transaction::where('status', 'succeeded')
+        $monthlyRevenue = Transaction::whereIn('status', ['paid', 'succeeded'])
             ->whereNotNull('paid_at')
             ->where('paid_at', '>=', Carbon::now()->subMonths(12))
             ->select(

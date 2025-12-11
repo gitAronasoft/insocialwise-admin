@@ -37,7 +37,7 @@ class StripeWebhookService
             'stripe_event_id' => $event->id,
             'event_type' => $event->type,
             'api_version' => $event->api_version,
-            'livemode' => (bool) $event->livemode,
+            'livemode' => $event->livemode,
             'object_type' => $event->data->object->object ?? null,
             'object_id' => $event->data->object->id ?? null,
             'customer_id' => $event->data->object->customer ?? null,
