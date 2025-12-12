@@ -14,29 +14,11 @@ class SocialAccountController extends Controller
         $query = SocialUser::with(['customer', 'pages']);
 
         if ($request->has('platform') && $request->platform !== 'all') {
-            $query->where('platform', $request->platform);
+            $query->where('social_user_platform', $request->platform);
         }
 
         if ($request->has('status') && $request->status !== 'all') {
-            switch ($request->status) {
-                case 'active':
-                    $query->where('status', 'active')
-                        ->where(function ($q) {
-                            $q->whereNull('token_expires_at')
-                                ->orWhere('token_expires_at', '>', now());
-                        });
-                    break;
-                case 'expiring':
-                    $query->where('token_expires_at', '>', now())
-                        ->where('token_expires_at', '<', now()->addDays(7));
-                    break;
-                case 'expired':
-                    $query->where('token_expires_at', '<', now());
-                    break;
-                case 'disconnected':
-                    $query->where('status', 'disconnected');
-                    break;
-            }
+            $query->where('status', $request->status === 'active' ? 'Connected' : 'notConnected');
         }
 
         if ($request->has('search')) {
@@ -51,14 +33,8 @@ class SocialAccountController extends Controller
 
         $stats = [
             'total' => SocialUser::count(),
-            'active' => SocialUser::where('status', 'active')
-                ->where(function ($q) {
-                    $q->whereNull('token_expires_at')
-                        ->orWhere('token_expires_at', '>', now());
-                })->count(),
-            'expiring_soon' => SocialUser::where('token_expires_at', '>', now())
-                ->where('token_expires_at', '<', now()->addDays(7))->count(),
-            'expired' => SocialUser::where('token_expires_at', '<', now())->count(),
+            'connected' => SocialUser::where('status', 'Connected')->count(),
+            'disconnected' => SocialUser::where('status', 'notConnected')->count(),
         ];
 
         return view('admin.social-accounts.index', compact('accounts', 'stats'));
@@ -72,33 +48,20 @@ class SocialAccountController extends Controller
 
     public function getHealthStatus(SocialUser $socialAccount)
     {
-        $status = 'active';
-        $message = 'Token is valid';
-        $color = 'green';
-
-        if ($socialAccount->status === 'disconnected') {
+        if ($socialAccount->status === 'notConnected') {
             $status = 'disconnected';
             $message = 'Account is disconnected';
             $color = 'gray';
-        } elseif ($socialAccount->access_token_expiry) {
-            $expiry = Carbon::parse($socialAccount->access_token_expiry);
-            
-            if ($expiry->isPast()) {
-                $status = 'expired';
-                $message = 'Token expired ' . $expiry->diffForHumans();
-                $color = 'red';
-            } elseif ($expiry->diffInDays(now()) < 7) {
-                $status = 'expiring';
-                $message = 'Token expires ' . $expiry->diffForHumans();
-                $color = 'yellow';
-            }
+        } else {
+            $status = 'connected';
+            $message = 'Account is active';
+            $color = 'green';
         }
 
         return response()->json([
             'status' => $status,
             'message' => $message,
             'color' => $color,
-            'expiry' => $socialAccount->access_token_expiry,
         ]);
     }
 }

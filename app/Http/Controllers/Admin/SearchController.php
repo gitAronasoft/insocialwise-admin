@@ -185,4 +185,65 @@ class SearchController extends Controller
 
         return response()->json(array_slice($flattened, 0, 15));
     }
+
+    public function globalSearch(Request $request): JsonResponse
+    {
+        $query = $request->get('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json(['results' => []]);
+        }
+
+        $results = [];
+
+        $customers = Customer::where('role', 'User')
+            ->where(function ($q) use ($query) {
+                $q->whereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$query}%"])
+                    ->orWhere('email', 'ilike', "%{$query}%")
+                    ->orWhere('uuid', 'ilike', "%{$query}%");
+            })
+            ->limit(5)
+            ->get()
+            ->map(function ($customer) {
+                return [
+                    'id' => $customer->uuid,
+                    'name' => trim(($customer->firstname ?? '') . ' ' . ($customer->lastname ?? '')),
+                    'subtitle' => $customer->email,
+                    'type' => 'customer',
+                    'url' => route('admin.customers.show', $customer->uuid),
+                ];
+            });
+
+        $pages = SocialUserPage::where('page_name', 'ilike', "%{$query}%")
+            ->orWhere('page_id', 'ilike', "%{$query}%")
+            ->limit(5)
+            ->get()
+            ->map(function ($page) {
+                return [
+                    'id' => $page->id,
+                    'name' => $page->page_name ?? 'Unknown Page',
+                    'subtitle' => 'Page ID: ' . ($page->page_id ?? 'N/A'),
+                    'type' => 'page',
+                    'url' => route('admin.pages.show', $page->id),
+                ];
+            });
+
+        $accounts = SocialUser::where('name', 'ilike', "%{$query}%")
+            ->orWhere('email', 'ilike', "%{$query}%")
+            ->limit(5)
+            ->get()
+            ->map(function ($account) {
+                return [
+                    'id' => $account->id,
+                    'name' => $account->name ?? $account->email ?? 'Unknown',
+                    'subtitle' => ucfirst($account->platform ?? 'unknown') . ' Account',
+                    'type' => 'account',
+                    'url' => route('admin.social-accounts.show', $account->id),
+                ];
+            });
+
+        $results = $customers->merge($pages)->merge($accounts)->take(15)->values()->toArray();
+
+        return response()->json(['results' => $results]);
+    }
 }

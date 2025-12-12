@@ -195,6 +195,61 @@ Alpine.data('notifications', () => ({
     }
 }));
 
+Alpine.data('globalSearch', () => ({
+    query: '',
+    results: [],
+    loading: false,
+    showResults: false,
+    searchTimeout: null,
+    
+    get groupedResults() {
+        const groups = {};
+        this.results.forEach(result => {
+            const groupName = result.type === 'customer' ? 'Customers' : 
+                              result.type === 'page' ? 'Connected Pages' : 'Social Accounts';
+            if (!groups[groupName]) groups[groupName] = [];
+            groups[groupName].push(result);
+        });
+        return groups;
+    },
+    
+    async search() {
+        if (this.query.length < 2) {
+            this.results = [];
+            this.showResults = false;
+            return;
+        }
+        
+        this.loading = true;
+        this.showResults = true;
+        
+        try {
+            const response = await fetch(`/admin/global-search?q=${encodeURIComponent(this.query)}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (!response.ok) throw new Error('Search failed');
+            
+            const data = await response.json();
+            this.results = data.results || [];
+        } catch (error) {
+            console.error('Search error:', error);
+            this.results = [];
+        } finally {
+            this.loading = false;
+        }
+    },
+    
+    clearSearch() {
+        this.query = '';
+        this.results = [];
+        this.showResults = false;
+    }
+}));
+
 Alpine.data('confirmDialog', () => ({
     show: false,
     title: '',

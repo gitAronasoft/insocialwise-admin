@@ -25,19 +25,25 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
+        $admin = AdminUser::where('email', $credentials['email'])->first();
+
+        if ($admin && password_verify($credentials['password'], $admin->password)) {
+            if ($admin->hasTwoFactorEnabled()) {
+                $request->session()->put('login.id', $admin->id);
+                $request->session()->put('login.remember', $request->boolean('remember'));
+                
+                return redirect()->route('admin.two-factor.challenge');
+            }
+
+            Auth::guard('admin')->login($admin, $request->boolean('remember'));
             $request->session()->regenerate();
             
-            $admin = Auth::guard('admin')->user();
-            if ($admin) {
-                AdminAuditService::logLogin($admin, true);
-                AdminAuditService::createSession($admin);
-            }
+            AdminAuditService::logLogin($admin, true);
+            AdminAuditService::createSession($admin);
             
             return redirect()->intended(route('admin.dashboard'));
         }
 
-        $admin = AdminUser::where('email', $credentials['email'])->first();
         if ($admin) {
             AdminAuditService::logLogin($admin, false);
         }

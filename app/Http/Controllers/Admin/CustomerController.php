@@ -19,7 +19,7 @@ class CustomerController extends Controller
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')
                     ->from('social_users')
-                    ->whereColumn('social_users.user_id', '=', 'users.uuid');
+                    ->whereColumn('social_users.user_uuid', '=', 'users.uuid');
             }, 'social_users_count')
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')
@@ -190,7 +190,7 @@ class CustomerController extends Controller
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')
                     ->from('social_users')
-                    ->whereColumn('social_users.user_id', '=', 'users.uuid');
+                    ->whereColumn('social_users.user_uuid', '=', 'users.uuid');
             }, 'social_users_count')
             ->selectSub(function ($q) {
                 $q->selectRaw('COUNT(*)')

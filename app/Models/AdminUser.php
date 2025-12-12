@@ -21,11 +21,16 @@ class AdminUser extends Authenticatable
         'role',
         'email_verified_at',
         'is_active',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+        'two_factor_confirmed_at',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     protected function casts(): array
@@ -34,7 +39,36 @@ class AdminUser extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    public function hasTwoFactorEnabled(): bool
+    {
+        return !is_null($this->two_factor_secret) && !is_null($this->two_factor_confirmed_at);
+    }
+
+    public function getTwoFactorRecoveryCodes(): array
+    {
+        return $this->two_factor_recovery_codes 
+            ? json_decode(decrypt($this->two_factor_recovery_codes), true) 
+            : [];
+    }
+
+    public function setTwoFactorRecoveryCodes(array $codes): void
+    {
+        $this->two_factor_recovery_codes = encrypt(json_encode($codes));
+        $this->save();
+    }
+
+    public function replaceRecoveryCode(string $code): void
+    {
+        $codes = $this->getTwoFactorRecoveryCodes();
+        $index = array_search($code, $codes);
+        if ($index !== false) {
+            unset($codes[$index]);
+            $this->setTwoFactorRecoveryCodes(array_values($codes));
+        }
     }
 
     public function roles(): BelongsToMany

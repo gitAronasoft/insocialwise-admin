@@ -11,7 +11,7 @@ class SocialUser extends Model
     protected $table = 'social_users';
 
     protected $fillable = [
-        'user_id',
+        'user_uuid',
         'social_id',
         'platform',
         'name',
@@ -37,7 +37,7 @@ class SocialUser extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class, 'user_id', 'uuid');
+        return $this->belongsTo(Customer::class, 'user_uuid', 'uuid');
     }
 
     public function pages(): HasMany

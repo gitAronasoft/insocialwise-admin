@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\TwoFactorController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.')->group(function () {
@@ -51,6 +52,7 @@ Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.'
 
     Route::get('/search', [SearchController::class, 'index'])->name('search.index');
     Route::get('/search/quick', [SearchController::class, 'quickSearch'])->name('search.quick');
+    Route::get('/global-search', [SearchController::class, 'globalSearch'])->name('global-search');
 
     Route::get('/alerts', [AlertController::class, 'index'])->name('alerts.index');
     Route::get('/alerts/unread', [AlertController::class, 'getUnread'])->name('alerts.unread');
@@ -64,6 +66,12 @@ Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.'
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
     Route::put('/profile/change-password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+
+    Route::get('/profile/two-factor', [TwoFactorController::class, 'show'])->name('profile.two-factor');
+    Route::get('/two-factor/enable', [TwoFactorController::class, 'enable'])->name('two-factor.enable');
+    Route::post('/two-factor/confirm', [TwoFactorController::class, 'confirm'])->name('two-factor.confirm');
+    Route::delete('/two-factor/disable', [TwoFactorController::class, 'disable'])->name('two-factor.disable');
+    Route::post('/two-factor/regenerate', [TwoFactorController::class, 'regenerateRecoveryCodes'])->name('two-factor.regenerate');
 
     Route::get('/master-control', [MasterControlController::class, 'index'])->name('master-control.index');
     Route::post('/master-control/toggle', [MasterControlController::class, 'toggle'])->name('master-control.toggle');
