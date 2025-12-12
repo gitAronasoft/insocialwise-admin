@@ -26,7 +26,8 @@ return new class extends Migration
                 $table->string('payload_hash')->nullable();
                 $table->integer('response_code')->nullable();
                 $table->text('response_body')->nullable();
-                $table->string('status', 50)->default('pending');
+                $table->enum('status', ['received', 'processing', 'processed', 'failed', 'skipped', 'retrying'])
+                      ->default('received');
                 $table->text('error_message')->nullable();
                 $table->integer('retry_count')->default(0);
                 $table->timestamp('received_at')->nullable();

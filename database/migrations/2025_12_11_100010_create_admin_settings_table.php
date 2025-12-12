@@ -13,8 +13,8 @@ return new class extends Migration
                 $table->id();
                 $table->string('key', 255)->unique();
                 $table->text('value')->nullable();
-                $table->string('type', 50)->default('string');
-                $table->string('group', 255);
+                $table->enum('type', ['string', 'integer', 'boolean', 'json', 'email', 'encrypted'])->default('string');           
+                $table->string('group')->default('general'); 
                 $table->text('description')->nullable();
                 $table->string('section', 255)->nullable();
                 $table->timestamps();

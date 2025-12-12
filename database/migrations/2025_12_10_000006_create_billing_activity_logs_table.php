@@ -14,10 +14,45 @@ return new class extends Migration
                 $table->string('user_uuid')->nullable();
                 $table->unsignedBigInteger('subscription_id')->nullable();
                 $table->unsignedBigInteger('transaction_id')->nullable();
-                $table->string('action_type');
-                $table->string('action_status', 50)->default('success');
-                $table->text('description')->nullable();
-                $table->string('actor_type')->nullable();
+                $table->enum('action_type', [
+                'subscription_created',
+                'subscription_updated',
+                'subscription_canceled',
+                'subscription_reactivated',
+                'subscription_paused',
+                'subscription_resumed',
+                'plan_upgraded',
+                'plan_downgraded',
+                'trial_started',
+                'trial_extended',
+                'trial_ended',
+                'payment_attempted',
+                'payment_succeeded',
+                'payment_failed',
+                'payment_refunded',
+                'invoice_created',
+                'invoice_sent',
+                'invoice_paid',
+                'invoice_voided',
+                'card_added',
+                'card_updated',
+                'card_removed',
+                'card_set_default',
+                'billing_info_updated',
+                'coupon_applied',
+                'coupon_removed',
+                'webhook_received',
+                'webhook_processed',
+                'notification_sent',
+                'dunning_started',
+                'dunning_escalated',
+                'dunning_resolved',
+                'admin_action',
+                'system_action'
+                ])->comment('Type of billing action');
+                $table->enum('action_status', ['success', 'failed', 'pending', 'skipped'])->default('success')->comment('Status of the action');
+                $table->enum('actor_type', ['user', 'admin', 'system', 'stripe', 'cron'])->default('system')->comment('Who performed the action');
+                $table->text('description')->nullable();           
                 $table->string('actor_id')->nullable();
                 $table->string('actor_email')->nullable();
                 $table->json('old_value')->nullable();

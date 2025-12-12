@@ -12,11 +12,13 @@ return new class extends Migration
             Schema::create('inbox_messages', function (Blueprint $table) {
                 $table->id();
                 $table->string('conversation_id', 200);
-                $table->string('platform_message_id', 200);
-                $table->string('sender_type', 50);
+                $table->string('platform_message_id', 200);    
+                $table->enum('sender_type', ['page', 'visitor'])
+                      ->default('page');
                 $table->text('message_text');
-                $table->string('message_type', 250);
-                $table->smallInteger('is_read')->default(0);
+                $table->string('message_type', 250);               
+                $table->enum('is_read', ['yes', 'no'])
+                      ->default('yes');
                 $table->string('timestamp', 200)->nullable();
                 $table->timestamps();
                 

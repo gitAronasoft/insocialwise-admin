@@ -19,7 +19,7 @@ return new class extends Migration
                 $table->text('post_media')->nullable();
                 $table->string('platform_post_id', 255)->nullable();
                 $table->string('post_platform', 255)->nullable();
-                $table->string('source', 100)->default('Platform');
+                $table->enum('source', ['Platform', 'API'])->default('Platform');
                 $table->string('form_id', 250);
                 $table->bigInteger('likes')->default(0);
                 $table->bigInteger('comments')->default(0);

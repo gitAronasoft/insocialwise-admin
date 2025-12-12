@@ -11,8 +11,9 @@ return new class extends Migration
         if (!Schema::hasTable('settings')) {
             Schema::create('settings', function (Blueprint $table) {
                 $table->id();
-                $table->string('user_uuid', 255)->nullable();
-                $table->string('module_name', 255);
+                $table->string('user_uuid', 255)->nullable();             
+                $table->enum('module_name', ['Comment', 'Message', 'Notification', 'User', 'System'])
+                      ->default('Comment');
                 $table->smallInteger('module_status')->default(0);
                 $table->timestamps();
                 

@@ -16,8 +16,9 @@ return new class extends Migration
                 $table->string('account_social_userid', 255)->nullable();
                 $table->string('account_id', 255)->nullable();
                 $table->string('account_name', 255)->nullable();
-                $table->smallInteger('account_status')->default(0);
-                $table->smallInteger('isconnected')->default(0);
+                $table->smallInteger('account_status')->default(0);               
+                $table->enum('is_connected', ['notConnected', 'Connected'])
+                      ->default('notConnected');
                 $table->string('currency', 250)->nullable();
                 $table->string('timezone_name', 250)->nullable();
                 $table->string('timezone_offset_hours_utc', 250)->nullable();

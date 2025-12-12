@@ -13,8 +13,9 @@ return new class extends Migration
                 $table->id();
                 $table->string('user_uuid');
                 $table->string('stripe_payment_method_id')->unique();
-                $table->string('stripe_customer_id');
-                $table->string('type')->default('card');
+                $table->string('stripe_customer_id');            
+                $table->enum('type', ['card', 'bank_account', 'sepa_debit', 'us_bank_account', 'link'])
+                      ->default('card');
                 $table->string('brand')->nullable();
                 $table->string('card_brand')->nullable();
                 $table->string('last4', 4)->nullable();
@@ -22,13 +23,14 @@ return new class extends Migration
                 $table->integer('exp_month')->nullable();
                 $table->integer('exp_year')->nullable();
                 $table->string('card_holder_name')->nullable();
-                $table->string('funding')->nullable();
+                $table->enum('funding', ['credit', 'debit', 'prepaid', 'unknown'])->nullable();
                 $table->string('country')->nullable();
                 $table->json('billing_details')->nullable();
                 $table->string('fingerprint')->nullable();
                 $table->string('wallet')->nullable();
                 $table->boolean('is_default')->default(false);
-                $table->string('status', 50)->default('active');
+                $table->enum('status', ['active', 'expired', 'deleted'])
+                      ->default('active');
                 $table->string('billing_email')->nullable();
                 $table->string('billing_name')->nullable();
                 $table->string('billing_phone')->nullable();
