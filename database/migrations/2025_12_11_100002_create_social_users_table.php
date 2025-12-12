@@ -18,7 +18,9 @@ return new class extends Migration
                 $table->string('social_id', 200);
                 $table->string('social_user_platform', 255)->nullable();
                 $table->text('user_token');
-                $table->smallInteger('status')->default(0);
+                $table->enum('status', ['Connected', 'notConnected'])
+                      ->nullable()
+                      ->default(null);
                 $table->timestamps();
                 
                 $table->index('user_id');

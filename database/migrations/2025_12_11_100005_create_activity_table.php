@@ -19,7 +19,7 @@ return new class extends Migration
                 $table->string('action', 255)->nullable();
                 $table->string('source_type', 255)->nullable();
                 $table->string('post_form_id', 255)->nullable();
-                $table->text('reference_pageid')->nullable();
+                $table->json('reference_page_id')->nullable();
                 $table->timestamp('activity_datetime')->nullable();
                 $table->timestamp('nextapi_call_datetime')->nullable();
                 $table->timestamps();

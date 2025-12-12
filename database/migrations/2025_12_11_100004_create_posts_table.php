@@ -15,7 +15,7 @@ return new class extends Migration
                 $table->string('social_user_id', 200);
                 $table->string('page_id', 150);
                 $table->text('content');
-                $table->string('schedule_time', 250)->nullable();
+                $table->bigInteger('schedule_time')->nullable();
                 $table->text('post_media')->nullable();
                 $table->string('platform_post_id', 255)->nullable();
                 $table->string('post_platform', 255)->nullable();

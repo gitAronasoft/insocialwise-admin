@@ -17,7 +17,8 @@ return new class extends Migration
                 $table->string('notificationtype', 255)->nullable();
                 $table->string('notificationtype_id', 255)->nullable();
                 $table->string('page_or_post_id', 255)->nullable();
-                $table->smallInteger('is_read')->default(0);
+                $table->enum('is_read', ['no', 'yes'])
+                  ->default('no');
                 $table->timestamp('notification_datetime')->nullable();
                 $table->timestamps();
                 

@@ -16,12 +16,13 @@ return new class extends Migration
                 $table->string('pagename', 150);
                 $table->text('page_picture')->nullable();
                 $table->text('page_cover')->nullable();
-                $table->string('pageid', 150);
+                $table->string('page_id', 150);
                 $table->text('token');
                 $table->string('category', 100)->nullable();
                 $table->bigInteger('total_followers')->default(0);
                 $table->string('page_platform', 255)->nullable();
-                $table->smallInteger('status')->default(0);
+                $table->enum('status', ['notConnected', 'Connected'])
+                      ->default('notConnected');
                 $table->string('platform', 255)->nullable();
                 $table->text('modify_to')->nullable();
                 $table->timestamps();
