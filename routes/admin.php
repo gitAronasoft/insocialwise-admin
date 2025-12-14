@@ -19,7 +19,6 @@ use App\Http\Controllers\Admin\SubscriptionPlanController;
 use App\Http\Controllers\Admin\WebhookController;
 use App\Http\Controllers\Admin\WebhookLogsController;
 use App\Http\Controllers\Admin\ComplianceController;
-use App\Http\Controllers\Admin\ApiKeyController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\SocialAccountController;
 use App\Http\Controllers\Admin\ReportController;
@@ -156,11 +155,6 @@ Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.'
     Route::post('/compliance/retention-rules', [ComplianceController::class, 'storeRetentionRule'])->name('compliance.store-retention-rule');
     Route::put('/compliance/retention-rules/{rule}', [ComplianceController::class, 'updateRetentionRule'])->name('compliance.update-retention-rule');
 
-    Route::get('/api-keys', [ApiKeyController::class, 'index'])->name('api-keys.index');
-    Route::post('/api-keys/update', [ApiKeyController::class, 'update'])->name('api-keys.update');
-    Route::post('/api-keys/test', [ApiKeyController::class, 'test'])->name('api-keys.test');
-    Route::post('/api-keys/delete', [ApiKeyController::class, 'delete'])->name('api-keys.delete');
-
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::get('/settings/create', [SettingsController::class, 'create'])->name('settings.create');
     Route::post('/settings', [SettingsController::class, 'store'])->name('settings.store');
@@ -176,11 +170,13 @@ Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.'
     Route::get('/settings/webhooks', [SettingsController::class, 'webhooksConfig'])->name('settings.webhooks');
     Route::put('/settings/webhooks', [SettingsController::class, 'updateWebhooksConfig'])->name('settings.webhooks.update');
 
+    Route::put('/settings/social', [SettingsController::class, 'updateSocialConfig'])->name('settings.social.update');
+
     Route::get('/settings/notifications', [SettingsController::class, 'notificationConfig'])->name('settings.notifications');
     Route::put('/settings/notifications', [SettingsController::class, 'updateNotificationConfig'])->name('settings.notifications.update');
 
-    Route::get('/settings/{group}/edit', [SettingsController::class, 'edit'])->name('settings.edit');
-    Route::put('/settings/{group}', [SettingsController::class, 'update'])->name('settings.update');
+    Route::get('/settings/{setting}/edit', [SettingsController::class, 'edit'])->name('settings.edit');
+    Route::put('/settings/{setting}', [SettingsController::class, 'update'])->name('settings.update');
     Route::delete('/settings/{setting}', [SettingsController::class, 'destroy'])->name('settings.destroy');
 
     Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');

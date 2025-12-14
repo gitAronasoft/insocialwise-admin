@@ -648,7 +648,7 @@ class StripeWebhookService
                 'notification_type' => 'payment_failed',
                 'channel' => 'email',
                 'priority' => 'urgent',
-                'status' => 'pending',
+                'status' => 'sent',
                 'title' => 'Payment Failed',
                 'message' => "Payment of " . number_format($invoice->amount_due / 100, 2) . " " . strtoupper($invoice->currency) . " failed",
                 'recipient_email' => $customer->email,

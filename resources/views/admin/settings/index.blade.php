@@ -7,122 +7,118 @@
     <x-breadcrumb :items="[
         ['label' => 'Settings', 'url' => null]
     ]" />
+    
     <div class="flex justify-between items-center">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 flex-1 mr-4">
-            <div class="bg-white rounded-xl shadow-sm p-4">
-                <p class="text-sm font-medium text-gray-500">Total Settings</p>
-                <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4">
-                <p class="text-sm font-medium text-gray-500">General</p>
-                <p class="text-2xl font-bold text-blue-600">{{ $stats['general'] }}</p>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4">
-                <p class="text-sm font-medium text-gray-500">Email</p>
-                <p class="text-2xl font-bold text-green-600">{{ $stats['email'] }}</p>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4">
-                <p class="text-sm font-medium text-gray-500">API</p>
-                <p class="text-2xl font-bold text-purple-600">{{ $stats['api'] }}</p>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4">
-                <p class="text-sm font-medium text-gray-500">Payment</p>
-                <p class="text-2xl font-bold text-orange-600">{{ $stats['payment'] }}</p>
-            </div>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">System Settings</h1>
+            <p class="text-gray-600">Manage all system configurations, API keys, and integrations in one place</p>
         </div>
-        <a href="{{ route('admin.settings.create') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 whitespace-nowrap">New Setting</a>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm p-6">
-        <form action="{{ route('admin.settings.index') }}" method="GET" class="flex flex-wrap gap-4 mb-6">
-            <div class="flex-1 min-w-[200px]">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search settings..." 
-                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-            </div>
-            <div>
-                <select name="group" class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="">All Groups</option>
-                    <option value="general" {{ request('group') === 'general' ? 'selected' : '' }}>General</option>
-                    <option value="email" {{ request('group') === 'email' ? 'selected' : '' }}>Email</option>
-                    <option value="api" {{ request('group') === 'api' ? 'selected' : '' }}>API</option>
-                    <option value="payment" {{ request('group') === 'payment' ? 'selected' : '' }}>Payment</option>
-                    <option value="feature" {{ request('group') === 'feature' ? 'selected' : '' }}>Feature Flags</option>
-                    <option value="system" {{ request('group') === 'system' ? 'selected' : '' }}>System</option>
-                </select>
-            </div>
-            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Search</button>
-        </form>
-
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-gray-200">
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Key</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Group</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($settings as $setting)
-                        <tr class="border-b border-gray-100 hover:bg-gray-50">
-                            <td class="px-6 py-4 font-mono text-gray-900">{{ $setting->key }}</td>
-                            <td class="px-6 py-4 text-gray-700 max-w-xs truncate">
-                                @if($setting->type === 'json')
-                                    <code class="text-xs">{{ json_encode(json_decode($setting->value), JSON_PRETTY_PRINT) }}</code>
-                                @elseif($setting->type === 'boolean')
-                                    <span class="px-2 py-1 rounded text-xs font-semibold {{ $setting->value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                        {{ $setting->value ? 'True' : 'False' }}
-                                    </span>
-                                @else
-                                    {{ Str::limit($setting->value, 50) }}
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 text-gray-600">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                                    {{ $setting->type }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full
-                                    @if($setting->group === 'general') bg-blue-100 text-blue-800
-                                    @elseif($setting->group === 'email') bg-green-100 text-green-800
-                                    @elseif($setting->group === 'api') bg-purple-100 text-purple-800
-                                    @elseif($setting->group === 'payment') bg-orange-100 text-orange-800
-                                    @else bg-gray-100 text-gray-800
-                                    @endif
-                                ">{{ ucfirst($setting->group) }}</span>
-                            </td>
-                            <td class="px-6 py-4 text-gray-600 max-w-xs truncate">{{ $setting->description ?? '-' }}</td>
-                            <td class="px-6 py-4 text-sm">
-                                <div class="flex space-x-3">
-                                    <a href="{{ route('admin.settings.edit', $setting) }}" class="text-indigo-600 hover:text-indigo-800">Edit</a>
-                                    <form action="{{ route('admin.settings.destroy', $setting) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800">Delete</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                                No settings found. <a href="{{ route('admin.settings.create') }}" class="text-indigo-600 hover:text-indigo-800">Create one</a>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <div x-data="{ activeTab: '{{ request('tab', 'general') }}' }">
+        <div class="border-b border-gray-200 mb-6">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <button @click="activeTab = 'general'" 
+                    :class="activeTab === 'general' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    General
+                </button>
+                <button @click="activeTab = 'payment'" 
+                    :class="activeTab === 'payment' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                    </svg>
+                    Payment (Stripe)
+                </button>
+                <button @click="activeTab = 'email'" 
+                    :class="activeTab === 'email' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    Email (SMTP)
+                </button>
+                <button @click="activeTab = 'social'" 
+                    :class="activeTab === 'social' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                    </svg>
+                    Social APIs
+                </button>
+                <button @click="activeTab = 'webhooks'" 
+                    :class="activeTab === 'webhooks' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                    </svg>
+                    Webhooks
+                </button>
+                <button @click="activeTab = 'notifications'" 
+                    :class="activeTab === 'notifications' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    Notifications
+                </button>
+                <button @click="activeTab = 'all'" 
+                    :class="activeTab === 'all' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                    </svg>
+                    All Settings
+                </button>
+            </nav>
         </div>
 
-        @if($settings->hasPages())
-        <div class="mt-4">
-            {{ $settings->links() }}
+        <div x-show="activeTab === 'general'" x-transition>
+            @include('admin.settings.partials.general')
         </div>
-        @endif
+
+        <div x-show="activeTab === 'payment'" x-transition>
+            @include('admin.settings.partials.payment')
+        </div>
+
+        <div x-show="activeTab === 'email'" x-transition>
+            @include('admin.settings.partials.email')
+        </div>
+
+        <div x-show="activeTab === 'social'" x-transition>
+            @include('admin.settings.partials.social')
+        </div>
+
+        <div x-show="activeTab === 'webhooks'" x-transition>
+            @include('admin.settings.partials.webhooks')
+        </div>
+
+        <div x-show="activeTab === 'notifications'" x-transition>
+            @include('admin.settings.partials.notifications')
+        </div>
+
+        <div x-show="activeTab === 'all'" x-transition>
+            @include('admin.settings.partials.all-settings')
+        </div>
     </div>
 </div>
+
+@if(session('success'))
+<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" 
+     class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+    {{ session('success') }}
+</div>
+@endif
+
+@if(session('error'))
+<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+     class="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+    {{ session('error') }}
+</div>
+@endif
 @endsection

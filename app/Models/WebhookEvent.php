@@ -94,10 +94,10 @@ class WebhookEvent extends Model
     {
         return match ($this->status) {
             'processed', 'success' => 'green',
-            'pending', 'processing' => 'yellow',
+            'received', 'processing' => 'yellow',
             'failed' => 'red',
             'skipped' => 'gray',
-            'already_processed' => 'blue',
+            'retrying' => 'blue',
             default => 'gray',
         };
     }

@@ -36,18 +36,65 @@ class SettingsController extends Controller
 
         $settings = $query->orderBy('group')->orderBy('key')->paginate(20);
 
-        $stats = [
-            'total' => AdminSetting::count(),
-            'general' => AdminSetting::where('group', 'general')->count(),
-            'email' => AdminSetting::where('group', 'email')->count(),
-            'api' => AdminSetting::where('group', 'api')->count(),
-            'payment' => AdminSetting::where('group', 'payment')->count(),
-            'stripe' => AdminSetting::where('group', 'stripe')->count(),
-            'notification' => AdminSetting::where('group', 'notification')->count(),
+        $groups = $this->groups;
+        
+        $stripeConfig = $this->settingsService->getStripeConfig();
+        $emailConfig = $this->settingsService->getEmailConfig();
+        $webhookConfig = $this->settingsService->getWebhookUrls();
+        $notificationConfig = $this->settingsService->getNotificationConfig();
+        $socialConfig = $this->getSocialConfig();
+
+        return view('admin.settings.index', compact(
+            'settings', 
+            'groups', 
+            'stripeConfig', 
+            'emailConfig', 
+            'webhookConfig', 
+            'notificationConfig',
+            'socialConfig'
+        ));
+    }
+    
+    protected function getSocialConfig()
+    {
+        return [
+            'facebook_app_id' => $this->settingsService->get('FACEBOOK_APP_ID'),
+            'facebook_app_secret' => $this->settingsService->get('FACEBOOK_APP_SECRET'),
+            'linkedin_client_id' => $this->settingsService->get('LINKEDIN_CLIENT_ID'),
+            'linkedin_client_secret' => $this->settingsService->get('LINKEDIN_CLIENT_SECRET'),
+            'twitter_api_key' => $this->settingsService->get('TWITTER_API_KEY'),
+            'twitter_api_secret' => $this->settingsService->get('TWITTER_API_SECRET'),
+        ];
+    }
+
+    public function updateSocialConfig(Request $request)
+    {
+        $validated = $request->validate([
+            'facebook_app_id' => 'nullable|string|max:255',
+            'facebook_app_secret' => 'nullable|string|max:255',
+            'linkedin_client_id' => 'nullable|string|max:255',
+            'linkedin_client_secret' => 'nullable|string|max:255',
+            'twitter_api_key' => 'nullable|string|max:255',
+            'twitter_api_secret' => 'nullable|string|max:255',
+        ]);
+
+        $keyMappings = [
+            'facebook_app_id' => 'FACEBOOK_APP_ID',
+            'facebook_app_secret' => 'FACEBOOK_APP_SECRET',
+            'linkedin_client_id' => 'LINKEDIN_CLIENT_ID',
+            'linkedin_client_secret' => 'LINKEDIN_CLIENT_SECRET',
+            'twitter_api_key' => 'TWITTER_API_KEY',
+            'twitter_api_secret' => 'TWITTER_API_SECRET',
         ];
 
-        $groups = $this->groups;
-        return view('admin.settings.index', compact('settings', 'stats', 'groups'));
+        foreach ($validated as $field => $value) {
+            if (!empty($value) && isset($keyMappings[$field])) {
+                $this->settingsService->set($keyMappings[$field], $value);
+            }
+        }
+
+        return redirect()->route('admin.settings.index', ['tab' => 'social'])
+            ->with('success', 'Social API settings updated successfully.');
     }
 
     public function create()
@@ -74,40 +121,28 @@ class SettingsController extends Controller
             ->with('success', 'Setting created successfully.');
     }
 
-    public function edit(string $group)
+    public function edit(AdminSetting $setting)
     {
-        $settings = AdminSetting::where('group', $group)->get()->keyBy('key');
         $groups = $this->groups;
         $types = $this->types;
         
-        return view('admin.settings.edit', compact('settings', 'group', 'groups', 'types'));
+        return view('admin.settings.edit', compact('setting', 'groups', 'types'));
     }
 
-    public function update(Request $request, string $group)
+    public function update(Request $request, AdminSetting $setting)
     {
-        $settings = $request->input('settings', []);
-        
-        foreach ($settings as $key => $data) {
-            $existing = AdminSetting::where('key', $key)->first();
-            
-            if ($existing) {
-                if ($existing->type === 'encrypted' && empty($data['value'])) {
-                    continue;
-                }
-                
-                $this->settingsService->set(
-                    $key,
-                    $data['value'] ?? '',
-                    $existing->type,
-                    $group,
-                    $data['description'] ?? $existing->description,
-                    $data['section'] ?? $existing->section
-                );
-            }
-        }
+        $validated = $request->validate([
+            'value' => 'nullable|string',
+            'type' => 'required|in:' . implode(',', $this->types),
+            'description' => 'nullable|string|max:500',
+            'section' => 'nullable|string|max:100',
+        ]);
+
+        $setting->update($validated);
+        $this->settingsService->clearCache($setting->key);
 
         return redirect()->route('admin.settings.index')
-            ->with('success', ucfirst($group) . ' settings updated successfully.');
+            ->with('success', "Setting '{$setting->key}' updated successfully.");
     }
 
     public function destroy(AdminSetting $setting)

@@ -48,7 +48,7 @@ class WebhookLogsController extends Controller
             'total' => WebhookEvent::count(),
             'processed' => WebhookEvent::where('status', 'processed')->count(),
             'failed' => WebhookEvent::where('status', 'failed')->count(),
-            'pending' => WebhookEvent::whereIn('status', ['pending', 'processing'])->count(),
+            'pending' => WebhookEvent::whereIn('status', ['received', 'processing'])->count(),
         ];
 
         $eventTypes = WebhookEvent::select('event_type')
@@ -128,7 +128,7 @@ class WebhookLogsController extends Controller
             'total_events' => WebhookEvent::count(),
             'processed' => WebhookEvent::where('status', 'processed')->count(),
             'failed' => WebhookEvent::where('status', 'failed')->count(),
-            'pending' => WebhookEvent::whereIn('status', ['pending', 'processing'])->count(),
+            'pending' => WebhookEvent::whereIn('status', ['received', 'processing'])->count(),
             'avg_processing_time_ms' => (int) WebhookEvent::whereNotNull('processing_time_ms')->avg('processing_time_ms'),
             'events_last_24h' => WebhookEvent::where('created_at', '>=', now()->subDay())->count(),
             'events_last_7d' => WebhookEvent::where('created_at', '>=', now()->subDays(7))->count(),
@@ -154,7 +154,7 @@ class WebhookLogsController extends Controller
         }
 
         $webhookEvent->update([
-            'status' => 'pending',
+            'status' => 'received',
             'retry_count' => ($webhookEvent->retry_count ?? 0) + 1,
             'error_message' => null,
         ]);
