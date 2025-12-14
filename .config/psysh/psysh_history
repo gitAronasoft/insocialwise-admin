@@ -1,7 +1,11 @@
-use Illuminate\Support\Facades\DB;
-$result = DB::select("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' ORDER BY table_name");
-$tables = array_map(fn($t) => $t->table_name, $result);
-echo count($tables) . " total tables found:\n";
-foreach ($tables as $t) {
-    echo "- $t\n";
+use App\Models\AdminSetting;
+$settings = [
+    ['key' => 'APP_NAME', 'value' => 'InSocialWise', 'group' => 'general', 'type' => 'string', 'description' => 'Application name displayed throughout the platform'],
+    ['key' => 'APP_TIMEZONE', 'value' => 'UTC', 'group' => 'general', 'type' => 'string', 'description' => 'Default timezone for all timestamps'],
+    ['key' => 'APP_DEBUG', 'value' => '0', 'group' => 'general', 'type' => 'boolean', 'description' => 'Enable debug mode for development'],
+    ['key' => 'MAX_RETRIES', 'value' => '3', 'group' => 'system', 'type' => 'integer', 'description' => 'Maximum retry attempts for failed operations'],
+];
+foreach ($settings as $s) {
+    AdminSetting::updateOrCreate(['key' => $s['key']], $s);
 }
+echo "\n✓ Dummy settings data added successfully!\n";
