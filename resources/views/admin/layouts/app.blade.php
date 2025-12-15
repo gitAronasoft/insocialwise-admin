@@ -266,6 +266,14 @@
                             </svg>
                             <span x-show="$store.sidebar.expanded" x-transition>Webhook Logs</span>
                         </a>
+                        <a href="{{ route('admin.webhook-testing.index') }}" 
+                           class="nav-link {{ request()->routeIs('admin.webhook-testing.*') ? 'active' : '' }}"
+                           title="Webhook Testing">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            <span x-show="$store.sidebar.expanded" x-transition>Webhook Testing</span>
+                        </a>
                     </div>
 
                     <div class="space-y-1">
@@ -293,12 +301,44 @@
                         </a>
                         @endif
                         <a href="{{ route('admin.activities.index') }}" 
-                           class="nav-link {{ request()->routeIs('admin.activities.*') ? 'active' : '' }}"
+                           class="nav-link {{ request()->routeIs('admin.activities.index') ? 'active' : '' }}"
                            title="Activity Logs">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             <span x-show="$store.sidebar.expanded" x-transition>Activity Logs</span>
+                        </a>
+                        <a href="{{ route('admin.activities.timeline') }}" 
+                           class="nav-link {{ request()->routeIs('admin.activities.timeline') ? 'active' : '' }}"
+                           title="Activity Timeline">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/>
+                            </svg>
+                            <span x-show="$store.sidebar.expanded" x-transition>Activity Timeline</span>
+                        </a>
+                        <a href="{{ route('admin.realtime-notifications.index') }}" 
+                           class="nav-link {{ request()->routeIs('admin.realtime-notifications.*') ? 'active' : '' }}"
+                           title="Real-Time Notifications">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            <span x-show="$store.sidebar.expanded" x-transition>Real-Time Alerts</span>
+                        </a>
+                        <a href="{{ route('admin.performance.index') }}" 
+                           class="nav-link {{ request()->routeIs('admin.performance.*') ? 'active' : '' }}"
+                           title="Performance Monitoring">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <span x-show="$store.sidebar.expanded" x-transition>Performance</span>
+                        </a>
+                        <a href="{{ route('admin.dashboard-customization.index') }}" 
+                           class="nav-link {{ request()->routeIs('admin.dashboard-customization.*') ? 'active' : '' }}"
+                           title="Dashboard Customization">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                            </svg>
+                            <span x-show="$store.sidebar.expanded" x-transition>Customize Dashboard</span>
                         </a>
                         <a href="{{ route('admin.audit-logs.index') }}" 
                            class="nav-link {{ request()->routeIs('admin.audit-logs.*') ? 'active' : '' }}"

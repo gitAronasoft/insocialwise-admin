@@ -94,4 +94,37 @@ class ActivityController extends Controller
 
         return view('admin.activities.show', compact('activity'));
     }
+
+    public function timeline(Request $request)
+    {
+        $query = Activity::with('customer');
+
+        if ($request->filled('activity_type')) {
+            $query->where('activity_type', $request->activity_type);
+        }
+
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('customer', function ($q) use ($search) {
+                $q->whereRaw("CONCAT(firstname, ' ', lastname) ILIKE ?", ["%{$search}%"])
+                    ->orWhere('email', 'ilike', "%{$search}%");
+            });
+        }
+
+        $activities = $query->orderBy('created_at', 'desc')->paginate(30);
+
+        $activityTypes = Activity::select('activity_type')
+            ->distinct()
+            ->pluck('activity_type');
+
+        $actions = Activity::select('action')
+            ->distinct()
+            ->pluck('action');
+
+        return view('admin.activities.timeline', compact('activities', 'activityTypes', 'actions'));
+    }
 }
