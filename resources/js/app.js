@@ -250,6 +250,126 @@ Alpine.data('globalSearch', () => ({
     }
 }));
 
+Alpine.store('commandPalette', {
+    open: false,
+    query: '',
+    selectedIndex: 0,
+    
+    commands: [
+        { id: 'dashboard', name: 'Go to Dashboard', icon: 'home', url: '/admin/dashboard', category: 'Navigation' },
+        { id: 'customers', name: 'Go to Customers', icon: 'users', url: '/admin/customers', category: 'Navigation' },
+        { id: 'subscriptions', name: 'Go to Subscriptions', icon: 'credit-card', url: '/admin/subscriptions', category: 'Navigation' },
+        { id: 'billing', name: 'Go to Billing Overview', icon: 'calculator', url: '/admin/billing/overview', category: 'Navigation' },
+        { id: 'plans', name: 'Go to Subscription Plans', icon: 'clipboard', url: '/admin/subscription-plans', category: 'Navigation' },
+        { id: 'revenue', name: 'Go to Revenue', icon: 'dollar', url: '/admin/revenue', category: 'Navigation' },
+        { id: 'payments', name: 'Go to Payments', icon: 'wallet', url: '/admin/billing/payments', category: 'Navigation' },
+        { id: 'posts', name: 'Go to Posts', icon: 'document', url: '/admin/posts', category: 'Navigation' },
+        { id: 'analytics', name: 'Go to Analytics', icon: 'chart', url: '/admin/analytics', category: 'Navigation' },
+        { id: 'reports', name: 'Go to Reports', icon: 'report', url: '/admin/reports', category: 'Navigation' },
+        { id: 'webhooks', name: 'Go to Webhooks', icon: 'link', url: '/admin/webhooks', category: 'Navigation' },
+        { id: 'webhook-logs', name: 'Go to Webhook Logs', icon: 'clipboard', url: '/admin/webhook-logs', category: 'Navigation' },
+        { id: 'settings', name: 'Go to Settings', icon: 'cog', url: '/admin/settings', category: 'Navigation' },
+        { id: 'profile', name: 'Go to Profile', icon: 'user', url: '/admin/profile', category: 'Navigation' },
+        { id: 'admin-users', name: 'Go to Admin Users', icon: 'users', url: '/admin/admin-users', category: 'Navigation' },
+        { id: 'toggle-dark', name: 'Toggle Dark Mode', icon: 'moon', action: 'toggleDarkMode', category: 'Actions' },
+        { id: 'toggle-sidebar', name: 'Toggle Sidebar', icon: 'menu', action: 'toggleSidebar', category: 'Actions' },
+        { id: 'logout', name: 'Logout', icon: 'logout', action: 'logout', category: 'Actions' },
+    ],
+    
+    get filteredCommands() {
+        if (!this.query) return this.commands;
+        const q = this.query.toLowerCase();
+        return this.commands.filter(cmd => 
+            cmd.name.toLowerCase().includes(q) || 
+            cmd.category.toLowerCase().includes(q)
+        );
+    },
+    
+    get groupedCommands() {
+        const groups = {};
+        this.filteredCommands.forEach(cmd => {
+            if (!groups[cmd.category]) groups[cmd.category] = [];
+            groups[cmd.category].push(cmd);
+        });
+        return groups;
+    },
+    
+    toggle() {
+        this.open = !this.open;
+        if (this.open) {
+            this.query = '';
+            this.selectedIndex = 0;
+        }
+    },
+    
+    close() {
+        this.open = false;
+        this.query = '';
+        this.selectedIndex = 0;
+    },
+    
+    moveUp() {
+        const total = this.filteredCommands.length;
+        if (total === 0) return;
+        this.selectedIndex = (this.selectedIndex - 1 + total) % total;
+    },
+    
+    moveDown() {
+        const total = this.filteredCommands.length;
+        if (total === 0) return;
+        this.selectedIndex = (this.selectedIndex + 1) % total;
+    },
+    
+    selectCurrent() {
+        const cmd = this.filteredCommands[this.selectedIndex];
+        if (cmd) this.execute(cmd);
+    },
+    
+    execute(command) {
+        this.close();
+        
+        if (command.url) {
+            window.location.href = command.url;
+        } else if (command.action) {
+            switch (command.action) {
+                case 'toggleDarkMode':
+                    Alpine.store('darkMode').toggle();
+                    Alpine.store('toast').success('Dark mode toggled');
+                    break;
+                case 'toggleSidebar':
+                    Alpine.store('sidebar').toggle();
+                    break;
+                case 'logout':
+                    document.getElementById('logout-form')?.submit();
+                    break;
+            }
+        }
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        Alpine.store('commandPalette').toggle();
+    }
+    
+    if (Alpine.store('commandPalette').open) {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            Alpine.store('commandPalette').close();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            Alpine.store('commandPalette').moveUp();
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            Alpine.store('commandPalette').moveDown();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            Alpine.store('commandPalette').selectCurrent();
+        }
+    }
+});
+
 Alpine.data('confirmDialog', () => ({
     show: false,
     title: '',
@@ -295,30 +415,58 @@ window.showToast = function(message, type = 'info', options = {}) {
 
 window.handleApiError = function(error, defaultMessage = 'An error occurred. Please try again.') {
     let message = defaultMessage;
+    let suggestion = '';
     
     if (error.response) {
-        if (error.response.data && error.response.data.message) {
-            message = error.response.data.message;
-        } else if (error.response.status === 401) {
-            message = 'Your session has expired. Please log in again.';
+        const status = error.response.status;
+        const data = error.response.data;
+        
+        if (data && data.message) {
+            message = data.message;
+        } else if (status === 401) {
+            message = 'Your session has expired.';
+            suggestion = 'Redirecting to login page...';
             setTimeout(() => window.location.reload(), 2000);
-        } else if (error.response.status === 403) {
+        } else if (status === 403) {
             message = 'You do not have permission to perform this action.';
-        } else if (error.response.status === 404) {
+            suggestion = 'Contact your administrator if you need access.';
+        } else if (status === 404) {
             message = 'The requested resource was not found.';
-        } else if (error.response.status === 422) {
-            const errors = error.response.data.errors;
+            suggestion = 'It may have been deleted or moved. Try refreshing the page.';
+        } else if (status === 419) {
+            message = 'Your session token has expired.';
+            suggestion = 'Please refresh the page and try again.';
+        } else if (status === 422) {
+            const errors = data.errors;
             if (errors) {
-                message = Object.values(errors).flat().join(' ');
+                const errorMessages = Object.values(errors).flat();
+                message = errorMessages[0] || 'Please check your input.';
+                if (errorMessages.length > 1) {
+                    suggestion = `${errorMessages.length - 1} more issue(s) found. Please review all fields.`;
+                }
             }
-        } else if (error.response.status >= 500) {
-            message = 'Server error. Please try again later.';
+        } else if (status === 429) {
+            message = 'Too many requests.';
+            suggestion = 'Please wait a moment before trying again.';
+        } else if (status >= 500) {
+            message = 'Server error occurred.';
+            suggestion = 'Our team has been notified. Please try again later.';
+        }
+        
+        if (data && data.suggestion) {
+            suggestion = data.suggestion;
         }
     } else if (error.message) {
-        message = error.message;
+        if (error.message.includes('Network Error')) {
+            message = 'Unable to connect to server.';
+            suggestion = 'Please check your internet connection and try again.';
+        } else {
+            message = error.message;
+        }
     }
     
-    Alpine.store('toast').error(message);
+    const fullMessage = suggestion ? `${message} ${suggestion}` : message;
+    Alpine.store('toast').error(fullMessage, { title: 'Error' });
     return message;
 };
 
