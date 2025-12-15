@@ -181,6 +181,7 @@ Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.'
 
     Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
     Route::get('/activities/stats', [ActivityController::class, 'stats'])->name('activities.stats');
+    Route::get('/activities/timeline', [ActivityController::class, 'timeline'])->name('activities.timeline');
     Route::get('/activities/{activity}', [ActivityController::class, 'show'])->name('activities.show');
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
@@ -222,8 +223,6 @@ Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.'
     Route::post('/audit-logs/revoke-all-other', [AuditLogController::class, 'revokeAllOtherSessions'])->name('audit-logs.revoke-all-other');
     Route::get('/audit-logs/{auditLog}', [AuditLogController::class, 'show'])->name('audit-logs.show');
 
-    Route::get('/activities/timeline', [ActivityController::class, 'timeline'])->name('activities.timeline');
-
     Route::get('/realtime-notifications', [\App\Http\Controllers\Admin\RealtimeNotificationController::class, 'index'])->name('realtime-notifications.index');
     Route::get('/realtime-notifications/feed', [\App\Http\Controllers\Admin\RealtimeNotificationController::class, 'feed'])->name('realtime-notifications.feed');
     Route::post('/realtime-notifications/mark-all-read', [\App\Http\Controllers\Admin\RealtimeNotificationController::class, 'markAllRead'])->name('realtime-notifications.mark-all-read');
@@ -234,8 +233,4 @@ Route::middleware(['auth:admin', 'admin.audit'])->prefix('admin')->name('admin.'
 
     Route::get('/performance', [\App\Http\Controllers\Admin\PerformanceController::class, 'index'])->name('performance.index');
     Route::get('/performance/metrics', [\App\Http\Controllers\Admin\PerformanceController::class, 'metrics'])->name('performance.metrics');
-
-    Route::get('/dashboard-customization', [\App\Http\Controllers\Admin\DashboardCustomizationController::class, 'index'])->name('dashboard-customization.index');
-    Route::post('/dashboard-customization/save', [\App\Http\Controllers\Admin\DashboardCustomizationController::class, 'save'])->name('dashboard-customization.save');
-    Route::get('/dashboard-customization/load', [\App\Http\Controllers\Admin\DashboardCustomizationController::class, 'load'])->name('dashboard-customization.load');
 });

@@ -332,14 +332,6 @@
                             </svg>
                             <span x-show="$store.sidebar.expanded" x-transition>Performance</span>
                         </a>
-                        <a href="{{ route('admin.dashboard-customization.index') }}" 
-                           class="nav-link {{ request()->routeIs('admin.dashboard-customization.*') ? 'active' : '' }}"
-                           title="Dashboard Customization">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
-                            </svg>
-                            <span x-show="$store.sidebar.expanded" x-transition>Customize Dashboard</span>
-                        </a>
                         <a href="{{ route('admin.audit-logs.index') }}" 
                            class="nav-link {{ request()->routeIs('admin.audit-logs.*') ? 'active' : '' }}"
                            title="Audit Trail">

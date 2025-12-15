@@ -8,8 +8,8 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-lg font-semibold text-gray-900">General Settings</h2>
-                <p class="text-sm text-gray-600">Configure basic application settings</p>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">General Settings</h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Configure basic application settings</p>
             </div>
         </div>
         <a href="{{ route('admin.settings.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
@@ -27,15 +27,15 @@
     @if($generalSettings->count() > 0)
     <div class="space-y-3">
         @foreach($generalSettings as $setting)
-        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all group">
+        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-600 hover:border-gray-200 dark:hover:border-gray-500 hover:shadow-sm transition-all group">
             <div class="flex items-center gap-4 flex-1 min-w-0">
                 <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0
                     @if($setting->type === 'boolean') 
-                        {{ $setting->value ? 'bg-green-100' : 'bg-gray-100' }}
+                        {{ $setting->value ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-600' }}
                     @elseif($setting->type === 'encrypted')
-                        bg-purple-100
+                        bg-purple-100 dark:bg-purple-900/30
                     @else
-                        bg-blue-100
+                        bg-blue-100 dark:bg-blue-900/30
                     @endif
                 ">
                     @if($setting->type === 'boolean')
@@ -60,33 +60,33 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2">
-                        <p class="font-mono text-sm font-medium text-gray-900">{{ $setting->key }}</p>
+                        <p class="font-mono text-sm font-medium text-gray-900 dark:text-white">{{ $setting->key }}</p>
                         <span class="px-2 py-0.5 text-xs rounded-full 
-                            @if($setting->type === 'boolean') bg-green-100 text-green-700
-                            @elseif($setting->type === 'integer') bg-blue-100 text-blue-700
-                            @elseif($setting->type === 'encrypted') bg-purple-100 text-purple-700
-                            @elseif($setting->type === 'json') bg-yellow-100 text-yellow-700
-                            @else bg-gray-100 text-gray-700
+                            @if($setting->type === 'boolean') bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400
+                            @elseif($setting->type === 'integer') bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400
+                            @elseif($setting->type === 'encrypted') bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400
+                            @elseif($setting->type === 'json') bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400
+                            @else bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300
                             @endif
                         ">{{ $setting->type }}</span>
                     </div>
-                    <p class="text-sm text-gray-500 truncate">{{ $setting->description ?? 'No description' }}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ $setting->description ?? 'No description' }}</p>
                 </div>
             </div>
             <div class="flex items-center gap-4 ml-4">
                 <div class="text-right">
                     @if($setting->type === 'encrypted')
-                        <span class="text-sm text-gray-400 font-mono">••••••••</span>
+                        <span class="text-sm text-gray-400 dark:text-gray-500 font-mono">••••••••</span>
                     @elseif($setting->type === 'boolean')
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $setting->value ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600' }}">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $setting->value ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300' }}">
                             {{ $setting->value ? 'Enabled' : 'Disabled' }}
                         </span>
                     @else
-                        <span class="text-sm text-gray-700 font-mono max-w-[200px] truncate block">{{ Str::limit($setting->value, 25) }}</span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate block">{{ Str::limit($setting->value, 25) }}</span>
                     @endif
                 </div>
                 <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <a href="{{ route('admin.settings.edit', $setting) }}" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                    <a href="{{ route('admin.settings.edit', $setting) }}" class="p-2 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
@@ -94,7 +94,7 @@
                     <form action="{{ route('admin.settings.destroy', $setting) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this setting?')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                        <button type="submit" class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                             </svg>
@@ -106,14 +106,14 @@
         @endforeach
     </div>
     @else
-    <div class="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-        <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-4">
-            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="text-center py-12 bg-gray-50 dark:bg-gray-700/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-600">
+        <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 dark:bg-gray-600 flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
             </svg>
         </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No general settings yet</h3>
-        <p class="text-gray-500 mb-4">Get started by adding your first configuration setting</p>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No general settings yet</h3>
+        <p class="text-gray-500 dark:text-gray-400 mb-4">Get started by adding your first configuration setting</p>
         <a href="{{ route('admin.settings.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>

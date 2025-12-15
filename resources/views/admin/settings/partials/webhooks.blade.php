@@ -7,11 +7,11 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-lg font-semibold text-gray-900">Webhook Integrations</h2>
-                <p class="text-sm text-gray-600">Connect to external automation services</p>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Webhook Integrations</h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Connect to external automation services</p>
             </div>
         </div>
-        <a href="{{ route('admin.webhook-logs.index') }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800">
+        <a href="{{ route('admin.webhook-logs.index') }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
@@ -24,34 +24,34 @@
         @method('PUT')
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border border-orange-100">
+            <div class="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-xl p-6 border border-orange-100 dark:border-orange-800">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center">
                             <span class="text-white font-bold text-sm">n8n</span>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900">N8N</h3>
-                            <p class="text-xs text-gray-500">Workflow automation</p>
+                            <h3 class="font-semibold text-gray-900 dark:text-white">N8N</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Workflow automation</p>
                         </div>
                     </div>
                     @if(!empty($webhookConfig['n8n_webhook_url']))
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 flex items-center gap-1">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 flex items-center gap-1">
                             <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                             Active
                         </span>
                     @else
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">Inactive</span>
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">Inactive</span>
                     @endif
                 </div>
                 <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-700">Webhook URL</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Webhook URL</label>
                     <input type="url" name="n8n_webhook_url" value="{{ $webhookConfig['n8n_webhook_url'] ?? '' }}"
                         placeholder="https://n8n.example.com/webhook/..." 
-                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 font-mono text-sm">
-                    <p class="text-xs text-gray-500">Enter your N8N webhook endpoint URL</p>
+                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-orange-500 focus:ring-orange-500 font-mono text-sm">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Enter your N8N webhook endpoint URL</p>
                 </div>
-                <a href="https://n8n.io" target="_blank" class="inline-flex items-center text-xs text-orange-600 hover:text-orange-800 mt-3">
+                <a href="https://n8n.io" target="_blank" class="inline-flex items-center text-xs text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300 mt-3">
                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                     </svg>
@@ -59,7 +59,7 @@
                 </a>
             </div>
 
-            <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-100">
+            <div class="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl p-6 border border-orange-100 dark:border-orange-800">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-lg bg-orange-400 flex items-center justify-center">
@@ -68,27 +68,27 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900">Zapier</h3>
-                            <p class="text-xs text-gray-500">Connect 5000+ apps</p>
+                            <h3 class="font-semibold text-gray-900 dark:text-white">Zapier</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Connect 5000+ apps</p>
                         </div>
                     </div>
                     @if(!empty($webhookConfig['zapier_webhook_url']))
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 flex items-center gap-1">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 flex items-center gap-1">
                             <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                             Active
                         </span>
                     @else
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">Inactive</span>
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">Inactive</span>
                     @endif
                 </div>
                 <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-700">Webhook URL</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Webhook URL</label>
                     <input type="url" name="zapier_webhook_url" value="{{ $webhookConfig['zapier_webhook_url'] ?? '' }}"
                         placeholder="https://hooks.zapier.com/..." 
-                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 font-mono text-sm">
-                    <p class="text-xs text-gray-500">Enter your Zapier webhook endpoint URL</p>
+                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-orange-500 focus:ring-orange-500 font-mono text-sm">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Enter your Zapier webhook endpoint URL</p>
                 </div>
-                <a href="https://zapier.com/apps/webhook/integrations" target="_blank" class="inline-flex items-center text-xs text-orange-600 hover:text-orange-800 mt-3">
+                <a href="https://zapier.com/apps/webhook/integrations" target="_blank" class="inline-flex items-center text-xs text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300 mt-3">
                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                     </svg>
@@ -97,7 +97,7 @@
             </div>
         </div>
 
-        <div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl p-6 border border-gray-200">
+        <div class="bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-800/50 dark:to-slate-800/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-lg bg-gray-600 flex items-center justify-center">
@@ -106,33 +106,33 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900">Custom Webhook</h3>
-                        <p class="text-xs text-gray-500">Your own endpoint</p>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Custom Webhook</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Your own endpoint</p>
                     </div>
                 </div>
                 @if(!empty($webhookConfig['custom_webhook_url']))
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 flex items-center gap-1">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 flex items-center gap-1">
                         <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                         Active
                     </span>
                 @else
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">Inactive</span>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">Inactive</span>
                 @endif
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-700">Webhook URL</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Webhook URL</label>
                     <input type="url" name="custom_webhook_url" value="{{ $webhookConfig['custom_webhook_url'] ?? '' }}"
                         placeholder="https://your-server.com/webhook" 
-                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 font-mono text-sm">
+                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-gray-500 focus:ring-gray-500 font-mono text-sm">
                 </div>
                 <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-700">Signing Secret</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Signing Secret</label>
                     <div class="relative">
                         <input :type="showSecrets.custom ? 'text' : 'password'" name="webhook_secret" value="{{ $webhookConfig['webhook_secret'] ?? '' }}"
                             placeholder="Your webhook signing secret" 
-                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 pr-10 font-mono text-sm">
-                        <button type="button" @click="showSecrets.custom = !showSecrets.custom" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-gray-500 focus:ring-gray-500 pr-10 font-mono text-sm">
+                        <button type="button" @click="showSecrets.custom = !showSecrets.custom" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                             <svg x-show="!showSecrets.custom" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -142,30 +142,30 @@
                             </svg>
                         </button>
                     </div>
-                    <p class="text-xs text-gray-500">Used to verify webhook payloads</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Used to verify webhook payloads</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-blue-50 rounded-xl p-5 border border-blue-100">
+        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-5 border border-blue-100 dark:border-blue-800">
             <div class="flex items-start gap-3">
-                <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
                 <div>
-                    <h4 class="font-medium text-blue-900">How Webhooks Work</h4>
-                    <p class="text-sm text-blue-700 mt-1">When events occur (payments, subscriptions, etc.), we'll send a POST request to your configured webhooks with event data. Your endpoints should return a 2xx status code to acknowledge receipt.</p>
+                    <h4 class="font-medium text-blue-900 dark:text-blue-300">How Webhooks Work</h4>
+                    <p class="text-sm text-blue-700 dark:text-blue-400 mt-1">When events occur (payments, subscriptions, etc.), we'll send a POST request to your configured webhooks with event data. Your endpoints should return a 2xx status code to acknowledge receipt.</p>
                 </div>
             </div>
         </div>
 
-        <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-            <p class="text-xs text-gray-500">
+        <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-xs text-gray-500 dark:text-gray-400">
                 Webhooks are sent in real-time when events occur
             </p>
-            <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition-all font-medium">
+            <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all font-medium">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
