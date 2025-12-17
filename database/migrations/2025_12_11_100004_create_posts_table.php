@@ -24,7 +24,7 @@ return new class extends Migration
                 $table->bigInteger('likes')->default(0);
                 $table->bigInteger('comments')->default(0);
                 $table->bigInteger('shares')->default(0);
-                $table->bigInteger('engagements')->default(0);
+                $table->decimal('engagements', 10, 2)->default(0);
                 $table->bigInteger('impressions')->default(0);
                 $table->bigInteger('unique_impressions')->default(0);
                 $table->string('week_date', 255)->nullable();
