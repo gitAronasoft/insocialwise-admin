@@ -12,11 +12,11 @@ return new class extends Migration
             Schema::create('knowledge_base', function (Blueprint $table) {
                 $table->id();
                 $table->string('user_uuid', 255)->nullable();
-                $table->string('knowledgebase_title', 255)->nullable();
-                $table->text('knowledgebase_content')->nullable();
+                $table->string('knowledgeBase_title', 255)->nullable();
+                $table->text('knowledgeBase_content')->nullable();
                 $table->string('social_platform', 100)->nullable();
-                $table->json('socialdatadetail')->nullable();
-                $table->smallInteger('status')->default(1);
+                $table->text('social_data_detail')->nullable();
+                $table->enum('status', ['notConnected', 'Connected'])->default('notConnected');
                 $table->timestamps();
                 
                 $table->index('user_uuid');

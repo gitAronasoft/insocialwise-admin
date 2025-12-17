@@ -13,7 +13,7 @@ return new class extends Migration
                 $table->id();
                 $table->string('user_uuid', 255)->nullable();
                 $table->string('account_platform', 255)->nullable();
-                $table->bigInteger('account_social_userid')->nullable();
+                $table->string('account_social_userid', 255)->nullable();
                 $table->bigInteger('ad_account_id')->nullable();
                 $table->string('campaign_id', 255)->nullable();
                 $table->string('campaign_name', 255)->nullable();

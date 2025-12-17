@@ -12,9 +12,9 @@ return new class extends Migration
             Schema::create('knowledgebase_meta', function (Blueprint $table) {
                 $table->id();
                 $table->string('user_uuid', 255);
-                $table->string('knowledgebase_id', 255)->nullable();
-                $table->json('pages_id')->nullable();
-                $table->json('social_account_id')->nullable();
+                $table->string('knowledgeBase_id', 255)->nullable();
+                $table->string('pages_id', 255)->nullable();
+                $table->string('social_account_id', 255)->nullable();
                 $table->string('social_platform', 100)->nullable();
                 $table->string('namespace_id', 255)->nullable();
                 $table->timestamps();

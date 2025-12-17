@@ -14,12 +14,12 @@ return new class extends Migration
                 $table->string('user_uuid', 255);
                 $table->string('platform_page_id', 255);
                 $table->string('page_name', 255);
-                $table->string('social_userid', 255);
-                $table->string('platform', 100);
+                $table->string('social_userid', 255);  
+                $table->enum('platform', ["facebook", "linkedin", "instagram", "NA"])->default('NA');
                 $table->string('metric_type', 200)->nullable();
                 $table->string('metric_key', 250)->nullable();
                 $table->bigInteger('metric_value')->default(0);
-                $table->string('source', 100);
+                $table->enum('source', ["Sheet", "API", "NA"])->default('NA');
                 $table->timestamps();
                 
                 $table->index('user_uuid');
