@@ -68,7 +68,7 @@ class Customer extends Model
 
     public function socialUsers(): HasMany
     {
-        return $this->hasMany(SocialUser::class, 'user_id', 'uuid');
+        return $this->hasMany(SocialUser::class, 'user_uuid', 'uuid');
     }
 
     public function socialPages(): HasMany
