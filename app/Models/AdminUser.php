@@ -21,6 +21,7 @@ class AdminUser extends Authenticatable
         'role',
         'email_verified_at',
         'is_active',
+        'timezone',
         'two_factor_secret',
         'two_factor_recovery_codes',
         'two_factor_confirmed_at',

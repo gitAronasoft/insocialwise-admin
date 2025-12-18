@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Helpers\DateHelper;
 
 class ProfileController extends Controller
 {
@@ -18,7 +19,8 @@ class ProfileController extends Controller
     public function edit()
     {
         $user = Auth::guard('admin')->user();
-        return view('admin.profile.edit', compact('user'));
+        $timezones = DateHelper::getCommonTimezones();
+        return view('admin.profile.edit', compact('user', 'timezones'));
     }
 
     public function update(Request $request)
@@ -28,6 +30,7 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:admin_users,email,' . $user->id,
+            'timezone' => 'required|string|timezone',
         ]);
 
         $user->update($validated);

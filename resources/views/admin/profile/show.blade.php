@@ -29,8 +29,12 @@
                     <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Administrator</span>
                 </div>
                 <div>
+                    <p class="text-sm font-medium text-gray-500">Timezone</p>
+                    <p class="text-gray-900">{{ $user->timezone ?? 'UTC' }}</p>
+                </div>
+                <div>
                     <p class="text-sm font-medium text-gray-500">Last Updated</p>
-                    <p class="text-gray-900">{{ $user->updated_at->format('M d, Y H:i') }}</p>
+                    <p class="text-gray-900">@formatDate($user->updated_at)</p>
                 </div>
             </div>
         </div>
@@ -46,7 +50,7 @@
                         <p class="text-sm font-medium text-gray-500">Email Verification</p>
                         <p class="text-sm text-green-600 flex items-center mt-1">
                             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                            Verified on {{ $user->email_verified_at->format('M d, Y') }}
+                            Verified on @formatDate($user->email_verified_at, 'M d, Y')
                         </p>
                     </div>
                 @else

@@ -31,6 +31,20 @@
                 @error('email')<span class="text-red-600 text-sm">{{ $message }}</span>@enderror
             </div>
 
+            <div>
+                <label class="block text-sm font-medium text-gray-900 mb-2">Timezone</label>
+                <select name="timezone" required
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    @foreach($timezones as $tz => $label)
+                        <option value="{{ $tz }}" {{ old('timezone', $user->timezone ?? 'UTC') === $tz ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-sm text-gray-500">All dates and times in the admin panel will be displayed in your selected timezone.</p>
+                @error('timezone')<span class="text-red-600 text-sm">{{ $message }}</span>@enderror
+            </div>
+
             <div class="flex space-x-3 pt-6">
                 <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Save Changes</button>
                 <a href="{{ route('admin.profile.show') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Cancel</a>

@@ -242,7 +242,7 @@
                 <div class="space-y-2 text-sm">
                     <div class="flex justify-between">
                         <span class="text-gray-500">Plan</span>
-                        <span class="text-gray-900">{{ $notification->subscription->planName ?? 'N/A' }}</span>
+                        <span class="text-gray-900">{{ $notification->subscription->plan->name ?? 'N/A' }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-500">Status</span>

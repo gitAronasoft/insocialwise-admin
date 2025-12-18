@@ -213,7 +213,7 @@
                                 ">{{ ucfirst($payment->status ?? 'Unknown') }}</span>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {{ $payment->paid_at ? \Carbon\Carbon::parse($payment->paid_at)->format('M d, Y H:i') : 'N/A' }}
+                                {{ ($payment->paid_at ? \Carbon\Carbon::parse($payment->paid_at)->format('M d, Y H:i') : ($payment->created_at ? \Carbon\Carbon::parse($payment->created_at)->format('M d, Y H:i') : 'N/A')) }}
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center space-x-2">
