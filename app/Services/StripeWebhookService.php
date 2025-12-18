@@ -154,64 +154,82 @@ class StripeWebhookService
             return ['actions' => ['customer_not_found_for_subscription'], 'affected' => []];
         }
 
+        $stripePriceId = $subscription->items->data[0]->price->id ?? null;
+        
         $existingSub = Subscription::where('stripe_subscription_id', $subscription->id)->first();
-        if ($existingSub) {
-            return ['actions' => ['subscription_already_exists'], 'affected' => [['type' => 'subscription', 'id' => $existingSub->id]]];
-        }
-
-        $planId = null;
-        if (!empty($subscription->items->data[0]->price->id)) {
-            $plan = \App\Models\SubscriptionPlan::where('stripe_price_id', $subscription->items->data[0]->price->id)->first();
+        
+        $planId = $existingSub?->plan_id;
+        if (!$planId && $stripePriceId) {
+            $plan = \App\Models\SubscriptionPlan::where('stripe_price_id', $stripePriceId)
+                ->orWhere('stripe_yearly_price_id', $stripePriceId)
+                ->first();
             $planId = $plan?->id;
         }
 
-        $sub = Subscription::create([
-            'user_uuid' => $customer->uuid,
-            'stripe_subscription_id' => $subscription->id,
-            'stripe_customer_id' => $customerId,
-            'plan_id' => $planId,
-            'status' => $subscription->status,
-            'current_period_start' => $subscription->current_period_start ? \Carbon\Carbon::createFromTimestamp($subscription->current_period_start) : null,
-            'current_period_end' => $subscription->current_period_end ? \Carbon\Carbon::createFromTimestamp($subscription->current_period_end) : null,
-            'next_invoice_date' => $subscription->current_period_end ? \Carbon\Carbon::createFromTimestamp($subscription->current_period_end) : null,
-            'cancel_at_period_end' => $subscription->cancel_at_period_end ?? false,
-            'canceled_at' => $subscription->canceled_at ? \Carbon\Carbon::createFromTimestamp($subscription->canceled_at) : null,
-            'trial_start' => $subscription->trial_start ? \Carbon\Carbon::createFromTimestamp($subscription->trial_start) : null,
-            'trial_end' => $subscription->trial_end ? \Carbon\Carbon::createFromTimestamp($subscription->trial_end) : null,
-            'amount' => $subscription->items->data[0]->price->unit_amount ?? 0,
-            'currency' => strtoupper($subscription->currency ?? 'USD'),
-            'billing_interval' => $subscription->items->data[0]->price->recurring->interval ?? 'month',
-            'quantity' => $subscription->items->data[0]->quantity ?? 1,
-            'latest_invoice_id' => $subscription->latest_invoice,
-            'default_payment_method_id' => $subscription->default_payment_method,
-            'metadata' => (array) ($subscription->metadata ?? []),
-            'synced_at' => now(),
-        ]);
+        $sub = Subscription::updateOrCreate(
+            ['stripe_subscription_id' => $subscription->id],
+            [
+                'user_uuid' => $customer->uuid,
+                'stripe_customer_id' => $customerId,
+                'stripe_price_id' => $stripePriceId,
+                'plan_id' => $planId ?? $existingSub?->plan_id,
+                'status' => $subscription->status,
+                'current_period_start' => $subscription->current_period_start ? \Carbon\Carbon::createFromTimestamp($subscription->current_period_start) : null,
+                'current_period_end' => $subscription->current_period_end ? \Carbon\Carbon::createFromTimestamp($subscription->current_period_end) : null,
+                'billing_cycle_anchor' => $subscription->billing_cycle_anchor ? \Carbon\Carbon::createFromTimestamp($subscription->billing_cycle_anchor) : null,
+                'next_invoice_date' => $subscription->current_period_end ? \Carbon\Carbon::createFromTimestamp($subscription->current_period_end) : null,
+                'cancel_at_period_end' => $subscription->cancel_at_period_end ?? false,
+                'cancel_at' => $subscription->cancel_at ? \Carbon\Carbon::createFromTimestamp($subscription->cancel_at) : null,
+                'canceled_at' => $subscription->canceled_at ? \Carbon\Carbon::createFromTimestamp($subscription->canceled_at) : null,
+                'trial_start' => $subscription->trial_start ? \Carbon\Carbon::createFromTimestamp($subscription->trial_start) : null,
+                'trial_end' => $subscription->trial_end ? \Carbon\Carbon::createFromTimestamp($subscription->trial_end) : null,
+                'trial_days' => $subscription->trial_end && $subscription->trial_start 
+                    ? (int) round(($subscription->trial_end - $subscription->trial_start) / 86400) 
+                    : null,
+                'amount' => $subscription->items->data[0]->price->unit_amount ?? 0,
+                'currency' => strtoupper($subscription->currency ?? 'USD'),
+                'billing_interval' => $subscription->items->data[0]->price->recurring->interval ?? 'month',
+                'quantity' => $subscription->items->data[0]->quantity ?? 1,
+                'collection_method' => $subscription->collection_method ?? null,
+                'latest_invoice_id' => $subscription->latest_invoice,
+                'default_payment_method_id' => $subscription->default_payment_method,
+                'metadata' => (array) ($subscription->metadata ?? []),
+                'synced_at' => now(),
+            ]
+        );
+
+        $wasRecentlyCreated = $sub->wasRecentlyCreated;
+        $eventType = $wasRecentlyCreated ? 'subscription_created' : 'subscription_synced';
+        $action = $wasRecentlyCreated ? 'subscription_created' : 'subscription_synced';
 
         SubscriptionEvent::create([
             'subscription_id' => $sub->id,
             'user_uuid' => $customer->uuid,
             'stripe_subscription_id' => $subscription->id,
             'stripe_event_id' => $event->id,
-            'event_type' => 'subscription_created',
+            'event_type' => $eventType,
             'new_status' => $subscription->status,
             'amount' => $subscription->items->data[0]->price->unit_amount ?? 0,
             'currency' => strtoupper($subscription->currency ?? 'USD'),
             'actor' => 'stripe',
             'actor_id' => 'webhook',
-            'description' => 'New subscription created via webhook',
+            'description' => $wasRecentlyCreated 
+                ? 'New subscription created via webhook' 
+                : 'Subscription data synced from Stripe webhook',
             'event_payload' => (array) $event->data->object,
             'occurred_at' => \Carbon\Carbon::createFromTimestamp($event->created),
             'processed_at' => now(),
         ]);
 
         BillingActivityLog::log(
-            'subscription_created',
+            $eventType,
             'success',
             $customer->uuid,
             $sub->id,
             null,
-            'New subscription created: ' . $subscription->id,
+            $wasRecentlyCreated 
+                ? 'New subscription created: ' . $subscription->id 
+                : 'Subscription synced from Stripe: ' . $subscription->id,
             [
                 'actor_type' => 'stripe',
                 'new_value' => ['status' => $subscription->status, 'amount' => $subscription->items->data[0]->price->unit_amount ?? 0],
@@ -221,7 +239,7 @@ class StripeWebhookService
         );
 
         return [
-            'actions' => ['subscription_created'],
+            'actions' => [$action],
             'affected' => [['type' => 'subscription', 'id' => $sub->id]],
         ];
     }
@@ -238,16 +256,42 @@ class StripeWebhookService
         }
 
         $oldStatus = $sub->status;
+        
+        $stripePriceId = $subscription->items->data[0]->price->id ?? null;
+        $planId = $sub->plan_id;
+        if (!$planId && $stripePriceId) {
+            $plan = \App\Models\SubscriptionPlan::where('stripe_price_id', $stripePriceId)
+                ->orWhere('stripe_yearly_price_id', $stripePriceId)
+                ->first();
+            if ($plan) {
+                $planId = $plan->id;
+            }
+        }
+        
         $updates = [
             'status' => $subscription->status,
+            'stripe_price_id' => $stripePriceId ?? $sub->stripe_price_id,
+            'plan_id' => $planId,
             'current_period_start' => $subscription->current_period_start ? \Carbon\Carbon::createFromTimestamp($subscription->current_period_start) : null,
             'current_period_end' => $subscription->current_period_end ? \Carbon\Carbon::createFromTimestamp($subscription->current_period_end) : null,
+            'billing_cycle_anchor' => $subscription->billing_cycle_anchor ? \Carbon\Carbon::createFromTimestamp($subscription->billing_cycle_anchor) : $sub->billing_cycle_anchor,
             'next_invoice_date' => $subscription->current_period_end ? \Carbon\Carbon::createFromTimestamp($subscription->current_period_end) : null,
             'cancel_at_period_end' => $subscription->cancel_at_period_end,
             'cancel_at' => $subscription->cancel_at ? \Carbon\Carbon::createFromTimestamp($subscription->cancel_at) : null,
             'canceled_at' => $subscription->canceled_at ? \Carbon\Carbon::createFromTimestamp($subscription->canceled_at) : null,
             'ended_at' => $subscription->ended_at ? \Carbon\Carbon::createFromTimestamp($subscription->ended_at) : null,
+            'trial_start' => $subscription->trial_start ? \Carbon\Carbon::createFromTimestamp($subscription->trial_start) : $sub->trial_start,
+            'trial_end' => $subscription->trial_end ? \Carbon\Carbon::createFromTimestamp($subscription->trial_end) : $sub->trial_end,
+            'trial_days' => $subscription->trial_end && $subscription->trial_start 
+                ? (int) round(($subscription->trial_end - $subscription->trial_start) / 86400) 
+                : $sub->trial_days,
+            'amount' => $subscription->items->data[0]->price->unit_amount ?? $sub->amount,
+            'currency' => strtoupper($subscription->currency ?? $sub->currency ?? 'USD'),
+            'billing_interval' => $subscription->items->data[0]->price->recurring->interval ?? $sub->billing_interval ?? 'month',
+            'quantity' => $subscription->items->data[0]->quantity ?? $sub->quantity ?? 1,
+            'collection_method' => $subscription->collection_method ?? $sub->collection_method,
             'latest_invoice_id' => $subscription->latest_invoice,
+            'default_payment_method_id' => $subscription->default_payment_method ?? $sub->default_payment_method_id,
             'synced_at' => now(),
         ];
 
@@ -724,36 +768,63 @@ class StripeWebhookService
             return ['actions' => ['customer_not_found_for_payment_method'], 'affected' => []];
         }
 
-        $pm = PaymentMethod::create([
-            'user_uuid' => $customer->uuid,
-            'stripe_customer_id' => $customerId,
-            'stripe_payment_method_id' => $paymentMethod->id,
-            'type' => $paymentMethod->type,
-            'brand' => $paymentMethod->card->brand ?? null,
-            'last4' => $paymentMethod->card->last4 ?? null,
-            'exp_month' => $paymentMethod->card->exp_month ?? null,
-            'exp_year' => $paymentMethod->card->exp_year ?? null,
-            'funding' => $paymentMethod->card->funding ?? null,
-            'country' => $paymentMethod->card->country ?? null,
-            'billing_details' => (array) $paymentMethod->billing_details,
-            'fingerprint' => $paymentMethod->card->fingerprint ?? null,
-            'wallet' => $paymentMethod->card->wallet->type ?? null,
-            'is_default' => false,
-            'status' => 'active',
-        ]);
+        $cardBrand = $paymentMethod->card->brand ?? null;
+        $cardLast4 = $paymentMethod->card->last4 ?? null;
+        
+        $billingDetailsArray = [];
+        if ($paymentMethod->billing_details) {
+            $bd = $paymentMethod->billing_details;
+            $billingDetailsArray = [
+                'name' => $bd->name ?? null,
+                'email' => $bd->email ?? null,
+                'phone' => $bd->phone ?? null,
+                'address' => $bd->address ? [
+                    'city' => $bd->address->city ?? null,
+                    'country' => $bd->address->country ?? null,
+                    'line1' => $bd->address->line1 ?? null,
+                    'line2' => $bd->address->line2 ?? null,
+                    'postal_code' => $bd->address->postal_code ?? null,
+                    'state' => $bd->address->state ?? null,
+                ] : null,
+            ];
+        }
+
+        $pm = PaymentMethod::updateOrCreate(
+            ['stripe_payment_method_id' => $paymentMethod->id],
+            [
+                'user_uuid' => $customer->uuid,
+                'stripe_customer_id' => $customerId,
+                'type' => $paymentMethod->type,
+                'brand' => $cardBrand,
+                'card_brand' => $cardBrand ? strtoupper($cardBrand) : null,
+                'last4' => $cardLast4,
+                'card_last4' => $cardLast4,
+                'exp_month' => $paymentMethod->card->exp_month ?? null,
+                'exp_year' => $paymentMethod->card->exp_year ?? null,
+                'funding' => $paymentMethod->card->funding ?? null,
+                'country' => $paymentMethod->card->country ?? null,
+                'billing_details' => $billingDetailsArray,
+                'fingerprint' => $paymentMethod->card->fingerprint ?? null,
+                'wallet' => $paymentMethod->card->wallet->type ?? null,
+                'status' => 'active',
+            ]
+        );
+
+        $wasRecentlyCreated = $pm->wasRecentlyCreated;
+        $action = $wasRecentlyCreated ? 'payment_method_added' : 'payment_method_updated';
 
         BillingActivityLog::log(
-            'card_added',
+            $wasRecentlyCreated ? 'card_added' : 'card_updated',
             'success',
             $customer->uuid,
             null,
             null,
-            "Payment method added: " . ($paymentMethod->card->brand ?? 'Card') . " ending in " . ($paymentMethod->card->last4 ?? '****'),
+            ($wasRecentlyCreated ? "Payment method added: " : "Payment method updated: ") . ($cardBrand ?? 'Card') . " ending in " . ($cardLast4 ?? '****'),
             [
                 'actor_type' => 'stripe',
                 'new_value' => [
-                    'brand' => $paymentMethod->card->brand ?? null,
-                    'last4' => $paymentMethod->card->last4 ?? null,
+                    'brand' => $cardBrand,
+                    'last4' => $cardLast4,
                 ],
                 'stripe_event_id' => $event->id,
                 'stripe_object_id' => $paymentMethod->id,
@@ -761,7 +832,7 @@ class StripeWebhookService
         );
 
         return [
-            'actions' => ['payment_method_added'],
+            'actions' => [$action],
             'affected' => [['type' => 'payment_method', 'id' => $pm->id]],
         ];
     }
