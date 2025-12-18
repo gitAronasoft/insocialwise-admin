@@ -3,11 +3,31 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
+        // 1️⃣ Create PostgreSQL ENUM type
+        DB::statement("
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'enum_webhook_events_status') THEN
+                    CREATE TYPE enum_webhook_events_status AS ENUM (
+                        'received',
+                        'processing',
+                        'processed',
+                        'failed',
+                        'skipped',
+                        'retrying'
+                    );
+                END IF;
+            END
+            $$;
+        ");
+
+        // 2️⃣ Create table with TEMP varchar column
         if (!Schema::hasTable('webhook_events')) {
             Schema::create('webhook_events', function (Blueprint $table) {
                 $table->id();
@@ -26,8 +46,10 @@ return new class extends Migration
                 $table->string('payload_hash')->nullable();
                 $table->integer('response_code')->nullable();
                 $table->text('response_body')->nullable();
-                $table->enum('status', ['received', 'processing', 'processed', 'failed', 'skipped', 'retrying'])
-                      ->default('received');
+
+                // TEMP string (will convert to ENUM)
+                $table->string('status')->default('received');
+
                 $table->text('error_message')->nullable();
                 $table->integer('retry_count')->default(0);
                 $table->timestamp('received_at')->nullable();
@@ -41,16 +63,32 @@ return new class extends Migration
                 $table->json('request_headers')->nullable();
                 $table->json('response_data')->nullable();
                 $table->timestamps();
-                
+
                 $table->index('event_type');
                 $table->index('status');
                 $table->index('customer_id');
                 $table->index('created_at');
             });
+
+            // 3️⃣ Drop default → Convert → Restore default
+            DB::statement("
+                ALTER TABLE webhook_events
+                ALTER COLUMN status DROP DEFAULT;
+
+                ALTER TABLE webhook_events
+                ALTER COLUMN status TYPE enum_webhook_events_status
+                USING status::enum_webhook_events_status;
+
+                ALTER TABLE webhook_events
+                ALTER COLUMN status SET DEFAULT 'received';
+            ");
         }
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('webhook_events');
+
+        DB::statement("DROP TYPE IF EXISTS enum_webhook_events_status");
     }
 };
