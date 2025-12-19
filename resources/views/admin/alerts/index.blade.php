@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 @section('title', 'Alerts & Notifications')
 @section('content')
 <div class="space-y-6">
@@ -43,7 +44,7 @@
                         <td class="px-6 py-4">{{ ucfirst($alert->type) }}</td>
                         <td class="px-6 py-4">{{ $alert->title }}</td>
                         <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs bg-{{ $alert->severity_color }}-100">{{ ucfirst($alert->severity) }}</span></td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ $alert->created_at->diffForHumans() }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ DateHelper::diffForHumans($alert->created_at) }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No alerts found</td></tr>

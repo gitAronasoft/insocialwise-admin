@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Activity Details')
 
@@ -21,7 +22,7 @@
             </div>
             <div>
                 <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Timestamp</h4>
-                <p class="text-gray-900 dark:text-white">{{ $activity->created_at ? $activity->created_at->format('M d, Y H:i:s') : 'N/A' }}</p>
+                <p class="text-gray-900 dark: ? DateHelper::formatDateTimeSeconds(text-white">{{ $activity->created_at ? $activity->created_at) : 'N/A' }}</p>
             </div>
             <div>
                 <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Activity Type</h4>

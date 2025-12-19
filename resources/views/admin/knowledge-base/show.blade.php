@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Article - ' . $knowledgeBase->knowledgeBase_title)
 
@@ -31,11 +32,11 @@
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Created</p>
-                <p class="text-sm text-gray-900">{{ $knowledgeBase->created_at->format('M d, Y') }}</p>
+                <p class="text-sm text-gray-900">{{ DateHelper::formatDateTime($knowledgeBase->created_at) }}</p>
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Updated</p>
-                <p class="text-sm text-gray-900">{{ $knowledgeBase->updated_at->format('M d, Y') }}</p>
+                <p class="text-sm text-gray-900">{{ DateHelper::formatDateTime($knowledgeBase->updated_at) }}</p>
             </div>
         </div>
     </div>

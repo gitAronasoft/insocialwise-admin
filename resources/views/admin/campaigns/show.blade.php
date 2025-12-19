@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Campaign - ' . $campaign->campaign_name)
 
@@ -32,7 +33,13 @@
         </div>
         <div class="bg-white rounded-xl shadow-sm p-4">
             <p class="text-sm font-medium text-gray-500">Created</p>
-            <p class="text-sm text-gray-900">{{ $campaign->created_at ? $campaign->created_at->format('M d, Y') : 'N/A' }}</p>
+            <p class="text-sm text-gray-900">
+                @if($campaign->created_at)
+                    <div>{{ DateHelper::formatDateTime($campaign->created_at) }}</div>
+                @else
+                    N/A
+                @endif
+            </p>
         </div>
     </div>
 

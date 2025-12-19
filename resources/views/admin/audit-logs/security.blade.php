@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Security Overview')
 
@@ -63,7 +64,7 @@
                         <div class="ml-3 flex-1">
                             <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $login->admin_email }}</div>
                             <div class="text-xs text-gray-500 dark:text-gray-400">
-                                {{ $login->ip_address }} &bull; {{ $login->created_at->diffForHumans() }}
+                                {{ $login->ip_address }} &bull; {{ DateHelper::diffForHumans($login->created_at) }}
                             </div>
                         </div>
                     </div>
@@ -137,7 +138,7 @@
                         <div class="ml-3 flex-1">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $alert->action_label }}</span>
-                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ $alert->created_at->diffForHumans() }}</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ DateHelper::diffForHumans($alert->created_at) }}</span>
                             </div>
                             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ $alert->description }}</p>
                             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">

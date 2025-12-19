@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Activity Timeline')
 
@@ -70,7 +71,7 @@
                 @php $currentDate = null; @endphp
                 @forelse($activities as $activity)
                     @php 
-                        $activityDate = $activity->created_at->format('Y-m-d');
+                        DateHelper::formatDateTime($activityDate = $activity->created_at);
                         $showDateHeader = $activityDate !== $currentDate;
                         $currentDate = $activityDate;
                     @endphp
@@ -140,7 +141,7 @@
                                         @if($activity->activity_subType)
                                             <span class="text-xs text-gray-500 dark:text-gray-400">{{ $activity->activity_subType }}</span>
                                         @endif
-                                        <span class="text-xs text-gray-400 dark:text-gray-500">{{ $activity->created_at->format('H:i:s') }}</span>
+                                        <span class="text-xs text-gray-400 dark:text-gray-500">{{ DateHelper::formatTime($activity->created_at) }}</span>
                                     </div>
 
                                     <div class="flex items-center gap-2 mb-2">

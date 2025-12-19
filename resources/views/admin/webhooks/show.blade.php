@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Webhook Details')
 
@@ -142,7 +143,7 @@
                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex items-center justify-between text-sm mb-2">
                             <span class="text-gray-500 dark:text-gray-400">Last Triggered</span>
-                            <span class="text-gray-900 dark:text-white">{{ $webhook->last_triggered_at ? $webhook->last_triggered_at->diffForHumans() : 'Never' }}</span>
+                            <span class="text-gray-900 dark: ? DateHelper::diffForHumans(text-white">{{ $webhook->last_triggered_at ? $webhook->last_triggered_at) : 'Never' }}</span>
                         </div>
                         @if($webhook->last_status)
                             <div class="flex items-center justify-between text-sm mb-2">
@@ -154,7 +155,7 @@
                         @endif
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-500 dark:text-gray-400">Created</span>
-                            <span class="text-gray-900 dark:text-white">{{ $webhook->created_at->format('M d, Y') }}</span>
+                            <span class="text-gray-900 dark:text-white">{{ DateHelper::formatDateTime($webhook->created_at) }}</span>
                         </div>
                     </div>
                 </div>
@@ -202,7 +203,7 @@
                             </td>
                             <td class="px-4 py-3 whitespace-nowrap">
                                 <span class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $log->executed_at ? $log->executed_at->format('M d, Y H:i:s') : 'N/A' }}
+                                    {{ $log->executed_at ? DateHelper::formatDateTimeSeconds($log->executed_at) : 'N/A' }}
                                 </span>
                             </td>
                             <td class="px-4 py-3">

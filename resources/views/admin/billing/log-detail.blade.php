@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Activity Log Details')
 
@@ -63,7 +64,7 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Timestamp</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $log->created_at?->format('M d, Y H:i:s') }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900">{{ DateHelper::formatDateTimeSeconds($log->created_at) }}</dd>
                     </div>
                     @if($log->stripe_event_id)
                     <div>

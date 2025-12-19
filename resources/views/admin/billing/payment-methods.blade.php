@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Payment Methods')
 
@@ -168,7 +169,7 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                {{ $method->created_at?->format('M d, Y') }}
+                                <div>{{ DateHelper::formatDateTime($method->created_at) }}</div>
                             </td>
                         </tr>
                     @empty

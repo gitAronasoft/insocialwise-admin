@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 @section('title', 'Social Accounts')
 @section('content')
 <div class="space-y-6">

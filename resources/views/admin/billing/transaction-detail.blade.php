@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Transaction Details')
 
@@ -56,7 +57,7 @@
                                 @endif
                             ">{{ ucfirst($transaction->status ?? 'Unknown') }}</span>
                             @if($transaction->paid_at)
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Paid {{ \Carbon\Carbon::parse($transaction->paid_at)->format('M d, Y \a\t H:i') }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Paid {{ DateHelper::formatDateTime($transaction->paid_at) }}</p>
                             @endif
                         </div>
                     </div>
@@ -247,7 +248,12 @@
                                     {{ $related->invoice_number ? '#' . $related->invoice_number : 'TXN-' . $related->id }}
                                 </p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                                    {{ $related->paid_at ? \Carbon\Carbon::parse($related->paid_at)->format('M d, Y') : 'N/A' }}
+                                    @if($related->paid_at)
+                                        <div>{{ DateHelper::formatDateTime(\Carbon\Carbon::parse($related->paid_at)) }}</div>
+                                        <div>{{ DateHelper::formatTime(\Carbon\Carbon::parse($related->paid_at), 'g:i A') }}</div>
+                                    @else
+                                        N/A
+                                    @endif
                                 </p>
                             </div>
                             <div class="text-right">

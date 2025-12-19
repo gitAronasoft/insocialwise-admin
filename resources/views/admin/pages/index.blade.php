@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 @section('title', 'Connected Pages')
 @section('content')
 <div class="space-y-6">
@@ -44,7 +45,13 @@
                     <td class="px-6 py-4">{{ $page->page_name }}</td>
                     <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs bg-primary-100">{{ ucfirst($page->platform) }}</span></td>
                     <td class="px-6 py-4">{{ optional($page->socialUser)->customer ? optional($page->socialUser->customer)->firstName : 'N/A' }}</td>
-                    <td class="px-6 py-4 text-sm">{{ $page->created_at ? $page->created_at->format('M d, Y') : 'N/A' }}</td>
+                    <td class="px-6 py-4 text-sm">
+                        @if($page->created_at)
+                            <div>{{ DateHelper::formatDateTime($page->created_at) }}</div>
+                        @else
+                            N/A
+                        @endif
+                    </td>
                     <td class="px-6 py-4 text-right"><a href="{{ route('admin.pages.show', $page) }}" class="text-primary-600 hover:underline text-sm">View</a></td>
                 </tr>
                 @empty

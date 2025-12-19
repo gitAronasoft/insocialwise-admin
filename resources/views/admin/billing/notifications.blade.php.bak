@@ -1,0 +1,217 @@
+@extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
+
+@section('title', 'Billing Notifications')
+
+@section('content')
+<div class="space-y-6">
+    <x-breadcrumb :items="[
+        ['label' => 'Billing', 'url' => null], ['label' => 'Notifications', 'url' => null]
+    ]" />
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Billing Notifications</h1>
+            <p class="text-gray-500 mt-1">Track all billing-related email notifications sent to customers</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total Sent</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Sent</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $stats['sent'] }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Delivered</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $stats['delivered'] }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Failed</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $stats['failed'] }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Today</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $stats['today'] }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <form action="{{ route('admin.billing.notifications') }}" method="GET" class="flex flex-wrap gap-4 mb-6">
+            <div class="flex-1 min-w-[200px]">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by email or customer name..." 
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            </div>
+            <div>
+                <select name="type" class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">All Types</option>
+                    @foreach($notificationTypes as $key => $label)
+                        <option value="{{ $key }}" {{ request('type') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <select name="status" class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">All Statuses</option>
+                    @foreach($statuses as $status)
+                        <option value="{{ $status }}" {{ request('status') === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <input type="date" name="date_from" value="{{ request('date_from') }}" 
+                    class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="From Date">
+            </div>
+            <div>
+                <input type="date" name="date_to" value="{{ request('date_to') }}" 
+                    class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="To Date">
+            </div>
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Filter</button>
+        </form>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recipient</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sent At</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subscription</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($notifications as $notification)
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                @php
+                                    $typeLabel = $notificationTypes[$notification->type] ?? ucfirst(str_replace('_', ' ', $notification->type ?? 'Unknown'));
+                                    $typeColor = match($notification->type ?? '') {
+                                        'payment_succeeded', 'invoice_paid' => 'green',
+                                        'payment_failed', 'dunning_notice' => 'red',
+                                        'payment_reminder', 'trial_ending', 'card_expiring' => 'yellow',
+                                        'subscription_created', 'subscription_renewed' => 'blue',
+                                        'subscription_canceled' => 'gray',
+                                        default => 'indigo',
+                                    };
+                                @endphp
+                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    @if($typeColor === 'green') bg-green-100 text-green-800
+                                    @elseif($typeColor === 'red') bg-red-100 text-red-800
+                                    @elseif($typeColor === 'yellow') bg-yellow-100 text-yellow-800
+                                    @elseif($typeColor === 'blue') bg-blue-100 text-blue-800
+                                    @elseif($typeColor === 'gray') bg-gray-100 text-gray-800
+                                    @else bg-indigo-100 text-indigo-800
+                                    @endif
+                                ">{{ $typeLabel }}</span>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="text-sm text-gray-900">{{ $notification->recipient_email ?? 'N/A' }}</div>
+                            </td>
+                            <td class="px-4 py-4">
+                                @if($notification->customer_first_name || $notification->customer_last_name)
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ $notification->customer_first_name }} {{ $notification->customer_last_name }}
+                                    </div>
+                                    <div class="text-xs text-gray-500">{{ $notification->customer_email }}</div>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    @if($notification->status === 'delivered') bg-green-100 text-green-800
+                                    @elseif($notification->status === 'sent') bg-blue-100 text-blue-800
+                                    @elseif($notification->status === 'failed' || $notification->status === 'bounced') bg-red-100 text-red-800
+                                    @else bg-yellow-100 text-yellow-800
+                                    @endif
+                                ">{{ ucfirst($notification->status ?? 'Unknown') }}</span>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @if($notification->sent_at)
+                                    <div>{{ DateHelper::formatDate(\Carbon\Carbon::parse($notification->sent_at)) }}</div>
+                                    <div class="text-xs text-gray-400">{{ DateHelper::formatTime(\Carbon\Carbon::parse($notification->sent_at), 'g:i A') }}</div>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @if($notification->stripe_subscription_id)
+                                    <span class="font-mono text-xs">{{ Str::limit($notification->stripe_subscription_id, 15) }}</span>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center">
+                                <svg class="w-12 h-12 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                <p class="mt-4 text-gray-500">No billing notifications found</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
+            {{ $notifications->links() }}
+        </div>
+    </div>
+</div>
+@endsection

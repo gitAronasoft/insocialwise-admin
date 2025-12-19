@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Transactions')
 
@@ -122,8 +123,8 @@
                                 @endif
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $transaction->created_at?->format('M d, Y') ?? 'N/A' }}
-                                <div class="text-xs text-gray-400">{{ $transaction->created_at?->format('H:i') ?? '' }}</div>
+                                {{ $transaction->created_at ? DateHelper::formatDateTime($transaction->created_at) : 'N/A' }}
+                                <div class="text-xs text-gray-400">{{ $transaction->created_at ? DateHelper::formatTime($transaction->created_at, 'g:i A') : '' }}</div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap text-sm">
                                 <div class="flex flex-col gap-1">

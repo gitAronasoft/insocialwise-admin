@@ -167,7 +167,7 @@
                                 @endif
                             </td>
                             <td class="px-4 py-4 text-gray-600 text-xs">
-                                {{ $notification->scheduled_at?->format('M d, Y H:i') ?? '-' }}
+                                {{ $notification->scheduled_at?->formatDateTime() ?? '-' }}
                             </td>
                             <td class="px-4 py-4">
                                 <div class="flex space-x-2">

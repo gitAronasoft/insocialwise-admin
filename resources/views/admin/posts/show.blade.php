@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Post Details')
 
@@ -43,7 +44,7 @@
             </div>
             <div>
                 <h4 class="text-sm font-medium text-gray-500 mb-2">Created</h4>
-                <p class="text-gray-900">{{ $post->created_at ? $post->created_at->format('M d, Y H:i') : 'N/A' }}</p>
+ ? DateHelper::formatDateTime(<p class="text-gray-900">{{ $post->created_at ? $post->created_at) : 'N/A' }}</p>
             </div>
             <div>
                 <h4 class="text-sm font-medium text-gray-500 mb-2">Scheduled Time</h4>
@@ -114,7 +115,7 @@
                             <p class="font-medium text-gray-900">{{ $comment->commenter_name ?? 'Anonymous' }}</p>
                             <p class="text-gray-600 mt-1">{{ $comment->comment }}</p>
                         </div>
-                        <span class="text-xs text-gray-500">{{ $comment->created_at ? $comment->created_at->format('M d, Y H:i') : '' }}</span>
+ ? DateHelper::formatDateTime(<span class="text-xs text-gray-500">{{ $comment->created_at ? $comment->created_at) : '' }}</span>
                     </div>
                 </div>
             @endforeach

@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Billing Notifications')
 
@@ -180,8 +181,8 @@
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                 @if($notification->sent_at)
-                                    <div>{{ \Carbon\Carbon::parse($notification->sent_at)->format('M d, Y') }}</div>
-                                    <div class="text-xs text-gray-400">{{ \Carbon\Carbon::parse($notification->sent_at)->format('H:i') }}</div>
+                                    <div>{{ DateHelper::formatDateTime(\Carbon\Carbon::parse($notification->sent_at)) }}</div>
+                                    <div class="text-xs text-gray-400">{{ DateHelper::formatTime(\Carbon\Carbon::parse($notification->sent_at), 'g:i A') }}</div>
                                 @else
                                     <span class="text-gray-400">-</span>
                                 @endif

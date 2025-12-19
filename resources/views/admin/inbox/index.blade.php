@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Inbox')
 
@@ -60,7 +61,7 @@
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-sm text-gray-500">{{ $conversation->updated_at->diffForHumans() }}</p>
+                        <p class="text-sm text-gray-500">{{ DateHelper::diffForHumans($conversation->updated_at) }}</p>
                         <a href="{{ route('admin.inbox.show', $conversation) }}" class="text-indigo-600 hover:text-indigo-900 text-sm">View</a>
                     </div>
                 </div>

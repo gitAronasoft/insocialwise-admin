@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Webhook Logs')
 
@@ -173,8 +174,8 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                <div>{{ $event->created_at?->format('M d, Y') }}</div>
-                                <div class="text-xs">{{ $event->created_at?->format('H:i:s') }}</div>
+                                <div>{{ $event->created_at ? DateHelper::formatDateTime($event->created_at) : 'N/A' }}</div>
+                                <div class="text-xs">{{ $event->created_at ? DateHelper::formatTime($event->created_at, 'g:i:s A') : '' }}</div>
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end space-x-2">

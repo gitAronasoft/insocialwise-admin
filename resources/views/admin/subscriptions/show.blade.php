@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Subscription Details')
 
@@ -143,7 +144,7 @@
                             </div>
                             <div class="mt-3 text-center">
                                 <p class="text-sm font-semibold @if(isset($stage['future'])) text-white/70 @else text-white @endif">{{ $stage['label'] }}</p>
-                                <p class="text-xs @if(isset($stage['future'])) text-white/50 @else text-indigo-200 @endif">{{ $stage['date']->format('M d, Y') }}</p>
+                                <p class="text-xs @if(isset($stage['future'])) text-white/50 @else text-indigo-200 @endif">{{ DateHelper::formatDateTime($stage['date']) }}</p>
                             </div>
                         </div>
                     @endforeach
@@ -222,8 +223,8 @@
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Current Period</p>
                     <p class="text-base text-gray-900 dark:text-white">
-                        {{ $subscription->current_period_start?->format('M d, Y') ?? 'N/A' }} - 
-                        {{ $subscription->current_period_end?->format('M d, Y') ?? 'N/A' }}
+                        {{ $subscription->current_period_start ? DateHelper::formatDate($subscription->current_period_start) : 'N/A' }} - 
+                        {{ $subscription->current_period_end ? DateHelper::formatDate($subscription->current_period_end) : 'N/A' }}
                     </p>
                 </div>
                 @if($subscription->days_until_renewal !== null && $subscription->status === 'active')
@@ -367,13 +368,13 @@
                             <p><strong>Retry Attempts:</strong> {{ $subscription->payment_retry_count }}</p>
                         @endif
                         @if($subscription->next_payment_retry_at)
-                            <p><strong>Next Retry:</strong> {{ $subscription->next_payment_retry_at->format('M d, Y H:i') }}</p>
+                            <p><strong>Next Retry:</strong> {{ DateHelper::formatDateTime($subscription->next_payment_retry_at) }}</p>
                         @endif
                         @if($subscription->last_payment_error)
                             <p><strong>Last Error:</strong> {{ $subscription->last_payment_error }}</p>
                         @endif
                         @if($subscription->past_due_since)
-                            <p><strong>Past Due Since:</strong> {{ $subscription->past_due_since->format('M d, Y') }} ({{ $subscription->past_due_since->diffForHumans() }})</p>
+                            <p><strong>Past Due Since:</strong> {{ $subscription->past_due_since->format('M d, Y') }} ({{ DateHelper::diffForHumans($subscription->past_due_since) }})</p>
                         @endif
                     </div>
                 </div>
@@ -393,7 +394,7 @@
                     <h4 class="text-lg font-semibold text-blue-900">Trial Active</h4>
                     <p class="text-blue-700">
                         Trial ends on {{ $subscription->trial_end->format('F d, Y') }} 
-                        ({{ $subscription->trial_end->diffForHumans() }})
+                        ({{ DateHelper::diffForHumans($subscription->trial_end) }})
                     </p>
                 </div>
             </div>
@@ -461,7 +462,7 @@
                             <span class="px-2 py-1 text-xs font-semibold rounded-full bg-{{ $transaction->status_color }}-100 text-{{ $transaction->status_color }}-800">
                                 {{ $transaction->status_label }}
                             </span>
-                            <p class="text-sm text-gray-500 mt-1">{{ $transaction->paid_at?->format('M d, Y H:i') ?? 'N/A' }}</p>
+                            <p class="text-sm text-gray-500 mt-1">{{ $transaction->paid_at ? DateHelper::formatDateTime($transaction->paid_at) : 'N/A' }}</p>
                         </div>
                     </div>
                 @endforeach
@@ -603,7 +604,7 @@
                                     </div>
                                     <div class="text-right">
                                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                                            {{ $event->occurred_at ? \Carbon\Carbon::parse($event->occurred_at)->format('M d, Y H:i') : ($event->created_at ? \Carbon\Carbon::parse($event->created_at)->format('M d, Y H:i') : 'N/A') }}
+                                            {{ $event->occurred_at ? DateHelper::formatDateTime($event->occurred_at) : ($event->created_at ? DateHelper::formatDateTime($event->created_at) : 'N/A') }}
                                         </p>
                                         @if($event->actor)
                                             <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
@@ -633,7 +634,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="font-medium text-indigo-900">Next Renewal</p>
-                        <p class="text-sm text-indigo-700">{{ $subscription->current_period_end->format('F d, Y') }} ({{ $subscription->current_period_end->diffForHumans() }})</p>
+                        <p class="text-sm text-indigo-700">{{ DateHelper::formatDateTime($subscription->current_period_end) }} ({{ DateHelper::diffForHumans($subscription->current_period_end) }})</p>
                     </div>
                     <div class="ml-auto">
                         <span class="text-lg font-bold text-indigo-900">{{ $subscription->formatted_amount ?? '$' . number_format(($subscription->amount ?? 0) / 100, 2) }}</span>

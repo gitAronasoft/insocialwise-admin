@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Edit Admin User')
 
@@ -139,11 +140,11 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
                         <span class="text-gray-500 dark:text-gray-400">Created:</span>
-                        <p class="text-gray-900 dark:text-white">{{ $adminUser->created_at->format('M d, Y H:i') }}</p>
+                        <p class="text-gray-900 dark:text-white">{{ DateHelper::formatDateTime($adminUser->created_at) }}</p>
                     </div>
                     <div>
                         <span class="text-gray-500 dark:text-gray-400">Last Updated:</span>
-                        <p class="text-gray-900 dark:text-white">{{ $adminUser->updated_at->format('M d, Y H:i') }}</p>
+                        <p class="text-gray-900 dark:text-white">{{ DateHelper::formatDateTime($adminUser->updated_at) }}</p>
                     </div>
                     <div>
                         <span class="text-gray-500 dark:text-gray-400">Status:</span>
@@ -154,7 +155,11 @@
                     <div>
                         <span class="text-gray-500 dark:text-gray-400">Email Verified:</span>
                         <p class="{{ $adminUser->email_verified_at ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400' }}">
-                            {{ $adminUser->email_verified_at ? $adminUser->email_verified_at->format('M d, Y') : 'Not verified' }}
+                            @if($adminUser->email_verified_at)
+                                <div>{{ DateHelper::formatDateTime($adminUser->email_verified_at) }}</div>
+                            @else
+                                Not verified
+                            @endif
                         </p>
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Conversation')
 
@@ -27,7 +28,7 @@
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Last Updated</p>
-                <p class="text-sm text-gray-900">{{ $conversation->updated_at->diffForHumans() }}</p>
+                <p class="text-sm text-gray-900">{{ DateHelper::diffForHumans($conversation->updated_at) }}</p>
             </div>
         </div>
 
@@ -39,7 +40,7 @@
                         <p class="font-medium text-gray-900">
                             {{ $message->sender_type === 'customer' ? 'Customer' : 'Page' }}
                         </p>
-                        <p class="text-xs text-gray-500">{{ $message->created_at ? $message->created_at->format('M d, Y H:i') : '' }}</p>
+                        <p class="text-xs text-gray-500">{{ $message->created_at ? DateHelper::formatDateTime($message->created_at) : '' }}</p>
                     </div>
                     <p class="text-gray-700">{{ $message->message_text }}</p>
                     @if($message->attachments)

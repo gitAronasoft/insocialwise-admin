@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Social Account Details')
 
@@ -120,7 +121,7 @@
                             </div>
                             <div class="ml-4">
                                 <p class="font-medium text-red-800 dark:text-red-400">Token Expired</p>
-                                <p class="text-sm text-red-600 dark:text-red-500">Expired {{ $tokenExpiry->diffForHumans() }} on {{ $tokenExpiry->format('M d, Y H:i') }}</p>
+                                <p class="text-sm text-red-600 dark:text-red-500">Expired {{ DateHelper::diffForHumans($tokenExpiry) }} on {{ DateHelper::formatDateTime($tokenExpiry) }}</p>
                             </div>
                         </div>
                     </div>
@@ -136,7 +137,7 @@
                             </div>
                             <div class="ml-4">
                                 <p class="font-medium text-yellow-800 dark:text-yellow-400">Token Expiring Soon</p>
-                                <p class="text-sm text-yellow-600 dark:text-yellow-500">Expires {{ $tokenExpiry->diffForHumans() }} on {{ $tokenExpiry->format('M d, Y H:i') }}</p>
+                                <p class="text-sm text-yellow-600 dark:text-yellow-500">Expires {{ DateHelper::diffForHumans($tokenExpiry) }} on {{ DateHelper::formatDateTime($tokenExpiry) }}</p>
                             </div>
                         </div>
                     </div>
@@ -153,7 +154,7 @@
                             <div class="ml-4">
                                 <p class="font-medium text-green-800 dark:text-green-400">Token Active</p>
                                 @if($tokenExpiry)
-                                    <p class="text-sm text-green-600 dark:text-green-500">Valid until {{ $tokenExpiry->format('M d, Y H:i') }}</p>
+                                    <p class="text-sm text-green-600 dark:text-green-500">Valid until {{ DateHelper::formatDateTime($tokenExpiry) }}</p>
                                 @else
                                     <p class="text-sm text-green-600 dark:text-green-500">No expiration date set (long-lived token)</p>
                                 @endif

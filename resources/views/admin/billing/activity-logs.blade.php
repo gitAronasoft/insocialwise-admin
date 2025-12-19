@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Billing Activity Logs')
 
@@ -99,7 +100,7 @@
                     @forelse($logs as $log)
                         <tr class="border-b border-gray-100 hover:bg-gray-50">
                             <td class="px-4 py-4 text-xs text-gray-500 whitespace-nowrap">
-                                {{ $log->created_at?->format('M d, H:i:s') }}
+                                {{ DateHelper::formatDateTimeSeconds($log->created_at) }}
                             </td>
                             <td class="px-4 py-4">
                                 <span class="text-xs font-medium text-gray-700">

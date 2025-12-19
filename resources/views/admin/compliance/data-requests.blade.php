@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Data Requests')
 
@@ -84,7 +85,7 @@
                                 ">{{ ucfirst($request->status) }}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                {{ $request->created_at->format('M d, Y H:i') }}
+                                {{ DateHelper::formatDateTime($request->created_at) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" x-data="{ showActions: false }">
                                 @if($request->status === 'pending' || $request->status === 'processing')

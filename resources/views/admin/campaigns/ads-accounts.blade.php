@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Ads Accounts')
 
@@ -75,7 +76,11 @@
                                 {{ $account->campaigns_count ?? 0 }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $account->created_at ? $account->created_at->format('M d, Y') : 'N/A' }}
+                                @if($account->created_at)
+                                    <div>{{ DateHelper::formatDateTime($account->created_at) }}</div>
+                                @else
+                                    N/A
+                                @endif
                             </td>
                         </tr>
                     @empty

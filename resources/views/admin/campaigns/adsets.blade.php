@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Ad Sets')
 
@@ -52,7 +53,13 @@
                                 ">{{ $adset->adsets_status ?? 'Unknown' }}</span>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-900">${{ number_format($adset->adsets_daily_budget ?? 0, 2) }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ $adset->created_at ? $adset->created_at->format('M d, Y') : 'N/A' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                @if($adset->created_at)
+                                    <div>{{ DateHelper::formatDateTime($adset->created_at) }}</div>
+                                @else
+                                    N/A
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>

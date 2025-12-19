@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Customer Details')
 
@@ -72,7 +73,13 @@
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500 dark:text-gray-400">Joined</span>
-                    <span class="text-gray-900 dark:text-white">{{ $customer->created_at?->format('M d, Y') ?? 'N/A' }}</span>
+                    <span class="text-gray-900 dark:text-white">
+                        @if($customer->created_at)
+                            <div>{{ DateHelper::formatDateTime($customer->created_at) }}</div>
+                        @else
+                            N/A
+                        @endif
+                    </span>
                 </div>
             </div>
         </div>
@@ -174,7 +181,7 @@
                                             ">{{ ucfirst($post->status) }}</span>
                                         </div>
                                     </div>
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap ml-4">{{ $post->created_at->diffForHumans() }}</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap ml-4">{{ DateHelper::diffForHumans($post->created_at) }}</span>
                                 </div>
                             </div>
                         @empty
@@ -292,8 +299,8 @@
                                             @endif
                                         </div>
                                         <div class="text-right">
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $activity->created_at->diffForHumans() }}</p>
-                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ $activity->created_at->format('M d, Y H:i') }}</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ DateHelper::diffForHumans($activity->created_at) }}</p>
+                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ DateHelper::formatDateTime($activity->created_at) }}</p>
                                         </div>
                                     </div>
                                 </div>

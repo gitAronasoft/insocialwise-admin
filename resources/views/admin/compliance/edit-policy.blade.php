@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Edit Policy')
 
@@ -63,7 +64,7 @@
 
             <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
                 <div class="text-sm text-gray-500 dark:text-gray-400">
-                    Last updated: {{ $policy->updated_at->format('M d, Y H:i') }}
+                    Last updated: {{ DateHelper::formatDateTime($policy->updated_at) }}
                 </div>
                 <div class="flex space-x-3">
                     <a href="{{ route('admin.compliance.policies') }}" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">Cancel</a>

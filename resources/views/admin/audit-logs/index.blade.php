@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Audit Logs')
 
@@ -114,8 +115,7 @@
                     @forelse($logs as $log)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                             <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                <div>{{ $log->created_at->format('M d, Y') }}</div>
-                                <div class="text-xs">{{ $log->created_at->format('H:i:s') }}</div>
+                                <div>{{ DateHelper::formatDateTime($log->created_at) }}</div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="flex items-center">

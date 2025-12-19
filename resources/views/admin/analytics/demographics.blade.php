@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Demographics Analytics')
 
@@ -39,7 +40,14 @@
                                     {{ ucfirst($demo->platform) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-gray-600">{{ $demo->date ? \Carbon\Carbon::parse($demo->date)->format('M d, Y') : 'N/A' }}</td>
+                            <td class="px-6 py-4 text-gray-600">
+                                @if($demo->date)
+                                    <div>{{ DateHelper::formatDateTime(\Carbon\Carbon::parse($demo->date)) }}</div>
+                                    <div class="text-xs text-gray-400">{{ DateHelper::formatTime(\Carbon\Carbon::parse($demo->date), 'g:i A') }}</div>
+                                @else
+                                    N/A
+                                @endif
+                            </td>
                             <td class="px-6 py-4 text-gray-600">
                                 @if(is_array($demo->age_gender) && count($demo->age_gender) > 0)
                                     @foreach(array_slice($demo->age_gender, 0, 2) as $item)

@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Audit Log Details')
 
@@ -57,11 +58,11 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Timestamp</dt>
-                        <dd class="mt-1 text-gray-900 dark:text-white">{{ $auditLog->created_at->format('M d, Y H:i:s') }}</dd>
+                        <dd class="mt-1 text-gray-900 dark:text-white">{{ DateHelper::formatDateTimeSeconds($auditLog->created_at) }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Time Ago</dt>
-                        <dd class="mt-1 text-gray-900 dark:text-white">{{ $auditLog->created_at->diffForHumans() }}</dd>
+                        <dd class="mt-1 text-gray-900 dark:text-white">{{ DateHelper::diffForHumans($auditLog->created_at) }}</dd>
                     </div>
                     @if($auditLog->entity_type)
                         <div>
@@ -170,7 +171,7 @@
                         @foreach($relatedLogs as $related)
                             <a href="{{ route('admin.audit-logs.show', $related) }}" class="block p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                 <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $related->action_label }}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ $related->created_at->diffForHumans() }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ DateHelper::diffForHumans($related->created_at) }}</div>
                             </a>
                         @endforeach
                     </div>

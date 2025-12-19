@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 @section('title', 'API Keys')
 @section('content')
 <div class="space-y-6">
@@ -23,7 +24,7 @@
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         {{ $keyConfig['has_value'] ? '●●●●●●●●' : 'Not configured' }}
                         @if($keyConfig['updated_at'])
-                            <span class="text-xs">Updated {{ $keyConfig['updated_at']->diffForHumans() }}</span>
+                            <span class="text-xs">Updated {{ DateHelper::diffForHumans($keyConfig['updated_at']) }}</span>
                         @endif
                     </p>
                 </div>

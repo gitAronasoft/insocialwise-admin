@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Ads')
 
@@ -54,7 +55,13 @@
                             <td class="px-6 py-4 text-sm text-gray-900">${{ number_format($ad->ads_insights_spend ?? 0, 2) }}</td>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ number_format($ad->ads_insights_impressions ?? 0) }}</td>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ number_format($ad->ads_insights_clicks ?? 0) }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ $ad->created_at ? $ad->created_at->format('M d, Y') : 'N/A' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                @if($ad->created_at)
+                                    <div>{{ DateHelper::formatDateTime($ad->created_at) }}</div>
+                                @else
+                                    N/A
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>

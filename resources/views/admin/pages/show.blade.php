@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Page Details')
 
@@ -72,7 +73,13 @@
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500 dark:text-gray-400">Connected</span>
-                    <span class="text-gray-900 dark:text-gray-100">{{ $page->created_at ? $page->created_at->format('M d, Y') : 'N/A' }}</span>
+                    <span class="text-gray-900 dark:text-gray-100">
+                        @if($page->created_at)
+                            <div>{{ DateHelper::formatDateTime($page->created_at) }}</div>
+                        @else
+                            N/A
+                        @endif
+                    </span>
                 </div>
             </div>
         </div>
@@ -118,7 +125,7 @@
                                 </svg>
                                 <div>
                                     <p class="font-medium text-red-800 dark:text-red-400">Token Expired</p>
-                                    <p class="text-sm text-red-600 dark:text-red-500">Expired {{ $tokenExpiry->diffForHumans() }}</p>
+                                    <p class="text-sm text-red-600 dark:text-red-500">Expired {{ DateHelper::diffForHumans($tokenExpiry) }}</p>
                                 </div>
                             </div>
                         </div>
@@ -130,7 +137,7 @@
                                 </svg>
                                 <div>
                                     <p class="font-medium text-yellow-800 dark:text-yellow-400">Token Expiring Soon</p>
-                                    <p class="text-sm text-yellow-600 dark:text-yellow-500">Expires {{ $tokenExpiry->diffForHumans() }}</p>
+                                    <p class="text-sm text-yellow-600 dark:text-yellow-500">Expires {{ DateHelper::diffForHumans($tokenExpiry) }}</p>
                                 </div>
                             </div>
                         </div>
@@ -143,7 +150,7 @@
                                 <div>
                                     <p class="font-medium text-green-800 dark:text-green-400">Token Active</p>
                                     @if($tokenExpiry)
-                                        <p class="text-sm text-green-600 dark:text-green-500">Expires {{ $tokenExpiry->diffForHumans() }}</p>
+                                        <p class="text-sm text-green-600 dark:text-green-500">Expires {{ DateHelper::diffForHumans($tokenExpiry) }}</p>
                                     @else
                                         <p class="text-sm text-green-600 dark:text-green-500">No expiration set</p>
                                     @endif

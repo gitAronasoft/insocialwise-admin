@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Notification Details')
 
@@ -161,7 +162,7 @@
                         </div>
                         <div class="ml-3">
                             <p class="text-sm font-medium text-gray-900">Created</p>
-                            <p class="text-xs text-gray-500">{{ $notification->created_at?->format('M d, Y H:i:s') }}</p>
+                            <p class="text-xs text-gray-500">{{ DateHelper::formatDateTimeSeconds($notification->created_at) }}</p>
                         </div>
                     </div>
                     <div class="flex items-start">
@@ -172,7 +173,7 @@
                         </div>
                         <div class="ml-3">
                             <p class="text-sm font-medium text-gray-900">Scheduled</p>
-                            <p class="text-xs text-gray-500">{{ $notification->scheduled_at?->format('M d, Y H:i:s') ?? 'Not scheduled' }}</p>
+                            <p class="text-xs text-gray-500">{{ $notification->scheduled_at?->formatDateTimeSeconds() ?? 'Not scheduled' }}</p>
                         </div>
                     </div>
                     @if($notification->sent_at)
@@ -184,7 +185,7 @@
                         </div>
                         <div class="ml-3">
                             <p class="text-sm font-medium text-gray-900">Sent</p>
-                            <p class="text-xs text-gray-500">{{ $notification->sent_at->format('M d, Y H:i:s') }}</p>
+                            <p class="text-xs text-gray-500">{{ DateHelper::formatDateTimeSeconds($notification->sent_at) }}</p>
                         </div>
                     </div>
                     @endif
@@ -197,7 +198,7 @@
                         </div>
                         <div class="ml-3">
                             <p class="text-sm font-medium text-gray-900">Delivered</p>
-                            <p class="text-xs text-gray-500">{{ $notification->delivered_at->format('M d, Y H:i:s') }}</p>
+                            <p class="text-xs text-gray-500">{{ DateHelper::formatDateTimeSeconds($notification->delivered_at) }}</p>
                         </div>
                     </div>
                     @endif
@@ -211,7 +212,7 @@
                         </div>
                         <div class="ml-3">
                             <p class="text-sm font-medium text-gray-900">Opened</p>
-                            <p class="text-xs text-gray-500">{{ $notification->opened_at->format('M d, Y H:i:s') }}</p>
+                            <p class="text-xs text-gray-500">{{ DateHelper::formatDateTimeSeconds($notification->opened_at) }}</p>
                         </div>
                     </div>
                     @endif

@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Compliance Policies')
 
@@ -60,7 +61,8 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                {{ \Carbon\Carbon::parse($policy->effective_date)->format('M d, Y') }}
+                                <div>{{ DateHelper::formatDate(\Carbon\Carbon::parse($policy->effective_date)) }}</div>
+                                <div class="text-xs text-gray-400">{{ DateHelper::formatTime(\Carbon\Carbon::parse($policy->effective_date), 'g:i A') }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($policy->active)
@@ -70,7 +72,7 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                {{ $policy->updated_at->format('M d, Y H:i') }}
+                                <div>{{ DateHelper::formatDateTime($policy->updated_at) }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                                 <a href="{{ route('admin.compliance.policies.edit', $policy) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Edit</a>

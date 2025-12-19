@@ -15,7 +15,7 @@ class DateHelper
         return 'UTC';
     }
 
-    public static function format($date, string $format = 'M d, Y H:i'): string
+    public static function format($date, string $format = 'M d, Y g:i A'): string
     {
         if (empty($date)) {
             return 'N/A';
@@ -35,12 +35,17 @@ class DateHelper
         return self::format($date, $format);
     }
 
-    public static function formatDateTime($date, string $format = 'M d, Y H:i'): string
+    public static function formatDateTime($date, string $format = 'M d, Y g:i A'): string
     {
         return self::format($date, $format);
     }
 
-    public static function formatTime($date, string $format = 'H:i:s'): string
+    public static function formatTime($date, string $format = 'g:i A'): string
+    {
+        return self::format($date, $format);
+    }
+
+    public static function formatDateTimeSeconds($date, string $format = 'M d, Y g:i:s A'): string
     {
         return self::format($date, $format);
     }

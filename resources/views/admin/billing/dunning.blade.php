@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Dunning Dashboard')
 
@@ -196,8 +197,7 @@
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                 @if($subscription->next_payment_retry_at)
-                                    <div>{{ $subscription->next_payment_retry_at->format('M d, Y') }}</div>
-                                    <div class="text-xs text-gray-400">{{ $subscription->next_payment_retry_at->diffForHumans() }}</div>
+                                    <div>{{ DateHelper::formatDateTime($subscription->next_payment_retry_at) }}</div>
                                 @else
                                     <span class="text-gray-400">-</span>
                                 @endif

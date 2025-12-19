@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@use('App\Helpers\DateHelper')
 
 @section('title', 'Billing Overview')
 
@@ -90,7 +91,7 @@
                         <div class="ml-3 flex-1 min-w-0">
                             <p class="text-sm text-gray-900 dark:text-gray-100">{{ Str::limit($log->description, 60) }}</p>
                             <div class="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                <span>{{ $log->created_at?->diffForHumans() }}</span>
+                                <span>{{ DateHelper::diffForHumans($log->created_at) }}</span>
                                 @if($log->customer)
                                     <span class="mx-1">&bull;</span>
                                     <span class="truncate">{{ $log->customer->email }}</span>
