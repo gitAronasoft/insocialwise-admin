@@ -51,7 +51,7 @@ class UserPost extends Model
 
     public function page(): BelongsTo
     {
-        return $this->belongsTo(SocialUserPage::class, 'page_id', 'pageId');
+        return $this->belongsTo(SocialUserPage::class, 'page_id', 'page_id');
     }
 
     public function comments(): HasMany

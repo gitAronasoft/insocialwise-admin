@@ -68,13 +68,50 @@
                     @forelse($posts as $post)
                         <tr>
                             <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900 max-w-xs truncate">{{ Str::limit($post->content, 50) }}</div>
                                 @if($post->post_media)
-                                    <span class="text-xs text-gray-500">Has Media</span>
+                                    @php
+                                        // Parse media URL safely
+                                        $mediaUrl = null;
+                                        if (is_string($post->post_media)) {
+                                            $decoded = json_decode($post->post_media, true);
+                                            if (is_array($decoded) && isset($decoded[0]) && is_string($decoded[0])) {
+                                                $mediaUrl = $decoded[0];
+                                            } else {
+                                                $mediaUrl = $post->post_media;
+                                            }
+                                        } else if (is_array($post->post_media) && isset($post->post_media[0])) {
+                                            $mediaUrl = $post->post_media[0];
+                                        }
+                                    @endphp
+                                    @if($mediaUrl && is_string($mediaUrl))
+                                        <div class="flex items-center gap-3">
+                                            @if(Str::contains($mediaUrl, ['.jpg', '.jpeg', '.png', '.gif', '.webp']))
+                                                <img src="{{ $mediaUrl }}" alt="Post media" class="w-12 h-12 rounded object-cover">
+                                            @elseif(Str::contains($mediaUrl, ['.mp4', '.mov', '.avi', '.webm']))
+                                                <div class="w-12 h-12 rounded bg-gray-300 flex items-center justify-center">
+                                                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                </div>
+                                            @else
+                                                <div class="w-12 h-12 rounded bg-blue-100 flex items-center justify-center">
+                                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.658 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                                    </svg>
+                                                </div>
+                                            @endif
+                                            <div class="text-sm text-gray-900 max-w-xs truncate">{{ Str::limit($post->content, 40) }}</div>
+                                        </div>
+                                    @else
+                                        <div class="text-sm text-gray-900 max-w-xs truncate">{{ Str::limit($post->content, 50) }}</div>
+                                    @endif
+                                @else
+                                    <div class="text-sm text-gray-900 max-w-xs truncate">{{ Str::limit($post->content, 50) }}</div>
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $post->customer->firstName ?? 'N/A' }} {{ $post->customer->lastName ?? '' }}
+                                {{ $post->customer->firstname ?? 'N/A' }} {{ $post->customer->lastname ?? '' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full 

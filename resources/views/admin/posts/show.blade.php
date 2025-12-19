@@ -17,13 +17,13 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <h4 class="text-sm font-medium text-gray-500 mb-2">Customer</h4>
-                <p class="text-gray-900">{{ $post->customer->firstName ?? 'N/A' }} {{ $post->customer->lastName ?? '' }}</p>
+                <p class="text-gray-900">{{ $post->customer->firstname ?? 'N/A' }} {{ $post->customer->lastname ?? '' }}</p>
                 <p class="text-sm text-gray-500">{{ $post->customer->email ?? '' }}</p>
             </div>
             <div>
                 <h4 class="text-sm font-medium text-gray-500 mb-2">Page</h4>
-                <p class="text-gray-900">{{ $post->page->page_name ?? 'N/A' }}</p>
-                <p class="text-sm text-gray-500">{{ $post->page->page_platform ?? '' }}</p>
+                <p class="text-gray-900">{{ $post->page->pagename ?? $post->page->name ?? 'N/A' }}</p>
+                <p class="text-sm text-gray-500">{{ $post->page->platform ?? $post->page->page_platform ?? '' }}</p>
             </div>
             <div>
                 <h4 class="text-sm font-medium text-gray-500 mb-2">Platform</h4>
@@ -44,7 +44,7 @@
             </div>
             <div>
                 <h4 class="text-sm font-medium text-gray-500 mb-2">Created</h4>
- ? DateHelper::formatDateTime(<p class="text-gray-900">{{ $post->created_at ? $post->created_at) : 'N/A' }}</p>
+                <p class="text-gray-900">{{ $post->created_at ? DateHelper::formatDateTime($post->created_at) : 'N/A' }}</p>
             </div>
             <div>
                 <h4 class="text-sm font-medium text-gray-500 mb-2">Scheduled Time</h4>
@@ -56,24 +56,53 @@
     <div class="bg-white rounded-xl shadow-sm p-6">
         <h4 class="text-sm font-medium text-gray-500 mb-4">Content</h4>
         <div class="prose max-w-none">
-            <p class="text-gray-900 whitespace-pre-wrap">{{ $post->content ?? 'No content' }}</p>
+            @if($post->content)
+                <p class="text-gray-900 whitespace-pre-wrap">{{ $post->content }}</p>
+            @else
+                <p class="text-gray-500">No content</p>
+            @endif
         </div>
         @if($post->post_media)
-            <div class="mt-4">
-                <h4 class="text-sm font-medium text-gray-500 mb-2">Media</h4>
+            <div class="mt-6">
+                <h4 class="text-sm font-medium text-gray-500 mb-4">Media</h4>
                 @php
-                    $mediaData = is_string($post->post_media) ? json_decode($post->post_media, true) : $post->post_media;
-                    $mediaUrl = is_array($mediaData) ? ($mediaData[0] ?? null) : $mediaData;
+                    // Try to parse as JSON first
+                    $mediaData = null;
+                    if (is_string($post->post_media)) {
+                        $decoded = json_decode($post->post_media, true);
+                        // If json_decode returns an array, use it; otherwise treat as direct URL
+                        $mediaData = is_array($decoded) ? $decoded : $post->post_media;
+                    } else {
+                        $mediaData = $post->post_media;
+                    }
+                    // Ensure we have an array
+                    $mediaArray = is_array($mediaData) ? $mediaData : [$mediaData];
+                    // Filter out empty values
+                    $mediaArray = array_filter($mediaArray);
                 @endphp
-                @if($mediaUrl)
-                    @if(Str::contains($mediaUrl, ['.jpg', '.jpeg', '.png', '.gif', '.webp']))
-                        <img src="{{ $mediaUrl }}" alt="Post media" class="max-w-md rounded-lg">
-                    @elseif(Str::contains($mediaUrl, ['.mp4', '.mov', '.avi', '.webm']))
-                        <video src="{{ $mediaUrl }}" controls class="max-w-md rounded-lg"></video>
-                    @else
-                        <a href="{{ $mediaUrl }}" target="_blank" class="text-indigo-600 hover:text-indigo-900">View Media</a>
-                    @endif
+                @if(count($mediaArray) > 0)
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @foreach($mediaArray as $mediaUrl)
+                            @if($mediaUrl && is_string($mediaUrl))
+                                @if(Str::contains($mediaUrl, ['.jpg', '.jpeg', '.png', '.gif', '.webp']))
+                                    <img src="{{ $mediaUrl }}" alt="Post media" class="rounded-lg max-w-full h-auto shadow-md">
+                                @elseif(Str::contains($mediaUrl, ['.mp4', '.mov', '.avi', '.webm']))
+                                    <video src="{{ $mediaUrl }}" controls class="rounded-lg max-w-full h-auto shadow-md"></video>
+                                @else
+                                    <a href="{{ $mediaUrl }}" target="_blank" class="inline-block p-4 bg-blue-50 rounded-lg text-blue-600 hover:text-blue-800 hover:bg-blue-100 underline">View Media</a>
+                                @endif
+                            @endif
+                        @endforeach
+                    </div>
+                @else
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-500">No valid media found</p>
+                    </div>
                 @endif
+            </div>
+        @else
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-500">No media attached</p>
             </div>
         @endif
     </div>
@@ -115,7 +144,7 @@
                             <p class="font-medium text-gray-900">{{ $comment->commenter_name ?? 'Anonymous' }}</p>
                             <p class="text-gray-600 mt-1">{{ $comment->comment }}</p>
                         </div>
- ? DateHelper::formatDateTime(<span class="text-xs text-gray-500">{{ $comment->created_at ? $comment->created_at) : '' }}</span>
+                        <span class="text-xs text-gray-500">{{ $comment->created_at ? DateHelper::formatDateTime($comment->created_at) : '' }}</span>
                     </div>
                 </div>
             @endforeach

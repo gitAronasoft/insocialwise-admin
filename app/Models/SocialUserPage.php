@@ -14,12 +14,18 @@ class SocialUserPage extends Model
         'user_uuid',
         'social_userid',
         'pageId',
+        'pagename',
         'name',
         'category',
         'picture',
+        'page_picture',
+        'page_cover',
+        'page_id',
         'token',
         'platform',
+        'page_platform',
         'status',
+        'total_followers',
     ];
 
     protected $hidden = [
@@ -30,6 +36,16 @@ class SocialUserPage extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function getNameAttribute()
+    {
+        return $this->attributes['pagename'] ?? $this->attributes['name'] ?? null;
+    }
+
+    public function getPictureAttribute()
+    {
+        return $this->attributes['page_picture'] ?? $this->attributes['picture'] ?? null;
+    }
 
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
@@ -46,16 +62,16 @@ class SocialUserPage extends Model
 
     public function posts(): HasMany
     {
-        return $this->hasMany(UserPost::class, 'page_id', 'pageId');
+        return $this->hasMany(UserPost::class, 'page_id', 'page_id');
     }
 
     public function analytics(): HasMany
     {
-        return $this->hasMany(Analytics::class, 'page_id', 'pageId');
+        return $this->hasMany(Analytics::class, 'page_id', 'page_id');
     }
 
     public function conversations(): HasMany
     {
-        return $this->hasMany(InboxConversation::class, 'page_id', 'pageId');
+        return $this->hasMany(InboxConversation::class, 'page_id', 'page_id');
     }
 }

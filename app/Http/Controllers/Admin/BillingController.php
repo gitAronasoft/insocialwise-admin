@@ -380,6 +380,7 @@ class BillingController extends Controller
                 (SELECT COUNT(*) FROM payment_methods WHERE status = 'active') as active_cards,
                 (SELECT COUNT(*) FROM transactions) as total_transactions,
                 (SELECT COUNT(*) FROM transactions WHERE status IN ('succeeded', 'paid')) as successful_transactions,
+                (SELECT COUNT(*) FROM transactions WHERE status = 'failed') as failed_transactions,
                 (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE status IN ('succeeded', 'paid')) as total_revenue
         ");
 
@@ -388,6 +389,7 @@ class BillingController extends Controller
             'active_cards' => (int) $stats->active_cards,
             'total_transactions' => (int) $stats->total_transactions,
             'successful_transactions' => (int) $stats->successful_transactions,
+            'failed_transactions' => (int) $stats->failed_transactions,
             'total_revenue' => ($stats->total_revenue ?? 0) / 100,
         ];
 

@@ -17,14 +17,14 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
             <div class="text-center">
-                @if($page->picture)
-                    <img src="{{ $page->picture }}" alt="{{ $page->name }}" class="w-20 h-20 rounded-full mx-auto mb-4">
+                @if($page->page_picture || $page->picture)
+                    <img src="{{ $page->page_picture ?? $page->picture }}" alt="{{ $page->pagename }}" class="w-20 h-20 rounded-full mx-auto mb-4">
                 @else
                     <div class="w-20 h-20 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span class="text-3xl text-primary-600 dark:text-primary-400 font-bold">{{ strtoupper(substr($page->name ?? 'P', 0, 1)) }}</span>
+                        <span class="text-3xl text-primary-600 dark:text-primary-400 font-bold">{{ strtoupper(substr($page->pagename ?? 'P', 0, 1)) }}</span>
                     </div>
                 @endif
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $page->name ?? 'Unnamed Page' }}</h3>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $page->pagename ?? $page->name ?? 'Unnamed Page' }}</h3>
                 @if($page->category)
                     <p class="text-gray-500 dark:text-gray-400">{{ $page->category }}</p>
                 @endif
@@ -61,7 +61,7 @@
             <div class="mt-6 space-y-3">
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500 dark:text-gray-400">Page ID</span>
-                    <span class="text-gray-900 dark:text-gray-100 font-mono text-xs">{{ $page->pageId }}</span>
+                    <span class="text-gray-900 dark:text-gray-100 font-mono text-xs">{{ $page->page_id ?? $page->pageId ?? 'N/A' }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-500 dark:text-gray-400">Status</span>

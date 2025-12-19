@@ -28,9 +28,9 @@ class PageController extends Controller
 
         $stats = [
             'total' => SocialUserPage::count(),
-            'facebook' => SocialUserPage::where('platform', 'facebook')->count(),
-            'instagram' => SocialUserPage::where('platform', 'instagram')->count(),
-            'linkedin' => SocialUserPage::where('platform', 'linkedin')->count(),
+            'facebook' => SocialUserPage::where(function($q) { $q->where('platform', 'facebook')->orWhere('page_platform', 'facebook'); })->count(),
+            'instagram' => SocialUserPage::where(function($q) { $q->where('platform', 'instagram')->orWhere('page_platform', 'instagram'); })->count(),
+            'linkedin' => SocialUserPage::where(function($q) { $q->where('platform', 'linkedin')->orWhere('page_platform', 'linkedin'); })->count(),
         ];
 
         return view('admin.pages.index', compact('pages', 'stats'));
